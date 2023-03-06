@@ -29,7 +29,7 @@ export class GameBrain {
         this.paused = false;
         this.pauseMenu = new PauseMenu(this);
 
-        this.roadGenerator = new RoadGenerator();
+        this.roadGenerator = new RoadGenerator(70);
         this.roadGenerator.generateRows(Math.ceil(this.HEIGHT));
 
         this.screenBottom = 0;
@@ -44,6 +44,7 @@ export class GameBrain {
      */
     _render(self) {
         removeAllChildNodes(self.racingGame.bgLayer);
+        removeAllChildNodes(self.racingGame.bgLayer2);
         const scale = window.innerHeight / self.HEIGHT;
         const vhMultiplier = 100 / this.HEIGHT;
         const children = [];
@@ -65,7 +66,7 @@ export class GameBrain {
             roadElement.style.width = `${vhMultiplier * roadSlice.width}vh`;
             roadElement.style.background = roadSlice.roadType.color;
             roadElement.style.position = "relative";
-            roadElement.style.left = `${window.innerWidth / 2 - (roadSlice.width / 2) * scale}px`;
+            roadElement.style.left = `${window.innerWidth / 2 - (roadSlice.width / 2) * scale + roadSlice.position * scale}px`;
 
             children.push({groundElement, roadElement});
         }

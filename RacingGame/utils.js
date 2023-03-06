@@ -17,3 +17,7 @@ export function removeAllChildNodes(element) {
         element.removeChild(element.firstChild);
     }
 }
+
+export function rollProbability(probability) {
+    return Math.random() < probability;
+}

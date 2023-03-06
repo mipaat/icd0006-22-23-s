@@ -1,17 +1,69 @@
+import { rollProbability } from "./utils.js";
+
 export class RoadGenerator {
-    constructor() {
+    constructor(maxRoadWidth) {
         /**
          * @type {Map<number, RoadSlice>}
          */
         this.road = new Map();
         this.generatedUpToCoordinate = 0;
+
+        this.MAX_ROAD_WIDTH = maxRoadWidth;
+
+        this.headingLeftFor = 0;
+        this.headingRightFor = 0;
+        this.turnAmount = 1;
+        this.turnCooldown = 50;
+        this.initialTurnProbability = 0.1;
+        this.turnProbabilityIncreaseFactor = 1.1;
+
+        this.previousRoadSlice = null;
+    }
+
+    getTurnProbability(headingInDirectionFor) {
+        const power = -this.turnCooldown - Math.min(headingInDirectionFor, -this.turnCooldown);
+        return Math.min(this.initialTurnProbability * (this.turnProbabilityIncreaseFactor ** power), 1);
     }
 
     generateRow() {
-        // TODO: proper generation
-        let row = new RoadSlice(RoadType.Asphalt, 0, 20, GroundType.Grass);
+        let width = this.previousRoadSlice?.width ?? 30;
+
+        let position = this.previousRoadSlice?.position ?? 0;
+
+        let turningFor = this.headingLeftFor > 0 ? this.headingLeftFor : this.headingRightFor;
+        let turnAmount = (this.headingLeftFor > 0 ? -1 : (this.headingRightFor > 0 ? 1 : 0)) * this.turnAmount;
+        position += turnAmount;
+
+        let leftRoadEdge = position - width * 0.5;
+        let rightRoadEdge = position + width * 0.5;
+        let positionAdjust = -Math.min(0, leftRoadEdge + this.MAX_ROAD_WIDTH / 2);
+        positionAdjust -= Math.max(0, rightRoadEdge - this.MAX_ROAD_WIDTH / 2);
+        position += positionAdjust;
+
+        const row = new RoadSlice(RoadType.Asphalt, position, width, GroundType.Grass);
         this.road.set(this.generatedUpToCoordinate, row);
+        this.previousRoadSlice = row;
         this.generatedUpToCoordinate += row.height;
+
+        this.headingLeftFor -= row.height;
+        this.headingRightFor -= row.height;
+
+        if (this.headingLeftFor < -this.turnCooldown && this.headingRightFor < -this.turnCooldown) {
+            const turningLeftProbability = this.getTurnProbability(this.headingLeftFor);
+            const turningRightProbability = this.getTurnProbability(this.headingRightFor);
+            const shouldStartTurningLeft = rollProbability(turningLeftProbability);
+            const shouldStartTurningRight = rollProbability(turningRightProbability);
+            if (shouldStartTurningLeft && shouldStartTurningRight) {
+                const pickLeft = rollProbability(0.5);
+                let headingInDirectionFor = 30 + ((Math.random() - 0.5) * 2 * 20);
+                if (pickLeft) {
+                    this.headingLeftFor = headingInDirectionFor;
+                } else {
+                    this.headingRightFor = headingInDirectionFor;
+                }
+            }
+        }
+
         return row;
     }
 
@@ -61,15 +113,15 @@ const GroundType = {
 export class RoadSlice {
     /**
      * @param {Road} roadType 
-     * @param {number} middle 
+     * @param {number} position 
      * @param {number} width 
      * @param {Ground} groundType 
      * @param {Array<Obstacle>} obstacles 
      * @param {Array<GroundDecoration>} groundDecorations 
      */
-    constructor(roadType, middle, width, groundType, obstacles = [], groundDecorations = []) {
+    constructor(roadType, position, width, groundType, obstacles = [], groundDecorations = []) {
         this.roadType = roadType;
-        this.middle = middle;
+        this.position = position;
         this.width = width;
         this.height = 1;
 
