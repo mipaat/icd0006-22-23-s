@@ -12,7 +12,7 @@ export class RoadGenerator {
 
         this.headingLeftFor = 0;
         this.headingRightFor = 0;
-        this.turnAmount = 1;
+        this.turnAmount = 0.4;
         this.turnCooldown = 50;
         this.initialTurnProbability = 0.1;
         this.turnProbabilityIncreaseFactor = 1.1;
