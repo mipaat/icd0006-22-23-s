@@ -94,7 +94,7 @@ class Road {
 }
 
 const RoadType = {
-    Asphalt: new Road("#000"),
+    Asphalt: new Road("#111"),
 }
 
 class Ground {

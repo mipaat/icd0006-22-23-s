@@ -1,5 +1,6 @@
 import { EventType } from "./enums/event_type.js";
 import { Key } from "./enums/key.js";
+import { RacingGame } from "./racing_game.js";
 import { centerVertically, centerHorizontally } from "./utils.js";
 
 
@@ -7,10 +8,16 @@ import { centerVertically, centerHorizontally } from "./utils.js";
 export class PauseMenu {
     constructor(gameBrain) {
         this.gameBrain = gameBrain;
+        /**
+         * @type {RacingGame}
+         */
         this.racingGame = gameBrain.racingGame;
 
         this.createPauseMenu();
 
+        /**
+         * @type {PauseMenu}
+         */
         const self = this;
 
         function handleKeypress(event) {
@@ -42,6 +49,13 @@ export class PauseMenu {
         titleDiv.style.color = "white";
         titleDiv.style.fontSize = "2em";
         pauseMenu.appendChild(titleDiv);
+
+        let optionsDiv = document.createElement("div");
+        let mainMenuButton = document.createElement("button");
+        mainMenuButton.innerText = "Main Menu";
+        mainMenuButton.addEventListener(EventType.Click, () => {self.racingGame.loadMainMenu()});
+        optionsDiv.appendChild(mainMenuButton);
+        pauseMenu.appendChild(optionsDiv);
 
         this.pauseMenu = pauseMenu;
         this.racingGame.blockingMenuLayer.appendChild(this.pauseMenu);
