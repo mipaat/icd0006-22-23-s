@@ -20,15 +20,11 @@ export class GameBrain {
 
         this.LOGIC_PER_SECOND = 30;
 
-        this.setLogicInterval(this.LOGIC_PER_SECOND);
-
-        this.setFps(racingGame.options.fps);
-
         this.rowsPerSecond = 50;
 
         this.racingGame = racingGame;
         this.app = racingGame.app;
-        this.paused = false;
+        this.unPause()
         this.pauseMenu = new PauseMenu(this);
 
         this.handleKeyDown = (event) => this._handleKeyDown(self, event);
@@ -107,25 +103,25 @@ export class GameBrain {
         removeAllChildNodes(self.racingGame.mainLayer);
         removeAllChildNodes(self.racingGame.obstacleLayer);
         const scale = window.innerHeight / self.HEIGHT;
-        const vhMultiplier = 100 / this.HEIGHT;
+        const vhMultiplier = 100 / self.HEIGHT;
         const children = [];
 
-        for (const entry of this.roadGenerator.road.entries()) {
+        for (const entry of self.roadGenerator.road.entries()) {
             const height = entry[0];
             if (height > self.screenTop || height < self.screenBottom) continue;
 
             const roadSlice = entry[1];
 
             const groundElement = document.createElement("div");
-            groundElement.style.height = this.vhValue(roadSlice.height);
+            groundElement.style.height = self.vhValue(roadSlice.height);
             groundElement.style.width = "100%";
             groundElement.style.background = roadSlice.groundType.color;
-            groundElement.style.fontSize = this.vhValue(roadSlice.height * 0.7);
+            groundElement.style.fontSize = self.vhValue(roadSlice.height * 0.7);
             groundElement.innerText = height;
 
             const roadElement = document.createElement("div");
-            roadElement.style.height = this.vhValue(roadSlice.height);
-            roadElement.style.width = this.vhValue(roadSlice.width);
+            roadElement.style.height = self.vhValue(roadSlice.height);
+            roadElement.style.width = self.vhValue(roadSlice.width);
             roadElement.style.background = roadSlice.roadType.color;
             roadElement.style.position = "relative";
             const roadSliceCenterPx = window.innerWidth / 2 + roadSlice.positionX * scale;
@@ -133,14 +129,14 @@ export class GameBrain {
 
             for (const placedObstacle of roadSlice.obstacles) {
                 const obstacleElement = document.createElement("div");
-                obstacleElement.style.height = this.vhValue(placedObstacle.obstacle.height);
-                obstacleElement.style.width = this.vhValue(placedObstacle.obstacle.width);
-                obstacleElement.style.background = "#523";
+                obstacleElement.style.height = self.vhValue(placedObstacle.obstacle.height);
+                obstacleElement.style.width = self.vhValue(placedObstacle.obstacle.width);
+                obstacleElement.style.background = placedObstacle.obstacle.color;
                 obstacleElement.style.position = "absolute";
-                obstacleElement.style.left = `${roadSliceCenterPx + placedObstacle.positionX * roadSlice.width / 2 * scale}px`;
-                obstacleElement.style.top = `${window.innerHeight - (roadSlice.positionY - this.screenBottom + roadSlice.height) * scale}px`;
+                obstacleElement.style.left = `${roadSliceCenterPx + placedObstacle.positionX * scale - placedObstacle.obstacle.width / 2 * scale}px`;
+                obstacleElement.style.top = `${window.innerHeight - (roadSlice.positionY - self.screenBottom + roadSlice.height) * scale}px`;
 
-                this.racingGame.obstacleLayer.appendChild(obstacleElement);
+                self.racingGame.obstacleLayer.appendChild(obstacleElement);
             }
 
             children.push({groundElement, roadElement});
@@ -151,12 +147,12 @@ export class GameBrain {
         }
 
         const carElement = document.createElement("div");
-        carElement.style.height = this.vhValue(this.car.height);
-        carElement.style.width = this.vhValue(this.car.width);
-        carElement.style.background = "#F00";
+        carElement.style.height = self.vhValue(self.car.height);
+        carElement.style.width = self.vhValue(self.car.width);
+        carElement.style.background = self.invincibleForSeconds <= 0 ? "#F00" : "#A00";
         carElement.style.position = "absolute";
-        carElement.style.left = `${window.innerWidth / 2 - (this.car.width / 2) * scale + this.car.X * scale}px`;
-        carElement.style.top = this.vhValue(this.HEIGHT - (this.car.Y + this.car.height));
+        carElement.style.left = `${window.innerWidth / 2 - (self.car.width / 2) * scale + self.car.X * scale}px`;
+        carElement.style.top = self.vhValue(self.HEIGHT - (self.car.Y + self.car.height));
         self.racingGame.mainLayer.appendChild(carElement);
     }
 
@@ -206,6 +202,7 @@ export class GameBrain {
                 if (self.car.X - self.car.width / 2 <= row.positionX - row.width / 2 || self.car.X + self.car.width / 2 >= row.positionX + row.width / 2) {
                     if (self.invincibleForSeconds <= 0) {
                         self.health--;
+                        self.invincibleForSeconds += 3;
                     }
                     if (self.health > 0) {
                         self.car.X = row.positionX;
@@ -216,7 +213,7 @@ export class GameBrain {
             if (row.positionY - self.screenBottom <= self.car.Y + self.car.height) {
                 for (const placedObstacle of row.obstacles) {
                     if (row.positionY - self.screenBottom + placedObstacle.obstacle.height >= self.car.Y) {
-                        const obstaclePositionX = placedObstacle.positionX * row.width + row.positionX;
+                        const obstaclePositionX = placedObstacle.positionX + row.positionX;
                         const carRight = self.car.X + self.car.width / 2;
                         const carLeft = self.car.X - self.car.width / 2;
                         const obstacleRight = obstaclePositionX + placedObstacle.obstacle.width / 2;
@@ -224,6 +221,7 @@ export class GameBrain {
                         if (carRight > obstacleLeft && carLeft < obstacleRight) {
                             if (self.invincibleForSeconds <= 0) {
                                 self.health--;
+                                self.invincibleForSeconds += 3;
                             }
                             break;
                         }
@@ -233,7 +231,7 @@ export class GameBrain {
         }
 
         if (self.invincibleForSeconds > 0) {
-            self.invincibleForSeconds -= 1 / self.LOGIC_PER_SECOND;
+            self.invincibleForSeconds = Math.max(self.invincibleForSeconds - 1 / self.LOGIC_PER_SECOND, 0);
         }
 
         if (self.health <= 0) {

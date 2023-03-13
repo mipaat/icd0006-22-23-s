@@ -1,3 +1,5 @@
+import { ObstacleSettings, RoadGenerationStage, TurnSettings } from "./game_stage.js";
+import { PlacedObstacle, RoadSlice, RoadType, GroundType, Obstacle } from "./road_elements.js";
 import { rollProbability } from "./utils.js";
 
 export class RoadGenerator {
@@ -12,17 +14,9 @@ export class RoadGenerator {
 
         this.headingLeftFor = 0;
         this.headingRightFor = 0;
-        this.turnAmount = 0.4;
-        this.turnCooldown = 50;
-        this.initialTurnProbability = 0.1;
-        this.turnProbabilityIncreaseFactor = 1.1;
 
-        this.maxObstacleAmount = 2;
-        this.obstacleCooldown = 100;
         this.lastObstacleRowCoordinate = 100;
-        this.lastObstacleAmount = 0;
-        this.initialObstacleProbability = 0.1;
-        this.obstacleProbabilityIncreaseFactor = 1.1;
+        this.lastObstaclePercentage = 0;
 
         /**
          * @type {RoadSlice?}
@@ -30,9 +24,37 @@ export class RoadGenerator {
         this.previousRoadSlice = null;
     }
 
+    /**
+     * @type {RoadGenerationStage}
+     */
+    get stage() {
+        if (this._lastStageFetchedAtCoordinate == this.generatedUpToCoordinate && this._lastStage) {
+            return this._lastStage;
+        }
+        const stageKey = Math.max(...(Array.from(RoadGenerationStages.keys()).filter(r => r <= this.generatedUpToCoordinate)));
+        const result = RoadGenerationStages.get(stageKey);
+        this._lastStageFetchedAtCoordinate = this.generatedUpToCoordinate;
+        this._lastStage = result;
+        return result;
+    }
+
+    /**
+     * @type {TurnSettings}
+     */
+    get turnSettings() {
+        return this.stage.turnSettings;
+    }
+
+    /**
+     * @type {ObstacleSettings}
+     */
+    get obstacleSettings() {
+        return this.stage.obstacleSettings;
+    }
+
     getTurnProbability(headingInDirectionFor) {
-        const power = -this.turnCooldown - Math.min(headingInDirectionFor, -this.turnCooldown);
-        return Math.min(this.initialTurnProbability * (this.turnProbabilityIncreaseFactor ** power), 1);
+        const power = -this.turnSettings.turnCooldown - Math.min(headingInDirectionFor, -this.turnSettings.turnCooldown);
+        return Math.min(this.turnSettings.initialTurnProbability * (this.turnSettings.turnProbabilityIncreaseFactor ** power), 1);
     }
 
     generateRow() {
@@ -41,7 +63,7 @@ export class RoadGenerator {
         let position = this.previousRoadSlice?.positionX ?? 0;
 
         let turningFor = this.headingLeftFor > 0 ? this.headingLeftFor : this.headingRightFor;
-        let turnAmount = (this.headingLeftFor > 0 ? -1 : (this.headingRightFor > 0 ? 1 : 0)) * this.turnAmount;
+        let turnAmount = (this.headingLeftFor > 0 ? -1 : (this.headingRightFor > 0 ? 1 : 0)) * this.turnSettings.turnAmount;
         position += turnAmount;
 
         let leftRoadEdge = position - width * 0.5;
@@ -51,7 +73,7 @@ export class RoadGenerator {
         position += positionAdjust;
 
         const obstacles = this.generateObstacles(width);
-        const row = new RoadSlice(RoadType.Asphalt, position, this.generatedUpToCoordinate, width, GroundType.Grass, obstacles);
+        const row = new RoadSlice(this.stage.roadType, position, this.generatedUpToCoordinate, width, this.stage.groundType, obstacles);
 
         this.road.set(this.generatedUpToCoordinate, row);
         this.previousRoadSlice = row;
@@ -60,7 +82,7 @@ export class RoadGenerator {
         this.headingLeftFor -= row.height;
         this.headingRightFor -= row.height;
 
-        if (this.headingLeftFor < -this.turnCooldown && this.headingRightFor < -this.turnCooldown) {
+        if (this.headingLeftFor < -this.turnSettings.turnCooldown && this.headingRightFor < -this.turnSettings.turnCooldown) {
             const turningLeftProbability = this.getTurnProbability(this.headingLeftFor);
             const turningRightProbability = this.getTurnProbability(this.headingRightFor);
             const shouldStartTurningLeft = rollProbability(turningLeftProbability);
@@ -103,15 +125,15 @@ export class RoadGenerator {
         const obstacles = [];
         let maxObstacleHeight = 0;
 
-        const power = Math.max(this.generatedUpToCoordinate - this.obstacleCooldown - this.lastObstacleRowCoordinate, 0);
+        const power = Math.max(this.generatedUpToCoordinate - this.obstacleSettings.obstacleCooldown - this.lastObstacleRowCoordinate, 0);
         if (power > 0) {
-            const probability = Math.min(this.initialObstacleProbability * (this.obstacleProbabilityIncreaseFactor ** power), 1);
+            const probability = Math.min(this.obstacleSettings.initialObstacleProbability * (this.obstacleSettings.obstacleProbabilityIncreaseFactor ** power), 1);
             if (rollProbability(probability)) {
-                const obstacleAmountMultiplier = Math.ceil(Math.random() * this.maxObstacleAmount);
-                const obstacleAmount = Math.ceil(roadSliceWidth * obstacleAmountMultiplier / 20);
-                for (let index = 0; index < obstacleAmount; index++) {
-                    obstacles.push(new PlacedObstacle(new Obstacle(4, 2, null), Math.random() - 0.5));
-                    maxObstacleHeight = 2;
+                let maxObstacleWidthLeft = roadSliceWidth * this.obstacleSettings.maxObstacleFraction;
+                while (maxObstacleWidthLeft > 0) {
+                    const obstacle = new Obstacle(4, 2, "#523");
+                    maxObstacleWidthLeft -= obstacle.width;
+                    obstacles.push(new PlacedObstacle(obstacle, (Math.random() - 0.5) * 2 * roadSliceWidth));
                 }
             }
         }
@@ -124,88 +146,22 @@ export class RoadGenerator {
     }
 }
 
-class Road {
-    /**
-     * @param {string} color 
-     */
-    constructor(color) {
-        this.color = color;
-    }
-}
-
-const RoadType = {
-    Asphalt: new Road("#111"),
-}
-
-class Ground {
-    /**
-     * @param {string} color 
-     */
-    constructor(color) {
-        this.color = color;
-    }
-}
-
-const GroundType = {
-    Grass: new Ground("#0F0"),
-}
-
-export class RoadSlice {
-    /**
-     * @param {Road} roadType 
-     * @param {number} positionX 
-     * @param {number} positionY
-     * @param {number} width 
-     * @param {Ground} groundType 
-     * @param {Array<PlacedObstacle>} obstacles 
-     * @param {Array<GroundDecoration>} groundDecorations 
-     */
-    constructor(roadType, positionX, positionY, width, groundType, obstacles = [], groundDecorations = []) {
-        this.roadType = roadType;
-        this.positionX = positionX;
-        this.positionY = positionY;
-        this.width = width;
-        this.height = 1;
-
-        this.groundType = groundType;
-
-        this.obstacles = obstacles;
-        this.groundDecorations = groundDecorations;
-    }
-}
-
-class Obstacle {
-    constructor(width, height, image) {
-        this.width = width;
-        this.height = height;
-        this.image = image;
-    }
-}
-
-class PlacedObstacle {
-    /**
-     * @param {Obstacle} obstacle 
-     * @param {number} positionX Horizontal position of the obstacle on a RoadSlice, as a fraction of its relative position along the slice width
-     */
-    constructor(obstacle, positionX) {
-        this.obstacle = obstacle;
-        /**
-         * Horizontal position of the obstacle on a RoadSlice, as a fraction of its relative position along the slice width
-         */
-        this.positionX = positionX;
-    }
-}
-
-class GroundDecoration {
-    constructor(width, image) {
-        this.width = width;
-        this.image = image
-    }
-}
-
-class PlacedGroundDecoration {
-    constructor(groundDecoration, position) {
-        this.groundDecoration = groundDecoration;
-        this.position = position;
-    }
-}
+/**
+ * @type {Map<number, RoadGenerationStage>}
+ */
+const RoadGenerationStages = new Map([
+    [0, new RoadGenerationStage(
+        "Stage 1",
+        RoadType.Asphalt,
+        GroundType.Grass,
+        new TurnSettings(0.4, 50, 0.1, 1.1),
+        new ObstacleSettings(0.4, 100, 0.1, 1.1),
+    )],
+    [1000, new RoadGenerationStage(
+        "Stage 2",
+        RoadType.Dirt,
+        GroundType.Grass,
+        new TurnSettings(0.8, 30, 0.1, 1.1),
+        new ObstacleSettings(0.6, 70, 0.1, 1.1),
+    )],
+]);
