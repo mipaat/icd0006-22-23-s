@@ -15,7 +15,7 @@ export class GameBrain {
         this.render = () => this._render(self);
         this.advanceLogic = () => this._advanceLogic(self);
 
-        this.HEIGHT = 100;
+        this.HEIGHT = 50;
         this.MIN_HEIGHT_PX = 200;
 
         this.LOGIC_PER_SECOND = 30;
@@ -24,7 +24,7 @@ export class GameBrain {
 
         this.setFps(racingGame.options.fps);
 
-        this.rowsPerSecond = 100;
+        this.rowsPerSecond = 50;
 
         this.racingGame = racingGame;
         this.app = racingGame.app;
@@ -35,14 +35,16 @@ export class GameBrain {
         this.handleKeyDown.eventType = EventType.KeyDown;
         this.handleKeyUp = (event) => this._handleKeyUp(self, event);
         this.handleKeyUp.eventType = EventType.KeyUp;
-
-        this.leftPressed = false;
-        this.rightPressed = false;
-        this.leftHeldFor = 0;
-        this.rightHeldFor = 0;
-        this.car = new Car();
+        /** @type {Map<number, KeyStatus>} */
+        this.keys = new Map();
+        this.registerKeys(Key.ArrowLeft, Key.ArrowRight, Key.ArrowDown, Key.ArrowUp);
         this.racingGame.app.addEventListener(this.handleKeyDown.eventType, this.handleKeyDown);
         this.racingGame.app.addEventListener(this.handleKeyUp.eventType, this.handleKeyUp);
+
+        this.car = new Car();
+
+        this.health = 3;
+        this.invincibleForSeconds = 3;
 
         this.roadGenerator = new RoadGenerator(70);
         this.roadGenerator.generateRows(Math.ceil(this.HEIGHT));
@@ -50,26 +52,40 @@ export class GameBrain {
         this.screenBottom = 0;
     }
 
-    _handleKeyDown(self, event) {
-        if (event.keyCode === Key.ArrowLeft) {
-            self.leftPressed = true;
+    /**
+     * @param {Array<number>} keyCodes
+     */
+    registerKeys(...keyCodes) {
+        for (const keyCode of keyCodes) {
+            if (!this.keys.has(keyCode)) {
+                this.keys.set(keyCode, new KeyStatus());
+            }
         }
-        if (event.keyCode === Key.ArrowRight) {
-            self.rightPressed = true;
+    }
+
+    _handleKeyDown(self, event) {
+        const keyStatus = self.keys.get(event.keyCode);
+        if (keyStatus) {
+            keyStatus.pressed = true;
         }
     }
 
     _handleKeyUp(self, event) {
-        if (event.keyCode === Key.ArrowLeft) {
-            self.leftPressed = false;
-        } else if (event.keyCode === Key.ArrowRight) {
-            self.rightPressed = false;
+        const keyStatus = self.keys.get(event.keyCode);
+        if (keyStatus) {
+            keyStatus.pressed = false;
         }
     }
 
     deactivate() {
         this.racingGame.app.removeEventListener(this.handleKeyDown.eventType, this.handleKeyDown);
         this.racingGame.app.removeEventListener(this.handleKeyUp.eventType, this.handleKeyUp);
+        removeAllChildNodes(this.racingGame.bgLayer);
+        removeAllChildNodes(this.racingGame.roadLayer);
+        removeAllChildNodes(this.racingGame.mainLayer);
+        removeAllChildNodes(this.racingGame.obstacleLayer);
+        this.setFps(0);
+        this.setLogicInterval(0);
         this.pauseMenu.deactivate();
     }
 
@@ -83,12 +99,13 @@ export class GameBrain {
     }
 
     /**
-     * @param {GameBrain} self 
+     * @param {GameBrain} self logic
      */
     _render(self) {
         removeAllChildNodes(self.racingGame.bgLayer);
-        removeAllChildNodes(self.racingGame.bgLayer2);
+        removeAllChildNodes(self.racingGame.roadLayer);
         removeAllChildNodes(self.racingGame.mainLayer);
+        removeAllChildNodes(self.racingGame.obstacleLayer);
         const scale = window.innerHeight / self.HEIGHT;
         const vhMultiplier = 100 / this.HEIGHT;
         const children = [];
@@ -103,7 +120,7 @@ export class GameBrain {
             groundElement.style.height = this.vhValue(roadSlice.height);
             groundElement.style.width = "100%";
             groundElement.style.background = roadSlice.groundType.color;
-            groundElement.style.fontSize = this.vhValue(roadSlice.height);
+            groundElement.style.fontSize = this.vhValue(roadSlice.height * 0.7);
             groundElement.innerText = height;
 
             const roadElement = document.createElement("div");
@@ -111,13 +128,26 @@ export class GameBrain {
             roadElement.style.width = this.vhValue(roadSlice.width);
             roadElement.style.background = roadSlice.roadType.color;
             roadElement.style.position = "relative";
-            roadElement.style.left = `${window.innerWidth / 2 - (roadSlice.width / 2) * scale + roadSlice.position * scale}px`;
+            const roadSliceCenterPx = window.innerWidth / 2 + roadSlice.positionX * scale;
+            roadElement.style.left = `${roadSliceCenterPx - (roadSlice.width / 2) * scale}px`;
+
+            for (const placedObstacle of roadSlice.obstacles) {
+                const obstacleElement = document.createElement("div");
+                obstacleElement.style.height = this.vhValue(placedObstacle.obstacle.height);
+                obstacleElement.style.width = this.vhValue(placedObstacle.obstacle.width);
+                obstacleElement.style.background = "#523";
+                obstacleElement.style.position = "absolute";
+                obstacleElement.style.left = `${roadSliceCenterPx + placedObstacle.positionX * roadSlice.width / 2 * scale}px`;
+                obstacleElement.style.top = `${window.innerHeight - (roadSlice.positionY - this.screenBottom + roadSlice.height) * scale}px`;
+
+                this.racingGame.obstacleLayer.appendChild(obstacleElement);
+            }
 
             children.push({groundElement, roadElement});
         }
         for (const element of children.reverse()) {
             self.racingGame.bgLayer.appendChild(element.groundElement);
-            self.racingGame.bgLayer2.appendChild(element.roadElement);
+            self.racingGame.roadLayer.appendChild(element.roadElement);
         }
 
         const carElement = document.createElement("div");
@@ -134,7 +164,7 @@ export class GameBrain {
         return this.rowsPerSecond / 40;
     }
 
-    get logicPerSecondScaleFactor() {
+    get logicPerSecondScaleFactor() { // Might be wrong, TODO test/fix or remove
         return 30 / this.LOGIC_PER_SECOND;
     }
 
@@ -142,25 +172,24 @@ export class GameBrain {
      * @param {GameBrain} self 
      */
     _advanceLogic(self) {
-        if (this.leftPressed) {
-            this.leftHeldFor++;
-        } else {
-            this.leftHeldFor = 0;
-        }
-        if (this.rightPressed) {
-            this.rightHeldFor++;
-        } else {
-            this.rightHeldFor = 0;
+        for (const key of self.keys.values()) {
+            if (key.pressed) {
+                key.heldFor++;
+            } else {
+                key.heldFor = 0;
+            }
         }
 
-        if (this.leftPressed && this.rightPressed) {
-            this.car.speedX = 0;
+        const left = self.keys.get(Key.ArrowLeft);
+        const right = self.keys.get(Key.ArrowRight);
+        if (left.pressed && right.pressed) {
+            self.car.speedX = 0;
         } else {
-            const directionHeldFor = (this.leftPressed ? this.leftHeldFor : (this.rightPressed ? this.rightHeldFor : 0));
-            const directionMultiplier = (this.leftPressed ? -1 : (this.rightPressed ? 1 : 0)) * (directionHeldFor * this.car.ACCELERATION_X + 1);
-            this.car.speedX = directionMultiplier * this.car.INITIAL_SPEED_X;
+            const directionHeldFor = (left.pressed ? left.heldFor : (right.pressed ? right.heldFor : 0));
+            const directionMultiplier = (left.pressed ? -1 : (right.pressed ? 1 : 0)) * (directionHeldFor * self.car.ACCELERATION_X + 1);
+            self.car.speedX = directionMultiplier * self.car.INITIAL_SPEED_X;
         }
-        this.car.X += this.car.speedX * this.logicPerSecondScaleFactor * this.rowsPerSecondScaleFactor;
+        self.car.X += self.car.speedX * self.logicPerSecondScaleFactor * self.rowsPerSecondScaleFactor;
 
         // Scroll road
         self.screenBottom += self.rowsPerSecond / self.LOGIC_PER_SECOND;
@@ -172,7 +201,44 @@ export class GameBrain {
             self.roadGenerator.clearRowsBelow(this.screenBottom);
         }
 
-        // TODO: Check collisions
+        for (const row of self.roadGenerator.road.values()) {
+            if (row.positionY - self.screenBottom >= self.car.Y && row.positionY - self.screenBottom + row.height <= self.car.Y + self.car.height) {
+                if (self.car.X - self.car.width / 2 <= row.positionX - row.width / 2 || self.car.X + self.car.width / 2 >= row.positionX + row.width / 2) {
+                    if (self.invincibleForSeconds <= 0) {
+                        self.health--;
+                    }
+                    if (self.health > 0) {
+                        self.car.X = row.positionX;
+                    }
+                    break;
+                }
+            }
+            if (row.positionY - self.screenBottom <= self.car.Y + self.car.height) {
+                for (const placedObstacle of row.obstacles) {
+                    if (row.positionY - self.screenBottom + placedObstacle.obstacle.height >= self.car.Y) {
+                        const obstaclePositionX = placedObstacle.positionX * row.width + row.positionX;
+                        const carRight = self.car.X + self.car.width / 2;
+                        const carLeft = self.car.X - self.car.width / 2;
+                        const obstacleRight = obstaclePositionX + placedObstacle.obstacle.width / 2;
+                        const obstacleLeft = obstaclePositionX - placedObstacle.obstacle.width / 2;
+                        if (carRight > obstacleLeft && carLeft < obstacleRight) {
+                            if (self.invincibleForSeconds <= 0) {
+                                self.health--;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (self.invincibleForSeconds > 0) {
+            self.invincibleForSeconds -= 1 / self.LOGIC_PER_SECOND;
+        }
+
+        if (self.health <= 0) {
+            self.racingGame.loadMainMenu();
+        }
     }
 
     setFps(framesPerSecond) {
@@ -206,5 +272,16 @@ export class GameBrain {
         this.paused = false;
         this.setFps(this.racingGame.options.fps);
         this.setLogicInterval(this.LOGIC_PER_SECOND);
+    }
+}
+
+class KeyStatus {
+    /**
+     * @param {boolean} pressed 
+     * @param {number} heldFor 
+     */
+    constructor(pressed = false, heldFor = 0) {
+        this.pressed = pressed;
+        this.heldFor = heldFor;
     }
 }

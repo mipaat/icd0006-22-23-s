@@ -2,8 +2,8 @@ export class Car {
     constructor() {
         this.X = 0;
         this.Y = 5;
-        this.width = 3.5;
-        this.height = 7;
+        this.width = 1.5;
+        this.height = 3;
         this._speedX = 0;
         this.ACCELERATION_X = 0.1;
         this.INITIAL_SPEED_X = 0.5;

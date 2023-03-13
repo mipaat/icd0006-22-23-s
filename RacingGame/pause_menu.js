@@ -26,11 +26,11 @@ export class PauseMenu {
             };
             // TODO: keyboard menu navigation?
         };
-        handleKeypress.listenerType = EventType.KeyUp;
+        handleKeypress.eventType = EventType.KeyUp;
         this.eventListeners = [
             handleKeypress,
         ];
-        this.racingGame.app.addEventListener(handleKeypress.listenerType, handleKeypress);
+        this.racingGame.app.addEventListener(handleKeypress.eventType, handleKeypress);
         this.pauseMenu.hidden = true;
     }
 
@@ -72,7 +72,7 @@ export class PauseMenu {
     deactivate() {
         if (this.eventListeners) {
             this.eventListeners.forEach(listener => {
-                this.racingGame.app.removeEventListener(listener.listenerType, listener);
+                this.racingGame.app.removeEventListener(listener.eventType, listener);
             });
         }
         this.pauseMenu.parentElement.removeChild(this.pauseMenu);

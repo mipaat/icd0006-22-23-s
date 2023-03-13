@@ -17,6 +17,16 @@ export class RoadGenerator {
         this.initialTurnProbability = 0.1;
         this.turnProbabilityIncreaseFactor = 1.1;
 
+        this.maxObstacleAmount = 2;
+        this.obstacleCooldown = 100;
+        this.lastObstacleRowCoordinate = 100;
+        this.lastObstacleAmount = 0;
+        this.initialObstacleProbability = 0.1;
+        this.obstacleProbabilityIncreaseFactor = 1.1;
+
+        /**
+         * @type {RoadSlice?}
+         */
         this.previousRoadSlice = null;
     }
 
@@ -26,9 +36,9 @@ export class RoadGenerator {
     }
 
     generateRow() {
-        let width = this.previousRoadSlice?.width ?? 30;
+        let width = this.previousRoadSlice?.width ?? 15;
 
-        let position = this.previousRoadSlice?.position ?? 0;
+        let position = this.previousRoadSlice?.positionX ?? 0;
 
         let turningFor = this.headingLeftFor > 0 ? this.headingLeftFor : this.headingRightFor;
         let turnAmount = (this.headingLeftFor > 0 ? -1 : (this.headingRightFor > 0 ? 1 : 0)) * this.turnAmount;
@@ -40,7 +50,9 @@ export class RoadGenerator {
         positionAdjust -= Math.max(0, rightRoadEdge - this.MAX_ROAD_WIDTH / 2);
         position += positionAdjust;
 
-        const row = new RoadSlice(RoadType.Asphalt, position, width, GroundType.Grass);
+        const obstacles = this.generateObstacles(width);
+        const row = new RoadSlice(RoadType.Asphalt, position, this.generatedUpToCoordinate, width, GroundType.Grass, obstacles);
+
         this.road.set(this.generatedUpToCoordinate, row);
         this.previousRoadSlice = row;
         this.generatedUpToCoordinate += row.height;
@@ -82,6 +94,34 @@ export class RoadGenerator {
             }
         }
     }
+
+    /**
+     * @param {number} roadSliceWidth 
+     * @returns {Array<PlacedObstacle>}
+     */
+    generateObstacles(roadSliceWidth) {
+        const obstacles = [];
+        let maxObstacleHeight = 0;
+
+        const power = Math.max(this.generatedUpToCoordinate - this.obstacleCooldown - this.lastObstacleRowCoordinate, 0);
+        if (power > 0) {
+            const probability = Math.min(this.initialObstacleProbability * (this.obstacleProbabilityIncreaseFactor ** power), 1);
+            if (rollProbability(probability)) {
+                const obstacleAmountMultiplier = Math.ceil(Math.random() * this.maxObstacleAmount);
+                const obstacleAmount = Math.ceil(roadSliceWidth * obstacleAmountMultiplier / 20);
+                for (let index = 0; index < obstacleAmount; index++) {
+                    obstacles.push(new PlacedObstacle(new Obstacle(4, 2, null), Math.random() - 0.5));
+                    maxObstacleHeight = 2;
+                }
+            }
+        }
+
+        if (obstacles.length > 0) {
+            this.lastObstacleAmount = obstacles.length;
+            this.lastObstacleRowCoordinate = this.generatedUpToCoordinate + maxObstacleHeight - 1;
+        }
+        return obstacles;
+    }
 }
 
 class Road {
@@ -113,15 +153,17 @@ const GroundType = {
 export class RoadSlice {
     /**
      * @param {Road} roadType 
-     * @param {number} position 
+     * @param {number} positionX 
+     * @param {number} positionY
      * @param {number} width 
      * @param {Ground} groundType 
-     * @param {Array<Obstacle>} obstacles 
+     * @param {Array<PlacedObstacle>} obstacles 
      * @param {Array<GroundDecoration>} groundDecorations 
      */
-    constructor(roadType, position, width, groundType, obstacles = [], groundDecorations = []) {
+    constructor(roadType, positionX, positionY, width, groundType, obstacles = [], groundDecorations = []) {
         this.roadType = roadType;
-        this.position = position;
+        this.positionX = positionX;
+        this.positionY = positionY;
         this.width = width;
         this.height = 1;
 
@@ -133,16 +175,24 @@ export class RoadSlice {
 }
 
 class Obstacle {
-    constructor(width, image) {
+    constructor(width, height, image) {
         this.width = width;
+        this.height = height;
         this.image = image;
     }
 }
 
 class PlacedObstacle {
-    constructor(obstacle, position) {
+    /**
+     * @param {Obstacle} obstacle 
+     * @param {number} positionX Horizontal position of the obstacle on a RoadSlice, as a fraction of its relative position along the slice width
+     */
+    constructor(obstacle, positionX) {
         this.obstacle = obstacle;
-        this.position = position;
+        /**
+         * Horizontal position of the obstacle on a RoadSlice, as a fraction of its relative position along the slice width
+         */
+        this.positionX = positionX;
     }
 }
 

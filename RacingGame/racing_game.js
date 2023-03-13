@@ -11,7 +11,8 @@ export class RacingGame {
         this.fgLayer = this.createLayer(15);
         this.mainLayer = this.createLayer(10);
         this.bgLayer = this.createLayer(5);
-        this.bgLayer2 = this.createLayer(6);
+        this.roadLayer = this.createLayer(6);
+        this.obstacleLayer = this.createLayer(7);
         this.blockingMenuLayer = this.createLayer(20);
 
         this.options = new Options(30);
@@ -39,7 +40,7 @@ export class RacingGame {
     }
 
     closeGame() {
-        this.brain?.pauseMenu.deactivate();
+        this.brain?.deactivate();
         this.brain = null;
     }
 
