@@ -13,6 +13,7 @@ export class RacingGame {
         this.bgLayer = this.createLayer(5);
         this.roadLayer = this.createLayer(6);
         this.obstacleLayer = this.createLayer(7);
+        this.HUDLayer = this.createLayer(18);
         this.blockingMenuLayer = this.createLayer(20);
 
         this.options = new Options(30);

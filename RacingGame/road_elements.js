@@ -1,3 +1,5 @@
+import { StageChange } from "./game_stage.js";
+
 export class Obstacle {
     constructor(width, height, color) {
         this.width = width;
@@ -28,8 +30,9 @@ export class RoadSlice {
      * @param {number} width 
      * @param {Ground} groundType 
      * @param {Array<PlacedObstacle>} obstacles 
+     * @param {StageChange?} stageChange
      */
-    constructor(roadType, positionX, positionY, width, groundType, obstacles = [], groundDecorations = []) {
+    constructor(roadType, positionX, positionY, width, groundType, obstacles = [], stageChange = null) {
         this.roadType = roadType;
         this.positionX = positionX;
         this.positionY = positionY;
@@ -39,6 +42,8 @@ export class RoadSlice {
         this.groundType = groundType;
 
         this.obstacles = obstacles;
+
+        this.stageChange = stageChange;
     }
 }
 

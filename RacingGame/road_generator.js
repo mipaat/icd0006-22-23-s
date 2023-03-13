@@ -1,4 +1,4 @@
-import { ObstacleSettings, RoadGenerationStage, TurnSettings } from "./game_stage.js";
+import { ObstacleSettings, GameStage, TurnSettings, StageChange, GameStages } from "./game_stage.js";
 import { PlacedObstacle, RoadSlice, RoadType, GroundType, Obstacle, Obstacles } from "./road_elements.js";
 import { rollProbability } from "./utils.js";
 
@@ -19,20 +19,28 @@ export class RoadGenerator {
         this.lastObstaclePercentage = 0;
 
         /**
+         * @type {GameStage?}
+         */
+        this.lastStage = null;
+
+        /**
          * @type {RoadSlice?}
          */
         this.previousRoadSlice = null;
     }
 
     /**
-     * @type {RoadGenerationStage}
+     * @type {GameStage}
      */
     get stage() {
         if (this._lastStageFetchedAtCoordinate == this.generatedUpToCoordinate && this._lastStage) {
             return this._lastStage;
         }
-        const stageKey = Math.max(...(Array.from(RoadGenerationStages.keys()).filter(r => r <= this.generatedUpToCoordinate)));
-        const result = RoadGenerationStages.get(stageKey);
+        const keys = Array.from(GameStages.keys());
+        const maxKey = Math.max(...keys);
+        const coordinate = this.generatedUpToCoordinate % (maxKey + GameStages.finalStageLength);
+        const stageKey = Math.max(...(keys.filter(r => r <= coordinate)));
+        const result = GameStages.get(stageKey);
         this._lastStageFetchedAtCoordinate = this.generatedUpToCoordinate;
         this._lastStage = result;
         return result;
@@ -57,12 +65,18 @@ export class RoadGenerator {
         return Math.min(this.turnSettings.initialTurnProbability * (this.turnSettings.turnProbabilityIncreaseFactor ** power), 1);
     }
 
+    getStageChange() {
+        if (this.stage !== this.lastStage) {
+            return new StageChange(this.stage.label);
+        }
+        return null;
+    }
+
     generateRow() {
         let width = this.previousRoadSlice?.width ?? 15;
 
         let position = this.previousRoadSlice?.positionX ?? 0;
 
-        let turningFor = this.headingLeftFor > 0 ? this.headingLeftFor : this.headingRightFor;
         let turnAmount = (this.headingLeftFor > 0 ? -1 : (this.headingRightFor > 0 ? 1 : 0)) * this.turnSettings.turnAmount;
         position += turnAmount;
 
@@ -73,11 +87,9 @@ export class RoadGenerator {
         position += positionAdjust;
 
         const obstacles = this.generateObstacles(width);
-        const row = new RoadSlice(this.stage.roadType, position, this.generatedUpToCoordinate, width, this.stage.groundType, obstacles);
+        const row = new RoadSlice(this.stage.roadType, position, this.generatedUpToCoordinate, width, this.stage.groundType, obstacles, this.getStageChange());
 
         this.road.set(this.generatedUpToCoordinate, row);
-        this.previousRoadSlice = row;
-        this.generatedUpToCoordinate += row.height;
 
         this.headingLeftFor -= row.height;
         this.headingRightFor -= row.height;
@@ -98,6 +110,9 @@ export class RoadGenerator {
             }
         }
 
+        this.lastStage = this.stage;
+        this.previousRoadSlice = row;
+        this.generatedUpToCoordinate += row.height;
         return row;
     }
 
@@ -192,23 +207,3 @@ export class RoadGenerator {
         return false;
     }
 }
-
-/**
- * @type {Map<number, RoadGenerationStage>}
- */
-const RoadGenerationStages = new Map([
-    [0, new RoadGenerationStage(
-        "Stage 1",
-        RoadType.Asphalt,
-        GroundType.Grass,
-        new TurnSettings(0.4, 50, 0.1, 1.1),
-        new ObstacleSettings(0.4, 100, 0.1, 1.1, [Obstacles.WoodLog, Obstacles.Rock]),
-    )],
-    [1000, new RoadGenerationStage(
-        "Stage 2",
-        RoadType.Dirt,
-        GroundType.Swamp,
-        new TurnSettings(0.8, 30, 0.1, 1.1),
-        new ObstacleSettings(0.6, 70, 0.1, 1.1, [Obstacles.Rock]),
-    )],
-]);
