@@ -54,6 +54,9 @@ export class GameBrain {
         this.stageChanges = 0;
         this.previousSpeedIncreaseAtLevel = 0;
 
+        this.score = 0;
+        this.BASE_SCORE_PER_ROW = 1;
+
         this.initializeHUD();
     }
 
@@ -192,6 +195,11 @@ export class GameBrain {
     initializeHUD() {
         removeAllChildNodes(this.racingGame.HUDLayer);
 
+        const HUDContainer = document.createElement("div");
+        HUDContainer.style.background = "black";
+        HUDContainer.style.height = this.vhValue(this.HUD_HEIGHT);
+        HUDContainer.style.width = "100%";
+
         const HUDMenu = document.createElement("div");
         HUDMenu.style.height = this.vhValue(this.HUD_HEIGHT);
         HUDMenu.style.width = "60vh";
@@ -200,6 +208,7 @@ export class GameBrain {
         HUDMenu.style.boxSizing = "border-box";
         HUDMenu.style.background = "black";
         HUDMenu.style.display = "flex";
+        HUDContainer.appendChild(HUDMenu);
 
         const healthElement = document.createElement("div");
         healthElement.style.width = `${1 / 3 * 100}%`;
@@ -231,7 +240,20 @@ export class GameBrain {
         HUDMenu.appendChild(stageElement);
         this.updateHUDStageInfo();
 
-        this.racingGame.HUDLayer.appendChild(HUDMenu);
+        const scoreSectionElement = document.createElement("div");
+        scoreSectionElement.style.width = `${1 / 3 * 100}%`;
+        scoreSectionElement.style.color = "white";
+        scoreSectionElement.style.textAlign = "center";
+        scoreSectionElement.style.padding = "2vh";
+        this.scoreElement = scoreSectionElement;
+        this.updateHUDScore();
+        HUDMenu.appendChild(scoreSectionElement);
+
+        this.racingGame.HUDLayer.appendChild(HUDContainer);
+    }
+
+    updateHUDScore() {
+        this.scoreElement.innerText = `Score: ${Math.round(this.score)}`;
     }
 
     updateHUDStageInfo() {
@@ -316,6 +338,9 @@ export class GameBrain {
                 }
             }
         }
+
+        self.score += self.BASE_SCORE_PER_ROW * self.rowsPerSecond / self.LOGIC_PER_SECOND;
+        this.updateHUDScore();
 
         if (self.invincibleForSeconds > 0) {
             self.invincibleForSeconds = Math.max(self.invincibleForSeconds - 1 / self.LOGIC_PER_SECOND, 0);

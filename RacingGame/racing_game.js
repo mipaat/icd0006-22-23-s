@@ -1,11 +1,15 @@
 import { GameBrain } from "./game_brain.js";
 import { MainMenu } from "./main_menu.js";
 import { Options } from "./options.js";
+import { Score } from "./score.js";
 
 
 export class RacingGame {
     constructor() {
         this.app = document.getElementById("app");
+        this.LOCAL_STORAGE_KEY = "icd0006_racing_game_mipaat";
+        /** @type {Array<Score>} */
+        this.scores = this.getScores();
 
         this.layers = [];
         this.fgLayer = this.createLayer(15);
@@ -41,8 +45,36 @@ export class RacingGame {
     }
 
     closeGame() {
+        if (this.brain) {
+            this.saveScore(this.brain.score);
+        }
         this.brain?.deactivate();
         this.brain = null;
+    }
+
+    /**
+     * @returns {Array<Score>}
+     */
+    getScores() {
+        const serializedScores = window.localStorage.getItem(this.LOCAL_STORAGE_KEY);
+        if (!serializedScores) {
+            return [];
+        }
+        return JSON.parse(serializedScores);
+    }
+
+    clearScores() {
+        this.scores = [];
+        window.localStorage.removeItem(this.LOCAL_STORAGE_KEY);
+    }
+
+    /**
+     * @param {number} scorePoints 
+     */
+    saveScore(scorePoints) {
+        this.scores = this.getScores();
+        this.scores.push(new Score(scorePoints, Date.now()));
+        window.localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.scores));
     }
 
     createLayer(layerHeight) {
