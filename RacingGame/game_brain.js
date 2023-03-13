@@ -95,7 +95,7 @@ export class GameBrain {
     }
 
     /**
-     * @param {GameBrain} self logic
+     * @param {GameBrain} self 
      */
     _render(self) {
         removeAllChildNodes(self.racingGame.bgLayer);
@@ -149,7 +149,8 @@ export class GameBrain {
         const carElement = document.createElement("div");
         carElement.style.height = self.vhValue(self.car.height);
         carElement.style.width = self.vhValue(self.car.width);
-        carElement.style.background = self.invincibleForSeconds <= 0 ? "#F00" : "#A00";
+        carElement.style.background = "#F00";
+        carElement.style.opacity = self.invincibleForSeconds <= 0 ? "1" : "0.5";
         carElement.style.position = "absolute";
         carElement.style.left = `${window.innerWidth / 2 - (self.car.width / 2) * scale + self.car.X * scale}px`;
         carElement.style.top = self.vhValue(self.HEIGHT - (self.car.Y + self.car.height));

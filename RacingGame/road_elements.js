@@ -67,4 +67,10 @@ export class Ground {
 
 export const GroundType = {
     Grass: new Ground("#0F0"),
+    Swamp: new Ground("#2A1"),
+}
+
+export const Obstacles = {
+    WoodLog: new Obstacle(4, 1, "#80310f"),
+    Rock: new Obstacle(2, 2, "#333"),
 }

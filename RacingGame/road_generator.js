@@ -1,5 +1,5 @@
 import { ObstacleSettings, RoadGenerationStage, TurnSettings } from "./game_stage.js";
-import { PlacedObstacle, RoadSlice, RoadType, GroundType, Obstacle } from "./road_elements.js";
+import { PlacedObstacle, RoadSlice, RoadType, GroundType, Obstacle, Obstacles } from "./road_elements.js";
 import { rollProbability } from "./utils.js";
 
 export class RoadGenerator {
@@ -122,27 +122,74 @@ export class RoadGenerator {
      * @returns {Array<PlacedObstacle>}
      */
     generateObstacles(roadSliceWidth) {
-        const obstacles = [];
+        const placedObstacles = [];
         let maxObstacleHeight = 0;
 
         const power = Math.max(this.generatedUpToCoordinate - this.obstacleSettings.obstacleCooldown - this.lastObstacleRowCoordinate, 0);
         if (power > 0) {
             const probability = Math.min(this.obstacleSettings.initialObstacleProbability * (this.obstacleSettings.obstacleProbabilityIncreaseFactor ** power), 1);
             if (rollProbability(probability)) {
-                let maxObstacleWidthLeft = roadSliceWidth * this.obstacleSettings.maxObstacleFraction;
+                let maxObstacleWidthLeft = roadSliceWidth * this.obstacleSettings.maxObstacleFraction * Math.random();
                 while (maxObstacleWidthLeft > 0) {
-                    const obstacle = new Obstacle(4, 2, "#523");
+                    const potentialObstacles = this.obstacleSettings.availableObstacles.filter(o => o.width <= maxObstacleWidthLeft);
+                    if (potentialObstacles.length == 0) {
+                        break;
+                    }
+                    const obstacleIndex = Math.floor(Math.random() * (potentialObstacles.length));
+                    const obstacle = potentialObstacles[obstacleIndex];
                     maxObstacleWidthLeft -= obstacle.width;
-                    obstacles.push(new PlacedObstacle(obstacle, (Math.random() - 0.5) * 2 * roadSliceWidth));
+                    maxObstacleHeight = Math.max(maxObstacleHeight, obstacle.height);
+                    let obstaclePositionX = (Math.random() - 0.5) * 2 * roadSliceWidth;
+                    if (this.obstacleIsOverlapping(obstacle, obstaclePositionX, placedObstacles, roadSliceWidth)) {
+                        let found = false;
+                        for (let offset = 1; !found && offset < roadSliceWidth; offset++) {
+                            for (const multiplier of [1, -1]) {
+                                const newObstaclePositionX = obstaclePositionX + offset * multiplier;
+                                if (!this.obstacleIsOverlapping(obstacle, obstaclePositionX, placedObstacles, roadSliceWidth)) {
+                                    obstaclePositionX = newObstaclePositionX;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            break;
+                        }
+                    }
+                    placedObstacles.push(new PlacedObstacle(obstacle, obstaclePositionX));
                 }
             }
         }
 
-        if (obstacles.length > 0) {
-            this.lastObstacleAmount = obstacles.length;
+        if (placedObstacles.length > 0) {
+            this.lastObstacleAmount = placedObstacles.length;
             this.lastObstacleRowCoordinate = this.generatedUpToCoordinate + maxObstacleHeight - 1;
         }
-        return obstacles;
+        return placedObstacles;
+    }
+
+    /**
+     * 
+     * @param {Obstacle} obstacle 
+     * @param {number} obstaclePositionX 
+     * @param {Array<PlacedObstacle>} placedObstacles 
+     * @param {number} roadSliceWidth 
+     * @returns {boolean}
+     */
+    obstacleIsOverlapping(obstacle, obstaclePositionX, placedObstacles, roadSliceWidth) {
+        const obstacleLeft = obstaclePositionX - obstacle.width / 2;
+        const obstacleRight = obstaclePositionX + obstacle.width / 2;
+        if (obstacleLeft < -roadSliceWidth / 2 || obstacleRight > roadSliceWidth / 2) {
+            return true;
+        }
+        for (const placedObstacle of placedObstacles) {
+            const placedObstacleLeft = placedObstacle.positionX - placedObstacle.obstacle.width / 2;
+            const placedObstacleRight = placedObstacle.positionX + placedObstacle.obstacle.width / 2;
+            if (obstacleLeft < placedObstacleRight && obstacleRight > placedObstacleLeft) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -155,13 +202,13 @@ const RoadGenerationStages = new Map([
         RoadType.Asphalt,
         GroundType.Grass,
         new TurnSettings(0.4, 50, 0.1, 1.1),
-        new ObstacleSettings(0.4, 100, 0.1, 1.1),
+        new ObstacleSettings(0.4, 100, 0.1, 1.1, [Obstacles.WoodLog, Obstacles.Rock]),
     )],
     [1000, new RoadGenerationStage(
         "Stage 2",
         RoadType.Dirt,
-        GroundType.Grass,
+        GroundType.Swamp,
         new TurnSettings(0.8, 30, 0.1, 1.1),
-        new ObstacleSettings(0.6, 70, 0.1, 1.1),
+        new ObstacleSettings(0.6, 70, 0.1, 1.1, [Obstacles.Rock]),
     )],
 ]);

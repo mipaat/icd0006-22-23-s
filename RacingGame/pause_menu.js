@@ -63,6 +63,7 @@ export class PauseMenu {
         const self = this;
         function onResize(event) {
             self.pause();
+            self.gameBrain.render();
             // TODO: disallow unpausing for too thin aspect ratios and too low vertical resolutions
         }
         onResize.eventType = EventType.Resize;
