@@ -7,6 +7,7 @@ import { Key } from "./enums/key.js";
 import { Car } from "./car.js";
 import { GameStages } from "./game_stage.js";
 import { HUD } from "./hud.js";
+import { EndScreen } from "./end_screen.js";
 
 export class GameBrain {
     /**
@@ -16,6 +17,7 @@ export class GameBrain {
         const self = this;
         this.render = () => this._render(self);
         this.advanceLogic = () => this._advanceLogic(self);
+        this.onResize = () => this._onResize(self);
 
         this.HEIGHT = 50;
         this.HUD_HEIGHT = 8;
@@ -265,8 +267,14 @@ export class GameBrain {
         }
 
         if (self.health <= 0) {
-            self.racingGame.loadMainMenu();
+            self.loadEndScreen();
         }
+    }
+
+    loadEndScreen() {
+        this.pauseMenu.deactivate();
+        this.pause();
+        const endScreen = new EndScreen(this);
     }
 
     dealDamage() {
@@ -302,12 +310,21 @@ export class GameBrain {
         this.paused = true;
         this.setFps(0);
         this.setLogicInterval(0);
+        window.addEventListener(EventType.Resize, this.onResize);
     }
 
     unPause() {
         this.paused = false;
+        this.racingGame.app.removeEventListener(EventType.Resize, this.onResize);
         this.setFps(this.racingGame.options.fps);
         this.setLogicInterval(this.LOGIC_PER_SECOND);
+    }
+
+    /**
+     * @param {GameBrain} gameBrain 
+     */
+    _onResize(gameBrain) {
+        gameBrain.render();
     }
 }
 

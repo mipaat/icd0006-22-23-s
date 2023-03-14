@@ -45,9 +45,6 @@ export class RacingGame {
     }
 
     closeGame() {
-        if (this.brain) {
-            this.saveScore(this.brain.score);
-        }
         this.brain?.deactivate();
         this.brain = null;
     }

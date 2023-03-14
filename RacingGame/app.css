@@ -51,3 +51,18 @@
 .text-large {
     font-size: 8vh;
 }
+
+.overlay-blocking-menu {
+    width: fit-content;
+    padding: 6vh;
+
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+
+    margin: auto;
+    text-align: center;
+
+    background: black;
+    color: white;
+}

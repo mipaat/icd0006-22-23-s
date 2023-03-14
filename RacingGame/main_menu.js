@@ -76,6 +76,7 @@ export class MainMenu {
         const clearScoreButton = document.createElement("button");
         scoresContainer.appendChild(clearScoreButton);
         clearScoreButton.innerText = "CLEAR SCORES";
+        clearScoreButton.style.marginTop = "1vh";
         clearScoreButton.classList.add("text-normal");
         clearScoreButton.addEventListener(EventType.Click, (event) => {
             this.racingGame.clearScores();

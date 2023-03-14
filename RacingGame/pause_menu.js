@@ -2,7 +2,7 @@ import { EventType } from "./enums/event_type.js";
 import { Key } from "./enums/key.js";
 import { GameBrain } from "./game_brain.js";
 import { RacingGame } from "./racing_game.js";
-import { centerVertically, centerHorizontally } from "./utils.js";
+import { removeAllChildNodes } from "./utils.js";
 
 
 
@@ -39,44 +39,33 @@ export class PauseMenu {
         this.pauseMenu.hidden = true;
     }
 
-    /**
-     * 
-     * @param {GameBrain} gameBrain 
-     */
-    _onResize(gameBrain) {
-        gameBrain.render();
-    }
-
     createPauseMenu() {
         const self = this;
 
-        let pauseMenu = document.createElement("div");
+        const pauseMenu = document.createElement("div");
 
         pauseMenu.style.background = "#000";
-        pauseMenu.style.maxWidth = "25em";
-        pauseMenu.style.width = "fit-content";
-        pauseMenu.style.maxHeight = "30em";
-        pauseMenu.style.padding = "3em";
-        centerVertically(pauseMenu);
-        centerHorizontally(pauseMenu);
+        pauseMenu.classList.add("overlay-blocking-menu");
 
-        let titleDiv = document.createElement("div");
-        titleDiv.innerText = "PAUSED";
-        titleDiv.style.color = "white";
-        titleDiv.style.fontSize = "5vh";
+        const titleDiv = document.createElement("div");
         pauseMenu.appendChild(titleDiv);
+        titleDiv.innerText = "PAUSED";
+        titleDiv.classList.add("text-medium");
 
-        let optionsDiv = document.createElement("div");
+        const optionsDiv = document.createElement("div");
         optionsDiv.classList.add("menu-section");
-        let resumeButton = document.createElement("button");
+        const resumeButton = document.createElement("button");
         resumeButton.classList.add("menu-item");
         resumeButton.innerText = "Resume";
         resumeButton.addEventListener(EventType.Click, () => {self.unpause()});
         optionsDiv.appendChild(resumeButton);
-        let mainMenuButton = document.createElement("button");
+        const mainMenuButton = document.createElement("button");
         mainMenuButton.classList.add("menu-item");
         mainMenuButton.innerText = "Main Menu";
-        mainMenuButton.addEventListener(EventType.Click, () => {self.racingGame.loadMainMenu()});
+        mainMenuButton.addEventListener(EventType.Click, () => {
+            self.racingGame.saveScore(this.gameBrain.score);
+            self.racingGame.loadMainMenu();
+        });
         optionsDiv.appendChild(mainMenuButton);
         pauseMenu.appendChild(optionsDiv);
 
@@ -90,7 +79,7 @@ export class PauseMenu {
                 this.racingGame.app.removeEventListener(listener.eventType, listener);
             });
         }
-        this.pauseMenu.parentElement.removeChild(this.pauseMenu);
+        removeAllChildNodes(this.racingGame.blockingMenuLayer);
         this.racingGame.pauseMenu = null;
     }
 
@@ -101,11 +90,9 @@ export class PauseMenu {
     pause() {
         this.pauseMenu.hidden = false;
         this.gameBrain.pause();
-        window.addEventListener(EventType.Resize, this.onResize);
     }
 
     unpause() {
-        this.racingGame.app.removeEventListener(EventType.Resize, this.onResize);
         this.pauseMenu.hidden = true;
         this.gameBrain.unPause();
     }
