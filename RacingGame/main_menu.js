@@ -53,11 +53,26 @@ export class MainMenu {
         const controlsElement = document.createElement("div");
         controlsContainer.appendChild(controlsElement);
         controlsElement.classList.add("text-normal");
-        const controlsList = ["Move left: Left Arrow", "Move right: Right Arrow", "Pause/Unpause: Escape"];
-        for (const control of controlsList) {
-            const controlElement = document.createElement("div");
-            controlsElement.appendChild(controlElement);
-            controlElement.innerText = control;
+        controlsElement.style.display = "grid";
+        controlsElement.style.gridTemplateColumns = "auto auto";
+        controlsElement.style.columnGap = "2vh";
+        controlsElement.style.rowGap = "0.2vh";
+        const controlsMap = new Map([
+            ["Move up", "Up Arrow / W"],
+            ["Move left", "Left Arrow / A"],
+            ["Move down", "Down Arrow / S"],
+            ["Move right", "Right Arrow / D"],
+            ["Pause/Unpause", "Escape"],
+        ]);
+        for (const entry of controlsMap.entries()) {
+            const controlDescriptionElement = document.createElement("div");
+            controlsElement.appendChild(controlDescriptionElement);
+            controlDescriptionElement.innerText = entry[0];
+            controlDescriptionElement.style.textAlign = "right";
+            const controlBindingElement = document.createElement("div");
+            controlsElement.appendChild(controlBindingElement);
+            controlBindingElement.innerText = entry[1];
+            controlBindingElement.style.textAlign = "left";
         }
 
         const scoresContainer = document.createElement("div");

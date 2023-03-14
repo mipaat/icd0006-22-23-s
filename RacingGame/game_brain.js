@@ -39,7 +39,7 @@ export class GameBrain {
         this.handleKeyUp.eventType = EventType.KeyUp;
         /** @type {Map<number, KeyStatus>} */
         this.keys = new Map();
-        this.registerKeys(Key.ArrowLeft, Key.ArrowRight, Key.ArrowDown, Key.ArrowUp);
+        this.registerKeys(Key.ArrowLeft, Key.ArrowRight, Key.ArrowDown, Key.ArrowUp, Key.W, Key.A, Key.S, Key.D);
         this.racingGame.app.addEventListener(this.handleKeyDown.eventType, this.handleKeyDown);
         this.racingGame.app.addEventListener(this.handleKeyUp.eventType, this.handleKeyUp);
 
@@ -201,8 +201,14 @@ export class GameBrain {
             }
         }
 
-        const left = self.keys.get(Key.ArrowLeft);
-        const right = self.keys.get(Key.ArrowRight);
+        let left = self.keys.get(Key.ArrowLeft);
+        if (!left.pressed) {
+            left = self.keys.get(Key.A);
+        }
+        let right = self.keys.get(Key.ArrowRight);
+        if (!right.pressed) {
+            right = self.keys.get(Key.D);
+        }
         if (left.pressed && right.pressed) {
             self.car.speedX = 0;
         } else {
@@ -211,6 +217,30 @@ export class GameBrain {
             self.car.speedX = directionMultiplier * self.car.INITIAL_SPEED_X;
         }
         self.car.X += self.car.speedX * self.logicPerSecondScaleFactor * self.rowsPerSecondScaleFactor;
+
+        let up = self.keys.get(Key.ArrowUp);
+        if (!up.pressed) {
+            up = self.keys.get(Key.W);
+        }
+        let down = self.keys.get(Key.ArrowDown);
+        if (!down.pressed) {
+            down = self.keys.get(Key.S);
+        }
+        if (up.pressed && down.pressed) {
+            self.car.speedY = 0;
+        } else {
+            const directionHeldFor = (up.pressed ? up.heldFor : (down.pressed ? down.heldFor : 0));
+            const directionMultiplier = (up.pressed ? 1 : (down.pressed ? -1 : 0)) * (directionHeldFor * self.car.ACCELERATION_Y + 1);
+            self.car.speedY = directionMultiplier * self.car.INITIAL_SPEED_Y;
+        }
+        self.car.Y += self.car.speedY * self.logicPerSecondScaleFactor;
+        const carOverScreenTop = self.car.Y + self.car.height - self.HEIGHT;
+        if (carOverScreenTop > 0) {
+            self.car.Y -= carOverScreenTop;
+        }
+        if (self.car.Y < 0) {
+            self.car.Y = 0;
+        }
 
         // Scroll road
         self.screenBottom += self.rowsPerSecond / self.LOGIC_PER_SECOND;
