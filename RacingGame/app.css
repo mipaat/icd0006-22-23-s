@@ -8,5 +8,24 @@
 .app {
     margin: 0;
     position: relative;
-    overflow: hidden;
+}
+
+.hudSection {
+    width: 0;
+    text-align: center;
+    font-size: 2vh;
+    flex: 1 1 0px;
+    color: white;
+}
+
+.menuSection {
+    padding: 2vh;
+    padding-top: 4vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vh;
+}
+
+.menuItem {
+    font-size: 2vh;
 }

@@ -1,6 +1,10 @@
 import { EventType } from "./enums/event_type.js";
+import { RacingGame } from "./racing_game.js";
 
 export class MainMenu {
+    /**
+     * @param {RacingGame} racingGame 
+     */
     constructor(racingGame) {
         this.racingGame = racingGame;
 

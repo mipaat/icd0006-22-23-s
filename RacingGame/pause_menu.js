@@ -1,11 +1,15 @@
 import { EventType } from "./enums/event_type.js";
 import { Key } from "./enums/key.js";
+import { GameBrain } from "./game_brain.js";
 import { RacingGame } from "./racing_game.js";
 import { centerVertically, centerHorizontally } from "./utils.js";
 
 
 
 export class PauseMenu {
+    /**
+     * @param {GameBrain} gameBrain 
+     */
     constructor(gameBrain) {
         this.gameBrain = gameBrain;
         /**
@@ -14,6 +18,8 @@ export class PauseMenu {
         this.racingGame = gameBrain.racingGame;
 
         this.createPauseMenu();
+
+        this.onResize = () => gameBrain.render();
 
         /**
          * @type {PauseMenu}
@@ -24,7 +30,6 @@ export class PauseMenu {
             if (event.keyCode === Key.Esc) {
                 self.togglePause();
             };
-            // TODO: keyboard menu navigation?
         };
         handleKeypress.eventType = EventType.KeyUp;
         this.eventListeners = [
@@ -34,12 +39,23 @@ export class PauseMenu {
         this.pauseMenu.hidden = true;
     }
 
+    /**
+     * 
+     * @param {GameBrain} gameBrain 
+     */
+    _onResize(gameBrain) {
+        gameBrain.render();
+    }
+
     createPauseMenu() {
+        const self = this;
+
         let pauseMenu = document.createElement("div");
 
         pauseMenu.style.background = "#000";
-        pauseMenu.style.width = "25em";
-        pauseMenu.style.height = "30em";
+        pauseMenu.style.maxWidth = "25em";
+        pauseMenu.style.width = "fit-content";
+        pauseMenu.style.maxHeight = "30em";
         pauseMenu.style.padding = "3em";
         centerVertically(pauseMenu);
         centerHorizontally(pauseMenu);
@@ -47,11 +63,18 @@ export class PauseMenu {
         let titleDiv = document.createElement("div");
         titleDiv.innerText = "PAUSED";
         titleDiv.style.color = "white";
-        titleDiv.style.fontSize = "2em";
+        titleDiv.style.fontSize = "5vh";
         pauseMenu.appendChild(titleDiv);
 
         let optionsDiv = document.createElement("div");
+        optionsDiv.classList.add("menuSection");
+        let resumeButton = document.createElement("button");
+        resumeButton.classList.add("menuItem");
+        resumeButton.innerText = "Resume";
+        resumeButton.addEventListener(EventType.Click, () => {self.unpause()});
+        optionsDiv.appendChild(resumeButton);
         let mainMenuButton = document.createElement("button");
+        mainMenuButton.classList.add("menuItem");
         mainMenuButton.innerText = "Main Menu";
         mainMenuButton.addEventListener(EventType.Click, () => {self.racingGame.loadMainMenu()});
         optionsDiv.appendChild(mainMenuButton);
@@ -59,15 +82,6 @@ export class PauseMenu {
 
         this.pauseMenu = pauseMenu;
         this.racingGame.blockingMenuLayer.appendChild(this.pauseMenu);
-
-        const self = this;
-        function onResize(event) {
-            self.pause();
-            self.gameBrain.render();
-            // TODO: disallow unpausing for too thin aspect ratios and too low vertical resolutions
-        }
-        onResize.eventType = EventType.Resize;
-        window.addEventListener(onResize.eventType, onResize);
     }
 
     deactivate() {
@@ -87,9 +101,11 @@ export class PauseMenu {
     pause() {
         this.pauseMenu.hidden = false;
         this.gameBrain.pause();
+        window.addEventListener(EventType.Resize, this.onResize);
     }
 
     unpause() {
+        this.racingGame.app.removeEventListener(EventType.Resize, this.onResize);
         this.pauseMenu.hidden = true;
         this.gameBrain.unPause();
     }
