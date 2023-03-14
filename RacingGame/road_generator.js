@@ -226,13 +226,13 @@ export class RoadGenerator {
                     const obstacle = potentialObstacles[obstacleIndex];
                     maxObstacleWidthLeft -= obstacle.width;
                     maxObstacleHeight = Math.max(maxObstacleHeight, obstacle.height);
-                    let obstaclePositionX = (Math.random() - 0.5) * 2 * roadSliceWidth;
+                    let obstaclePositionX = (Math.random() - 0.5) * roadSliceWidth;
                     if (this.obstacleIsOverlapping(obstacle, obstaclePositionX, placedObstacles, roadSliceWidth)) {
                         let found = false;
                         for (let offset = 1; !found && offset < roadSliceWidth; offset++) {
                             for (const multiplier of [1, -1]) {
                                 const newObstaclePositionX = obstaclePositionX + offset * multiplier;
-                                if (!this.obstacleIsOverlapping(obstacle, obstaclePositionX, placedObstacles, roadSliceWidth)) {
+                                if (!this.obstacleIsOverlapping(obstacle, newObstaclePositionX, placedObstacles, roadSliceWidth)) {
                                     obstaclePositionX = newObstaclePositionX;
                                     found = true;
                                     break;
