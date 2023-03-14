@@ -10,7 +10,7 @@
     position: relative;
 }
 
-.hudSection {
+.hud-section {
     width: 0;
     text-align: center;
     font-size: 2vh;
@@ -18,7 +18,7 @@
     color: white;
 }
 
-.menuSection {
+.menu-section {
     padding: 2vh;
     padding-top: 4vh;
     display: flex;
@@ -26,6 +26,28 @@
     gap: 0.3vh;
 }
 
-.menuItem {
+.menu-item {
     font-size: 2vh;
+}
+
+.main-menu-sections-container {
+    display: flex;
+    margin: auto;
+    text-align: center;
+    padding-top: 6vh;
+    justify-content: center;
+    gap: 4vh;
+    flex-wrap: wrap;
+}
+
+.text-normal {
+    font-size: 2vh;
+}
+
+.text-medium {
+    font-size: 5vh;
+}
+
+.text-large {
+    font-size: 8vh;
 }

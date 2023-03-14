@@ -60,7 +60,14 @@ export class RacingGame {
         if (!serializedScores) {
             return [];
         }
-        return JSON.parse(serializedScores);
+        /** @type {Array<Score>} */
+        const scores = JSON.parse(serializedScores);
+        scores.sort(Score.comparePoints);
+        return scores;
+    }
+
+    refreshScores() {
+        this.scores = this.getScores();
     }
 
     clearScores() {
@@ -72,8 +79,9 @@ export class RacingGame {
      * @param {number} scorePoints 
      */
     saveScore(scorePoints) {
-        this.scores = this.getScores();
-        this.scores.push(new Score(scorePoints, Date.now()));
+        this.refreshScores();
+        this.scores.push(new Score(scorePoints, new Date(Date.now())));
+        this.scores.sort(Score.comparePoints);
         window.localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.scores));
     }
 

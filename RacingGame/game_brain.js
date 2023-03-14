@@ -43,7 +43,7 @@ export class GameBrain {
         this.car = new Car();
 
         this.health = 3;
-        this.invincibleForSeconds = 3;
+        this.invincibleForSeconds = 0;
 
         this.roadGenerator = new RoadGenerator(this.MAX_ROAD_WIDTH);
         this.stageLabel = this.roadGenerator.stage.label;
@@ -139,7 +139,6 @@ export class GameBrain {
             groundElement.style.width = "100%";
             groundElement.style.background = roadSlice.groundType.color;
             groundElement.style.fontSize = self.vhValue(roadSlice.height * 0.7);
-            groundElement.innerText = coordinateY;
 
             const roadElement = document.createElement("div");
             roadElement.style.height = self.vhValue(roadSlice.height);
@@ -212,7 +211,7 @@ export class GameBrain {
         HUDContainer.appendChild(HUDMenu);
 
         const healthSectionElement = document.createElement("div");
-        healthSectionElement.classList.add("hudSection");
+        healthSectionElement.classList.add("hud-section");
         const healthText = document.createElement("div");
         healthText.style.textAlign = "left";
         healthText.innerText = "HP:";
@@ -227,7 +226,7 @@ export class GameBrain {
         HUDMenu.appendChild(healthSectionElement);
 
         const stageSectionElement = document.createElement("div");
-        stageSectionElement.classList.add("hudSection");
+        stageSectionElement.classList.add("hud-section");
         const stageLabelElement = document.createElement("div");
         this.stageLabelElement = stageLabelElement;
         stageLabelElement.style.fontSize = "5vh";
@@ -239,7 +238,7 @@ export class GameBrain {
         this.updateHUDStageInfo();
 
         const scoreSectionElement = document.createElement("div");
-        scoreSectionElement.classList.add("hudSection");
+        scoreSectionElement.classList.add("hud-section");
         this.scoreElement = scoreSectionElement;
         this.updateHUDScore();
         HUDMenu.appendChild(scoreSectionElement);
@@ -349,7 +348,7 @@ export class GameBrain {
     dealDamage() {
         if (this.invincibleForSeconds <= 0) {
             this.health--;
-            this.invincibleForSeconds += 3;
+            this.invincibleForSeconds = 2;
             this.updateHUDHp();
         }
     }

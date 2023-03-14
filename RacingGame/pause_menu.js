@@ -67,14 +67,14 @@ export class PauseMenu {
         pauseMenu.appendChild(titleDiv);
 
         let optionsDiv = document.createElement("div");
-        optionsDiv.classList.add("menuSection");
+        optionsDiv.classList.add("menu-section");
         let resumeButton = document.createElement("button");
-        resumeButton.classList.add("menuItem");
+        resumeButton.classList.add("menu-item");
         resumeButton.innerText = "Resume";
         resumeButton.addEventListener(EventType.Click, () => {self.unpause()});
         optionsDiv.appendChild(resumeButton);
         let mainMenuButton = document.createElement("button");
-        mainMenuButton.classList.add("menuItem");
+        mainMenuButton.classList.add("menu-item");
         mainMenuButton.innerText = "Main Menu";
         mainMenuButton.addEventListener(EventType.Click, () => {self.racingGame.loadMainMenu()});
         optionsDiv.appendChild(mainMenuButton);
