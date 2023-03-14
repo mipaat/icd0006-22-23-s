@@ -61,12 +61,15 @@ export class HUD {
         const scoreElement = document.createElement("div");
         scoreSectionElement.appendChild(scoreElement);
         this.scoreElement = scoreElement;
-        this.updateScore();
         if (this.racingGame.scores.length > 0) {
             const bestScoreElement = document.createElement("div");
             scoreSectionElement.appendChild(bestScoreElement);
             bestScoreElement.innerText = `Best: ${Math.round(this.racingGame.scores[0].points)}`;
         }
+        const scoreMultiplierElement = document.createElement("div");
+        scoreSectionElement.appendChild(scoreMultiplierElement);
+        this.scoreMultiplierElement = scoreMultiplierElement;
+        this.updateScoreInfo();
 
         this.racingGame.HUDLayer.appendChild(HUDContainer);
     }
@@ -84,8 +87,9 @@ export class HUD {
         }        
     }
 
-    updateScore() {
+    updateScoreInfo() {
         this.scoreElement.innerText = `Score: ${Math.round(this.gameBrain.score)}`;
+        this.scoreMultiplierElement.innerText = `Multiplier: ${Math.round(this.gameBrain.scoreMultiplier * 10) / 10}x`;
     }
 
     updateStageInfo() {

@@ -59,6 +59,9 @@ export class GameBrain {
 
         this.score = 0;
         this.BASE_SCORE_PER_ROW = 1;
+        this.scoreMultiplier = 1;
+        this.SCORE_MULTIPLIER_EXPONENT = 2.5;
+        this.SCORE_MULTIPLIER_AT_SCREEN_TOP = 4;
 
         this.HUD = new HUD(this, 8);
     }
@@ -289,8 +292,9 @@ export class GameBrain {
             }
         }
 
-        self.score += self.BASE_SCORE_PER_ROW * self.rowsPerSecond / self.LOGIC_PER_SECOND;
-        self.HUD.updateScore();
+        self.scoreMultiplier = (self.car.Y ** self.SCORE_MULTIPLIER_EXPONENT) / ((self.HEIGHT - self.car.height) ** self.SCORE_MULTIPLIER_EXPONENT) * (self.SCORE_MULTIPLIER_AT_SCREEN_TOP - 1) + 1;
+        self.score += (self.BASE_SCORE_PER_ROW * self.scoreMultiplier) * self.rowsPerSecond / self.LOGIC_PER_SECOND;
+        self.HUD.updateScoreInfo();
 
         if (self.invincibleForSeconds > 0) {
             self.invincibleForSeconds = Math.max(self.invincibleForSeconds - 1 / self.LOGIC_PER_SECOND, 0);
