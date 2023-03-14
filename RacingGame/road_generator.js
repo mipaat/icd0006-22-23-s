@@ -126,7 +126,7 @@ export class RoadGenerator {
 
     clearRowsBelow(height) {
         for (const key of this.road.keys()) {
-            if (key < height) {
+            if (key + this.road.get(key).height < height) {
                 this.road.delete(key);
             }
         }

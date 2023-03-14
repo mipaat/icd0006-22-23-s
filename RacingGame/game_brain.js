@@ -129,17 +129,17 @@ export class GameBrain {
         this.racingGame.roadLayer.appendChild(emptyHUDRoad);
 
         for (const entry of self.roadGenerator.road.entries()) {
-            const height = entry[0];
-            if (height > self.screenTop || height < self.screenBottom) continue;
-
+            const coordinateY = entry[0];
             const roadSlice = entry[1];
+
+            if (coordinateY > self.screenTop || coordinateY + roadSlice.height < self.screenBottom) continue;
 
             const groundElement = document.createElement("div");
             groundElement.style.height = self.vhValue(roadSlice.height);
             groundElement.style.width = "100%";
             groundElement.style.background = roadSlice.groundType.color;
             groundElement.style.fontSize = self.vhValue(roadSlice.height * 0.7);
-            groundElement.innerText = height;
+            groundElement.innerText = coordinateY;
 
             const roadElement = document.createElement("div");
             roadElement.style.height = self.vhValue(roadSlice.height);
@@ -298,7 +298,7 @@ export class GameBrain {
         // Generate more road if needed
         let requiredRowsToGenerate = Math.ceil(self.screenTop - self.roadGenerator.generatedUpToCoordinate);
         if (requiredRowsToGenerate > 0) {
-            self.roadGenerator.generateRows(requiredRowsToGenerate);
+            self.roadGenerator.generateRows(requiredRowsToGenerate + 10);
             self.roadGenerator.clearRowsBelow(this.screenBottom);
         }
 
