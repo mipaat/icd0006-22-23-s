@@ -28,7 +28,7 @@ export class RacingGame {
     }
 
     start() {
-        this.mainMenu.deactivate();
+        this.mainMenu?.deactivate();
         this.mainMenu = null;
         this.brain = new GameBrain(this);
     }

@@ -34,9 +34,22 @@ export class EndScreen {
             newBest.classList.add("text-normal");
         }
 
+        const buttonsDiv = document.createElement("div");
+        endScreenElement.appendChild(buttonsDiv);
+        buttonsDiv.style.marginTop = "2vh";
+        buttonsDiv.style.display = "flex";
+        buttonsDiv.style.flexDirection = "column";
+
+        const restartButton = document.createElement("button");
+        buttonsDiv.appendChild(restartButton);
+        restartButton.style.marginTop = "2vh";
+        restartButton.classList.add("text-normal");
+        restartButton.innerText = "Restart";
+        restartButton.addEventListener(EventType.Click, () => {this.racingGame.restart()});
+
         const mainMenuButton = document.createElement("button");
-        endScreenElement.appendChild(mainMenuButton);
-        mainMenuButton.style.marginTop = "2vh";
+        buttonsDiv.appendChild(mainMenuButton);
+        mainMenuButton.style.marginTop = "1vh";
         mainMenuButton.classList.add("text-normal");
         mainMenuButton.innerText = "Main Menu";
         mainMenuButton.addEventListener(EventType.Click, () => {this.racingGame.loadMainMenu()});
