@@ -11,7 +11,6 @@ export class TurnSettings {
 
 export class ObstacleSettings {
     /**
-     * 
      * @param {number} maxObstacleFraction 
      * @param {number} obstacleCooldown 
      * @param {number} initialObstacleProbability 
@@ -27,21 +26,41 @@ export class ObstacleSettings {
     }
 }
 
+export class WidthSettings {
+    /**
+     * @param {number} minWidth 
+     * @param {number} maxWidth 
+     * @param {number} widthChangeCooldown 
+     * @param {number} initialWidthChangeProbability 
+     * @param {number} widthProbabilityIncreaseFactor 
+     * @param {number} changeAmount 
+     */
+    constructor(minWidth, maxWidth, widthChangeCooldown, initialWidthChangeProbability, widthProbabilityIncreaseFactor, changeAmount = 1) {
+        this.minWidth = minWidth;
+        this.maxWidth = maxWidth;
+        this.widthChangeCooldown = widthChangeCooldown;
+        this.initialWidthChangeProbability = initialWidthChangeProbability;
+        this.widthProbabilityIncreaseFactor = widthProbabilityIncreaseFactor;
+        this.changeAmount = changeAmount;
+    }
+}
+
 export class GameStage {
     /**
-     * 
      * @param {string} label 
      * @param {Road} roadType 
      * @param {Ground} groundType 
      * @param {TurnSettings} turnSettings 
      * @param {ObstacleSettings} obstacleSettings 
+     * @param {WidthSettings} widthSettings 
      */
-    constructor(label, roadType, groundType, turnSettings, obstacleSettings) {
+    constructor(label, roadType, groundType, turnSettings, obstacleSettings, widthSettings = NO_WIDTH_CHANGE) {
         this.label = label;
         this.roadType = roadType;
         this.groundType = groundType;
         this.turnSettings = turnSettings;
         this.obstacleSettings = obstacleSettings;
+        this.widthSettings = widthSettings;
     }
 }
 
@@ -50,6 +69,9 @@ export class StageChange {
         this.label = label;
     }
 }
+
+export const NO_WIDTH_CHANGE = new WidthSettings(15, 15, 20, 1, 1, 1);
+export const NO_OBSTACLES = new ObstacleSettings(0, 20, 1, 1, []);
 
 /**
  * @type {Map<number, GameStage>}
@@ -62,12 +84,13 @@ export const GameStages = new Map([
         new TurnSettings(0.4, 50, 0.1, 1.1),
         new ObstacleSettings(0.4, 100, 0.1, 1.1, [Obstacles.WoodLog, Obstacles.Rock]),
     )],
-    [200, new GameStage(
+    [400, new GameStage(
         "Stage 2",
         RoadType.Dirt,
         GroundType.Swamp,
         new TurnSettings(0.8, 30, 0.1, 1.1),
         new ObstacleSettings(0.6, 70, 0.1, 1.1, [Obstacles.Rock]),
+        new WidthSettings(10, 30, 100, 0.05, 1.05),
     )],
 ]);
-GameStages.finalStageLength = 100;
+GameStages.finalStageLength = 400;

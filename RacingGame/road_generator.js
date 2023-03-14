@@ -18,6 +18,9 @@ export class RoadGenerator {
         this.lastObstacleRowCoordinate = 100;
         this.lastObstaclePercentage = 0;
 
+        this.widthIncreasingFor = 0;
+        this.widthDecreasingFor = 0;
+
         /**
          * @type {GameStage?}
          */
@@ -65,6 +68,11 @@ export class RoadGenerator {
         return Math.min(this.turnSettings.initialTurnProbability * (this.turnSettings.turnProbabilityIncreaseFactor ** power), 1);
     }
 
+    getWidthChangeProbability(changingWidthInDirectionFor) {
+        const power = -this.stage.widthSettings.widthChangeCooldown - Math.min(changingWidthInDirectionFor, -this.stage.widthSettings.widthChangeCooldown);
+        return Math.min(this.stage.widthSettings.initialWidthChangeProbability * (this.stage.widthSettings.widthProbabilityIncreaseFactor ** power), 1);
+    }
+
     getStageChange() {
         if (this.stage !== this.lastStage) {
             return new StageChange(this.stage.label);
@@ -72,8 +80,33 @@ export class RoadGenerator {
         return null;
     }
 
+    widthIsTooSmall(width) {
+        return width < this.stage.widthSettings.minWidth;
+    }
+
+    widthIsTooLarge(width) {
+        return width > this.stage.widthSettings.maxWidth;
+    }
+
     generateRow() {
-        let width = this.previousRoadSlice?.width ?? 15;
+        let width = this.previousRoadSlice?.width ?? this.stage.widthSettings.minWidth;
+        const previousWidth = width;
+        if (this.widthDecreasingFor > 0) {
+            width -= this.stage.widthSettings.changeAmount;
+            if (this.widthIsTooSmall(width) && !this.widthIsTooSmall(previousWidth)) {
+                width = this.stage.widthSettings.minWidth;
+                this.widthDecreasingFor = 0;
+            }
+        } else if (this.widthIncreasingFor > 0) {
+            width += this.stage.widthSettings.changeAmount;
+            if (width > this.MAX_ROAD_WIDTH) {
+                width = this.MAX_ROAD_WIDTH;
+            }
+            if (this.widthIsTooLarge(width) && !this.widthIsTooLarge(previousWidth)) {
+                width = this.stage.widthSettings.maxWidth;
+                this.widthIncreasingFor = 0;
+            }
+        }
 
         let position = this.previousRoadSlice?.positionX ?? 0;
 
@@ -94,18 +127,53 @@ export class RoadGenerator {
         this.headingLeftFor -= row.height;
         this.headingRightFor -= row.height;
 
-        if (this.headingLeftFor < -this.turnSettings.turnCooldown && this.headingRightFor < -this.turnSettings.turnCooldown) {
+        if (this.widthDecreasingFor <= 0 && this.widthIncreasingFor <= 0 &&
+            this.headingLeftFor < -this.turnSettings.turnCooldown && this.headingRightFor < -this.turnSettings.turnCooldown) {
             const turningLeftProbability = this.getTurnProbability(this.headingLeftFor);
             const turningRightProbability = this.getTurnProbability(this.headingRightFor);
             const shouldStartTurningLeft = rollProbability(turningLeftProbability);
             const shouldStartTurningRight = rollProbability(turningRightProbability);
+            const headingInDirectionFor = 30 + ((Math.random() - 0.5) * 2 * 20); // Maybe these parameters should be determined in TurnSettings?
             if (shouldStartTurningLeft && shouldStartTurningRight) {
                 const pickLeft = rollProbability(0.5);
-                let headingInDirectionFor = 30 + ((Math.random() - 0.5) * 2 * 20);
                 if (pickLeft) {
                     this.headingLeftFor = headingInDirectionFor;
                 } else {
                     this.headingRightFor = headingInDirectionFor;
+                }
+            } else if (shouldStartTurningLeft) {
+                this.headingLeftFor = headingInDirectionFor;
+            } else if (shouldStartTurningRight) {
+                this.headingRightFor = headingInDirectionFor;
+            }
+        }
+
+        this.widthIncreasingFor -= row.height;
+        this.widthDecreasingFor -= row.height;
+
+        if (this.headingLeftFor <= 0 && this.headingRightFor <= 0) {
+            if (this.widthIsTooLarge(row.width)) {
+                this.widthDecreasingFor = 5;
+            } else if (this.widthIsTooSmall(row.width)) {
+                this.widthIncreasingFor = 5;
+            }
+            else if (this.widthDecreasingFor < -this.stage.widthSettings.widthChangeCooldown && this.widthIncreasingFor < -this.stage.widthSettings.widthChangeCooldown) {
+                const widthIncreasingProbability = this.getWidthChangeProbability(this.widthIncreasingFor);
+                const widthDecreasingProbability = this.getWidthChangeProbability(this.widthDecreasingFor);
+                const shouldStartIncreasingWidth = rollProbability(widthIncreasingProbability);
+                const shouldStartDecreasingWidth = rollProbability(widthDecreasingProbability);
+                const changeSizeFor = 20;
+                if (shouldStartDecreasingWidth && shouldStartIncreasingWidth) {
+                    const pickDecrease = rollProbability(0.5);
+                    if (pickDecrease) {
+                        this.widthDecreasingFor = changeSizeFor;
+                    } else {
+                        this.widthIncreasingFor = changeSizeFor;
+                    }
+                } else if (shouldStartDecreasingWidth) {
+                    this.widthDecreasingFor = changeSizeFor;
+                } else if (shouldStartIncreasingWidth) {
+                    this.widthIncreasingFor = changeSizeFor;
                 }
             }
         }
@@ -139,6 +207,10 @@ export class RoadGenerator {
     generateObstacles(roadSliceWidth) {
         const placedObstacles = [];
         let maxObstacleHeight = 0;
+
+        if (this.headingLeftFor > 0 || this.headingRightFor > 0) {
+            return placedObstacles;
+        }
 
         const power = Math.max(this.generatedUpToCoordinate - this.obstacleSettings.obstacleCooldown - this.lastObstacleRowCoordinate, 0);
         if (power > 0) {
