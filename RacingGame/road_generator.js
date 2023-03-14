@@ -208,7 +208,7 @@ export class RoadGenerator {
         const placedObstacles = [];
         let maxObstacleHeight = 0;
 
-        if (this.headingLeftFor > 0 || this.headingRightFor > 0) {
+        if (this.headingLeftFor > -10 || this.headingRightFor > -10) {
             return placedObstacles;
         }
 
@@ -216,7 +216,12 @@ export class RoadGenerator {
         if (power > 0) {
             const probability = Math.min(this.obstacleSettings.initialObstacleProbability * (this.obstacleSettings.obstacleProbabilityIncreaseFactor ** power), 1);
             if (rollProbability(probability)) {
-                let maxObstacleWidthLeft = roadSliceWidth * this.obstacleSettings.maxObstacleFraction * Math.random();
+                const nerfBelowWidth = 15;
+                let obstacleFractionMultiplier = 1;
+                if (roadSliceWidth < nerfBelowWidth) {
+                    obstacleFractionMultiplier = (roadSliceWidth / nerfBelowWidth) ** 2;
+                }
+                let maxObstacleWidthLeft = roadSliceWidth * this.obstacleSettings.maxObstacleFraction * obstacleFractionMultiplier * Math.random();
                 while (maxObstacleWidthLeft > 0) {
                     const potentialObstacles = this.obstacleSettings.availableObstacles.filter(o => o.width <= maxObstacleWidthLeft);
                     if (potentialObstacles.length == 0) {
