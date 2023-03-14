@@ -238,10 +238,17 @@ export class GameBrain {
         this.updateHUDStageInfo();
 
         const scoreSectionElement = document.createElement("div");
-        scoreSectionElement.classList.add("hud-section");
-        this.scoreElement = scoreSectionElement;
-        this.updateHUDScore();
         HUDMenu.appendChild(scoreSectionElement);
+        scoreSectionElement.classList.add("hud-section");
+        const scoreElement = document.createElement("div");
+        scoreSectionElement.appendChild(scoreElement);
+        this.scoreElement = scoreElement;
+        this.updateHUDScore();
+        if (this.racingGame.scores.length > 0) {
+            const bestScoreElement = document.createElement("div");
+            scoreSectionElement.appendChild(bestScoreElement);
+            bestScoreElement.innerText = `Best: ${Math.round(this.racingGame.scores[0].points)}`;
+        }
 
         this.racingGame.HUDLayer.appendChild(HUDContainer);
     }
