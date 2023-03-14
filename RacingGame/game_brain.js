@@ -6,6 +6,7 @@ import { removeAllChildNodes } from "./utils.js";
 import { Key } from "./enums/key.js";
 import { Car } from "./car.js";
 import { GameStages } from "./game_stage.js";
+import { HUD } from "./hud.js";
 
 export class GameBrain {
     /**
@@ -57,7 +58,7 @@ export class GameBrain {
         this.score = 0;
         this.BASE_SCORE_PER_ROW = 1;
 
-        this.initializeHUD();
+        this.HUD = new HUD(this, 8);
     }
 
     /**
@@ -92,10 +93,10 @@ export class GameBrain {
         removeAllChildNodes(this.racingGame.roadLayer);
         removeAllChildNodes(this.racingGame.mainLayer);
         removeAllChildNodes(this.racingGame.obstacleLayer);
-        removeAllChildNodes(this.racingGame.HUDLayer);
         this.setFps(0);
         this.setLogicInterval(0);
         this.pauseMenu.deactivate();
+        this.HUD.deactivate();
     }
 
     get screenTop() {
@@ -178,95 +179,11 @@ export class GameBrain {
         self.racingGame.mainLayer.appendChild(carElement);
     }
 
-    updateHUDHp() {
-        removeAllChildNodes(this.hpContainer);
-
-        for (let hp = 0; hp < this.health; hp++) {
-            const hpElement = document.createElement("div");
-            hpElement.style.background = "#F00";
-            hpElement.style.width = "2vh";
-            hpElement.style.height = "2vh";
-            hpElement.style.borderRadius = "1vh";
-            this.hpContainer.appendChild(hpElement);
-        }        
-    }
-
-    initializeHUD() {
-        removeAllChildNodes(this.racingGame.HUDLayer);
-
-        const HUDContainer = document.createElement("div");
-        HUDContainer.style.background = "black";
-        HUDContainer.style.height = this.vhValue(this.HUD_HEIGHT);
-        HUDContainer.style.width = "100%";
-
-        const HUDMenu = document.createElement("div");
-        HUDMenu.style.height = this.vhValue(this.HUD_HEIGHT);
-        HUDMenu.style.width = "60vh";
-        HUDMenu.style.margin = "auto";
-        HUDMenu.style.padding = "2vh";
-        HUDMenu.style.boxSizing = "border-box";
-        HUDMenu.style.background = "black";
-        HUDMenu.style.display = "flex";
-        HUDMenu.style.flexWrap = "wrap";
-        HUDContainer.appendChild(HUDMenu);
-
-        const healthSectionElement = document.createElement("div");
-        healthSectionElement.classList.add("hud-section");
-        const healthText = document.createElement("div");
-        healthText.style.textAlign = "left";
-        healthText.innerText = "HP:";
-        healthSectionElement.appendChild(healthText);
-        const hpContainer = document.createElement("div");
-        hpContainer.style.gap = "1vh";
-        hpContainer.style.display = "flex";
-        hpContainer.style.flexWrap = "wrap";
-        healthSectionElement.appendChild(hpContainer);
-        this.hpContainer = hpContainer;
-        this.updateHUDHp();
-        HUDMenu.appendChild(healthSectionElement);
-
-        const stageSectionElement = document.createElement("div");
-        stageSectionElement.classList.add("hud-section");
-        const stageLabelElement = document.createElement("div");
-        this.stageLabelElement = stageLabelElement;
-        stageLabelElement.style.fontSize = "5vh";
-        stageSectionElement.appendChild(stageLabelElement);
-        const stageLevelElement = document.createElement("div");
-        this.stageLevelElement = stageLevelElement;
-        stageSectionElement.appendChild(stageLevelElement);
-        HUDMenu.appendChild(stageSectionElement);
-        this.updateHUDStageInfo();
-
-        const scoreSectionElement = document.createElement("div");
-        HUDMenu.appendChild(scoreSectionElement);
-        scoreSectionElement.classList.add("hud-section");
-        const scoreElement = document.createElement("div");
-        scoreSectionElement.appendChild(scoreElement);
-        this.scoreElement = scoreElement;
-        this.updateHUDScore();
-        if (this.racingGame.scores.length > 0) {
-            const bestScoreElement = document.createElement("div");
-            scoreSectionElement.appendChild(bestScoreElement);
-            bestScoreElement.innerText = `Best: ${Math.round(this.racingGame.scores[0].points)}`;
-        }
-
-        this.racingGame.HUDLayer.appendChild(HUDContainer);
-    }
-
-    updateHUDScore() {
-        this.scoreElement.innerText = `Score: ${Math.round(this.score)}`;
-    }
-
-    updateHUDStageInfo() {
-        this.stageLabelElement.innerText = this.stageLabel;
-        this.stageLevelElement.innerText = `Speed: ${this.rowsPerSecond}`;
-    }
-
     get rowsPerSecondScaleFactor() {
         return this.rowsPerSecond / 40;
     }
 
-    get logicPerSecondScaleFactor() { // Might be wrong, TODO test/fix or remove
+    get logicPerSecondScaleFactor() { // Might be wrong, but seems fine for now?
         return 30 / this.LOGIC_PER_SECOND;
     }
 
@@ -312,7 +229,7 @@ export class GameBrain {
                     self.previousSpeedIncreaseAtLevel = level;
                     self.rowsPerSecond += 5;
                 }
-                self.updateHUDStageInfo();
+                self.HUD.updateStageInfo();
             }
             if (row.positionY - self.screenBottom >= self.car.Y && row.positionY - self.screenBottom + row.height <= self.car.Y + self.car.height) {
                 if (self.car.X - self.car.width / 2 <= row.positionX - row.width / 2 || self.car.X + self.car.width / 2 >= row.positionX + row.width / 2) {
@@ -341,7 +258,7 @@ export class GameBrain {
         }
 
         self.score += self.BASE_SCORE_PER_ROW * self.rowsPerSecond / self.LOGIC_PER_SECOND;
-        this.updateHUDScore();
+        self.HUD.updateScore();
 
         if (self.invincibleForSeconds > 0) {
             self.invincibleForSeconds = Math.max(self.invincibleForSeconds - 1 / self.LOGIC_PER_SECOND, 0);
@@ -356,7 +273,7 @@ export class GameBrain {
         if (this.invincibleForSeconds <= 0) {
             this.health--;
             this.invincibleForSeconds = 2;
-            this.updateHUDHp();
+            this.HUD.updateHp();
         }
     }
 
