@@ -25,6 +25,7 @@ export class RoadGenerator {
          * @type {GameStage?}
          */
         this.lastStage = null;
+        this.onStageFor = 0;
 
         /**
          * @type {RoadSlice?}
@@ -89,6 +90,12 @@ export class RoadGenerator {
     }
 
     generateRow() {
+        if (this.lastStage !== this.stage) {
+            this.onStageFor = 0;
+        } else {
+            this.onStageFor++;
+        }
+
         let width = this.previousRoadSlice?.width ?? this.stage.widthSettings.minWidth;
         const previousWidth = width;
         if (this.widthDecreasingFor > 0) {
@@ -208,7 +215,7 @@ export class RoadGenerator {
         const placedObstacles = [];
         let maxObstacleHeight = 0;
 
-        if (this.headingLeftFor > -10 || this.headingRightFor > -10) {
+        if (this.headingLeftFor > -10 || this.headingRightFor > -10 || this.onStageFor < 30) {
             return placedObstacles;
         }
 
