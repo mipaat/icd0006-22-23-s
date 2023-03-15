@@ -92,6 +92,10 @@ export class RoadGenerator {
     generateRow() {
         if (this.lastStage !== this.stage) {
             this.onStageFor = 0;
+            this.widthDecreasingFor = 0;
+            this.widthIncreasingFor = 0;
+            this.headingLeftFor = 0;
+            this.headingRightFor = 0;
         } else {
             this.onStageFor++;
         }
@@ -134,7 +138,7 @@ export class RoadGenerator {
         this.headingLeftFor -= row.height;
         this.headingRightFor -= row.height;
 
-        if (this.widthDecreasingFor <= 0 && this.widthIncreasingFor <= 0 &&
+        if (this.widthDecreasingFor <= 0 && this.widthIncreasingFor <= 0 && !this.widthIsTooLarge(width) && !this.widthIsTooSmall(width) &&
             this.headingLeftFor < -this.turnSettings.turnCooldown && this.headingRightFor < -this.turnSettings.turnCooldown) {
             const turningLeftProbability = this.getTurnProbability(this.headingLeftFor);
             const turningRightProbability = this.getTurnProbability(this.headingRightFor);
