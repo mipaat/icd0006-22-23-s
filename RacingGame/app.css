@@ -11,10 +11,8 @@
 }
 
 .hud-section {
-    width: 0;
     text-align: center;
     font-size: 2vh;
-    flex: 1 1 0px;
     color: white;
 }
 

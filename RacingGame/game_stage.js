@@ -78,19 +78,34 @@ export const NO_OBSTACLES = new ObstacleSettings(0, 20, 1, 1, []);
  */
 export const GameStages = new Map([
     [0, new GameStage(
-        "Stage 1",
+        "Highway",
         RoadType.Asphalt,
         GroundType.Grass,
         new TurnSettings(0.4, 50, 0.1, 1.1),
-        new ObstacleSettings(0.4, 100, 0.1, 1.1, [Obstacles.WoodLog, Obstacles.Rock]),
+        new ObstacleSettings(0.3, 40, 0.1, 1.1, [Obstacles.BlueCar, Obstacles.WhiteCar, Obstacles.GreenTruck]),
     )],
     [400, new GameStage(
-        "Stage 2",
+        "Forest",
         RoadType.Dirt,
-        GroundType.Swamp,
+        GroundType.Forest,
         new TurnSettings(0.8, 30, 0.1, 1.1),
-        new ObstacleSettings(0.6, 70, 0.1, 1.1, [Obstacles.Rock]),
-        new WidthSettings(10, 30, 100, 0.05, 1.05),
+        new ObstacleSettings(0.6, 30, 0.03, 1.1, [Obstacles.Rock, Obstacles.Puddle, Obstacles.WoodLog]),
+        new WidthSettings(17, 30, 100, 0.05, 1.05),
+    )],
+    [800, new GameStage(
+        "Busy Highway",
+        RoadType.Asphalt,
+        GroundType.Grass,
+        new TurnSettings(0.4, 50, 0.1, 1.1),
+        new ObstacleSettings(0.3, 5, 0.1, 1.1, [Obstacles.BlueCar, Obstacles.WhiteCar, Obstacles.GreenTruck]),
+    )],
+    [1200, new GameStage(
+        "Narrow Bridge",
+        RoadType.Bridge,
+        GroundType.Water,
+        new TurnSettings(0.3, 30, 0.1, 1.1),
+        NO_OBSTACLES,
+        new WidthSettings(7, 10, 50, 0.1, 1.1, 0.5),
     )],
 ]);
 GameStages.finalStageLength = 400;

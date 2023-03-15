@@ -72,6 +72,12 @@ export class RacingGame {
         window.localStorage.removeItem(this.LOCAL_STORAGE_KEY);
     }
 
+    shortenScores(keepAmount) {
+        if (this.scores.length > keepAmount) {
+            this.scores.splice(keepAmount);
+        }
+    }
+
     /**
      * @param {number} scorePoints 
      */
@@ -79,6 +85,7 @@ export class RacingGame {
         this.refreshScores();
         this.scores.push(new Score(scorePoints, new Date(Date.now())));
         this.scores.sort(Score.comparePoints);
+        this.shortenScores(40);
         window.localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(this.scores));
     }
 

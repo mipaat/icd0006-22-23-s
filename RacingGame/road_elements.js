@@ -45,6 +45,10 @@ export class RoadSlice {
 
         this.stageChange = stageChange;
     }
+
+    getMaxHeight() {
+        return Math.max(this.height, ...this.obstacles.map((po) => {po.obstacle.height}));
+    }
 }
 
 export class Road {
@@ -59,6 +63,7 @@ export class Road {
 export const RoadType = {
     Asphalt: new Road("#111"),
     Dirt: new Road("#965e26"),
+    Bridge: new Road("#de7643"),
 }
 
 export class Ground {
@@ -72,10 +77,15 @@ export class Ground {
 
 export const GroundType = {
     Grass: new Ground("#0F0"),
-    Swamp: new Ground("#2A1"),
+    Forest: new Ground("#082e15"),
+    Water: new Ground("#11448c"),
 }
 
 export const Obstacles = {
-    WoodLog: new Obstacle(4, 1, "#80310f"),
+    WoodLog: new Obstacle(4, 1, "#291204"),
     Rock: new Obstacle(2, 2, "#333"),
+    BlueCar: new Obstacle(1.5, 3, "#00B"),
+    WhiteCar: new Obstacle(1.5, 3, "#dedede"),
+    GreenTruck: new Obstacle(1.8, 6, "#85deb0"),
+    Puddle: new Obstacle(3, 2.5, "#094b91"),
 }

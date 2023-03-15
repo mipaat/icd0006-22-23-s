@@ -14,13 +14,15 @@ export class HUD {
 
         const HUDContainer = document.createElement("div");
         HUDContainer.style.background = "black";
-        HUDContainer.style.height = gameBrain.vhValue(gameBrain.HUD_HEIGHT);
+        HUDContainer.style.minHeight = gameBrain.vhValue(gameBrain.HUD_HEIGHT);
         HUDContainer.style.width = "100%";
 
         const HUDMenu = document.createElement("div");
-        HUDMenu.style.height = gameBrain.vhValue(gameBrain.HUD_HEIGHT);
-        HUDMenu.style.width = "60vh";
-        HUDMenu.style.margin = "auto";
+        HUDMenu.style.minHeight = gameBrain.vhValue(gameBrain.HUD_HEIGHT);
+        HUDMenu.style.alignContent = "center";
+        HUDMenu.style.justifyContent = "center";
+        HUDMenu.style.columnGap = "3vh";
+        HUDMenu.style.rowGap = "2vh";
         HUDMenu.style.padding = "2vh";
         HUDMenu.style.boxSizing = "border-box";
         HUDMenu.style.background = "black";
@@ -58,6 +60,9 @@ export class HUD {
         const scoreSectionElement = document.createElement("div");
         HUDMenu.appendChild(scoreSectionElement);
         scoreSectionElement.classList.add("hud-section");
+        scoreSectionElement.style.display = "flex";
+        scoreSectionElement.style.flexDirection = "column";
+        scoreSectionElement.style.justifyContent = "center";
         const scoreElement = document.createElement("div");
         scoreSectionElement.appendChild(scoreElement);
         this.scoreElement = scoreElement;

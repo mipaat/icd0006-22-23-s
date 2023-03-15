@@ -63,6 +63,8 @@ export class GameBrain {
         this.SCORE_MULTIPLIER_EXPONENT = 2.5;
         this.SCORE_MULTIPLIER_AT_SCREEN_TOP = 4;
 
+        this.SPEED_INCREASE_AT_LEVEL_LOOP = 10;
+
         this.HUD = new HUD(this, 8);
     }
 
@@ -138,7 +140,12 @@ export class GameBrain {
             const coordinateY = entry[0];
             const roadSlice = entry[1];
 
-            if (coordinateY > self.screenTop || coordinateY + roadSlice.height < self.screenBottom) continue;
+            if (coordinateY > self.screenTop) continue;
+            if (coordinateY + roadSlice.height < self.screenBottom) {
+                if (coordinateY + roadSlice.getMaxHeight() < self.screenBottom) {
+                    continue;
+                }
+            }
 
             const groundElement = document.createElement("div");
             groundElement.style.height = self.vhValue(roadSlice.height);
@@ -161,7 +168,7 @@ export class GameBrain {
                 obstacleElement.style.background = placedObstacle.obstacle.color;
                 obstacleElement.style.position = "absolute";
                 obstacleElement.style.left = `${roadSliceCenterPx + placedObstacle.positionX * self.scale - placedObstacle.obstacle.width / 2 * self.scale}px`;
-                obstacleElement.style.top = `${window.innerHeight - (roadSlice.positionY - self.screenBottom + roadSlice.height) * self.scale}px`;
+                obstacleElement.style.top = `${window.innerHeight - (roadSlice.positionY - self.screenBottom + placedObstacle.obstacle.height) * self.scale}px`;
 
                 self.racingGame.obstacleLayer.appendChild(obstacleElement);
             }
@@ -252,7 +259,7 @@ export class GameBrain {
         let requiredRowsToGenerate = Math.ceil(self.screenTop - self.roadGenerator.generatedUpToCoordinate);
         if (requiredRowsToGenerate > 0) {
             self.roadGenerator.generateRows(requiredRowsToGenerate + 10);
-            self.roadGenerator.clearRowsBelow(this.screenBottom);
+            self.roadGenerator.clearRowsBelow(this.screenBottom - 10);
         }
 
         for (const row of self.roadGenerator.road.values()) {
@@ -262,7 +269,7 @@ export class GameBrain {
                 const level = Math.floor(self.stageChanges / GameStages.size);
                 if (level > self.previousSpeedIncreaseAtLevel) {
                     self.previousSpeedIncreaseAtLevel = level;
-                    self.rowsPerSecond += 5;
+                    self.rowsPerSecond += self.SPEED_INCREASE_AT_LEVEL_LOOP;
                 }
                 self.HUD.updateStageInfo();
             }
@@ -315,6 +322,7 @@ export class GameBrain {
         if (this.invincibleForSeconds <= 0) {
             this.health--;
             this.invincibleForSeconds = 2;
+            this.render();
             this.HUD.updateHp();
         }
     }
