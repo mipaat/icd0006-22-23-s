@@ -100,7 +100,7 @@ export class GameBrain {
     deactivate() {
         this.racingGame.app.removeEventListener(this.handleKeyDown.eventType, this.handleKeyDown);
         this.racingGame.app.removeEventListener(this.handleKeyUp.eventType, this.handleKeyUp);
-        this.racingGame.app.removeEventListener(EventType.Resize, this.onResize);
+        window.removeEventListener(EventType.Resize, this.onResize);
         removeAllChildNodes(this.racingGame.bgLayer);
         removeAllChildNodes(this.racingGame.roadLayer);
         removeAllChildNodes(this.racingGame.mainLayer);
