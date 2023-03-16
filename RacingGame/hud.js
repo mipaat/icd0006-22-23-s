@@ -14,11 +14,11 @@ export class HUD {
 
         const HUDContainer = document.createElement("div");
         HUDContainer.style.background = "black";
-        HUDContainer.style.minHeight = gameBrain.vhValue(gameBrain.HUD_HEIGHT);
         HUDContainer.style.width = "100%";
 
         const HUDMenu = document.createElement("div");
-        HUDMenu.style.minHeight = gameBrain.vhValue(gameBrain.HUD_HEIGHT);
+        this.HUDMenu = HUDMenu;
+        HUDMenu.style.minHeight = gameBrain.vhValue(gameBrain.hudHeight);
         HUDMenu.style.alignContent = "center";
         HUDMenu.style.justifyContent = "center";
         HUDMenu.style.columnGap = "3vh";
@@ -106,5 +106,9 @@ export class HUD {
         removeAllChildNodes(this.racingGame.HUDLayer);
         this.gameBrain.HUD = null;
         this.gameBrain = null;
+    }
+
+    onResize() {
+        this.HUDMenu.style.minHeight = this.gameBrain.vhValue(this.gameBrain.hudHeight);
     }
 }

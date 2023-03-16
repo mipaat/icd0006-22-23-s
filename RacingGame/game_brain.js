@@ -20,7 +20,8 @@ export class GameBrain {
         this.onResize = () => this._onResize(self);
 
         this.HEIGHT = 50;
-        this.HUD_HEIGHT = 8;
+        this.MIN_HUD_HEIGHT = 8;
+        this.hudHeight = this.MIN_HUD_HEIGHT;
         this.MIN_HEIGHT_PX = 200;
         this.MAX_ROAD_WIDTH = 40;
 
@@ -32,6 +33,8 @@ export class GameBrain {
         this.app = racingGame.app;
         this.unPause()
         this.pauseMenu = new PauseMenu(this);
+
+        window.addEventListener(EventType.Resize, this.onResize);
 
         this.handleKeyDown = (event) => this._handleKeyDown(self, event);
         this.handleKeyDown.eventType = EventType.KeyDown;
@@ -66,6 +69,7 @@ export class GameBrain {
         this.SPEED_INCREASE_AT_LEVEL_LOOP = 10;
 
         this.HUD = new HUD(this, 8);
+        this.onResize();
     }
 
     /**
@@ -96,6 +100,7 @@ export class GameBrain {
     deactivate() {
         this.racingGame.app.removeEventListener(this.handleKeyDown.eventType, this.handleKeyDown);
         this.racingGame.app.removeEventListener(this.handleKeyUp.eventType, this.handleKeyUp);
+        this.racingGame.app.removeEventListener(EventType.Resize, this.onResize);
         removeAllChildNodes(this.racingGame.bgLayer);
         removeAllChildNodes(this.racingGame.roadLayer);
         removeAllChildNodes(this.racingGame.mainLayer);
@@ -111,12 +116,12 @@ export class GameBrain {
     }
 
     vhValue(value) {
-        const vhMultiplier = 100 / (this.HEIGHT + this.HUD_HEIGHT);
+        const vhMultiplier = 100 / (this.HEIGHT + this.hudHeight);
         return `${vhMultiplier * value}vh`;
     }
 
     get scale() {
-        return window.innerHeight / (this.HEIGHT + this.HUD_HEIGHT);
+        return window.innerHeight / (this.HEIGHT + this.hudHeight);
     }
 
     /**
@@ -130,10 +135,10 @@ export class GameBrain {
         const children = [];
 
         const emptyHUDBg = document.createElement("div");
-        emptyHUDBg.style.height = this.vhValue(this.HUD_HEIGHT);
+        emptyHUDBg.style.height = this.vhValue(this.hudHeight);
         this.racingGame.bgLayer.appendChild(emptyHUDBg);
         const emptyHUDRoad = document.createElement("div");
-        emptyHUDRoad.style.height = this.vhValue(this.HUD_HEIGHT);
+        emptyHUDRoad.style.height = this.vhValue(this.hudHeight);
         this.racingGame.roadLayer.appendChild(emptyHUDRoad);
 
         for (const entry of self.roadGenerator.road.entries()) {
@@ -187,7 +192,7 @@ export class GameBrain {
         carElement.style.opacity = self.invincibleForSeconds <= 0 ? "1" : "0.5";
         carElement.style.position = "absolute";
         carElement.style.left = `${window.innerWidth / 2 - (self.car.width / 2) * self.scale + self.car.X * self.scale}px`;
-        carElement.style.top = self.vhValue(self.HEIGHT + self.HUD_HEIGHT - (self.car.Y + self.car.height));
+        carElement.style.top = self.vhValue(self.HEIGHT + self.hudHeight - (self.car.Y + self.car.height));
         self.racingGame.mainLayer.appendChild(carElement);
     }
 
@@ -352,12 +357,10 @@ export class GameBrain {
         this.paused = true;
         this.setFps(0);
         this.setLogicInterval(0);
-        window.addEventListener(EventType.Resize, this.onResize);
     }
 
     unPause() {
         this.paused = false;
-        this.racingGame.app.removeEventListener(EventType.Resize, this.onResize);
         this.setFps(this.racingGame.options.fps);
         this.setLogicInterval(this.LOGIC_PER_SECOND);
     }
@@ -366,6 +369,16 @@ export class GameBrain {
      * @param {GameBrain} gameBrain 
      */
     _onResize(gameBrain) {
+        const gameHeightPx = window.innerHeight - gameBrain.hudHeight / gameBrain.scale;
+        const widthPx = window.innerWidth;
+        const desiredWidthPx = gameHeightPx * (gameBrain.MAX_ROAD_WIDTH + 10) / gameBrain.HEIGHT;
+        if (desiredWidthPx > widthPx) {
+            const desiredGameHeightPx = gameHeightPx * widthPx / desiredWidthPx;
+            gameBrain.hudHeight = (window.innerHeight - desiredGameHeightPx) / gameBrain.scale;
+        } else {
+            gameBrain.hudHeight = gameBrain.MIN_HUD_HEIGHT;
+        }
+        gameBrain.HUD.onResize();
         gameBrain.render();
     }
 }
