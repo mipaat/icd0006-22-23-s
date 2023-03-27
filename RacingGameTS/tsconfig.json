@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "target": "ES2015",
+        "strict": true,
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "removeComments": true,
+        "moduleResolution": "node",
+        "strictNullChecks": true,
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable",
+        ]
+    },
+    "include": [
+        "./src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+    ]
+}

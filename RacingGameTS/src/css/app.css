@@ -1,0 +1,66 @@
+.layer {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app {
+    margin: 0;
+    position: relative;
+}
+
+.hud-section {
+    text-align: center;
+    font-size: 2vh;
+    color: white;
+}
+
+.menu-section {
+    padding: 2vh;
+    padding-top: 4vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3vh;
+}
+
+.menu-item {
+    font-size: 2vh;
+}
+
+.main-menu-sections-container {
+    display: flex;
+    margin: auto;
+    text-align: center;
+    padding-top: 6vh;
+    justify-content: center;
+    gap: 4vh;
+    flex-wrap: wrap;
+}
+
+.text-normal {
+    font-size: 2vh;
+}
+
+.text-medium {
+    font-size: 5vh;
+}
+
+.text-large {
+    font-size: 8vh;
+}
+
+.overlay-blocking-menu {
+    width: fit-content;
+    padding: 6vh;
+
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+
+    margin: auto;
+    text-align: center;
+
+    background: black;
+    color: white;
+}
