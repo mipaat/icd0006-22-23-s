@@ -380,7 +380,7 @@ export class GameBrain {
         const desiredWidthPx = gameHeightPx * (GameBrain.MAX_ROAD_WIDTH + 10) / this.HEIGHT;
         if (desiredWidthPx > widthPx) {
             const desiredGameHeightPx = gameHeightPx * widthPx / desiredWidthPx;
-            this.hudHeight = (window.innerHeight - desiredGameHeightPx) / this.scale;
+            this.hudHeight = Math.max((window.innerHeight - desiredGameHeightPx) / this.scale, GameBrain.MIN_HUD_HEIGHT);
         } else {
             this.hudHeight = GameBrain.MIN_HUD_HEIGHT;
         }
