@@ -13,7 +13,7 @@ import { EndScreen } from "./end_screen";
 
 export class GameBrain {
     public readonly HEIGHT: number = 50;
-    public static readonly MIN_HUD_HEIGHT: number = 50;
+    public static readonly MIN_HUD_HEIGHT: number = 8;
     public static readonly MIN_HEIGHT_PX: number = 200;
     public static readonly MAX_ROAD_WIDTH: number = 40;
     public static readonly LOGIC_PER_SECOND: number = 30;
@@ -392,4 +392,3 @@ export class GameBrain {
         this._onResize();
     }
 }
-
