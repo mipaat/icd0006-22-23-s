@@ -5,7 +5,7 @@ import { PauseMenu } from "./pause_menu";
 import { removeAllChildNodes } from "./utils";
 import { Car } from "./car";
 import { GameStages } from "./game_stage";
-import { KeyStatus } from "./KeyStatus";
+import { KeyStatus } from "./key_status";
 import { Key } from "ts-key-enum";
 import { MyKey } from "./enums/my_key";
 import { HUD } from "./hud";
