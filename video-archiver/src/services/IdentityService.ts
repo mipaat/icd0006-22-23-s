@@ -25,7 +25,7 @@ export class IdentityService extends BaseService {
             authState.refreshToken,
             {
                 headers: {
-                    'Authorization': 'Bearer ' + authState.jwt
+                    'Authorization': 'Bearer ' + authState.jwt?.token
                 }
             }
         );

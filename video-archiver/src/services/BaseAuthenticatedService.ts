@@ -32,6 +32,10 @@ export class BaseAuthenticationService extends BaseService {
                 }
             }
 
+            if (authContext?.authState?.jwt) {
+                request.headers.Authorization = "Bearer: " + authContext.authState.jwt.token;
+            }
+
             return request;
         });
     }
