@@ -19,7 +19,7 @@ const LoginFormView = (props: IProps) => {
             <h2>Login</h2>
             <hr />
 
-            <ul style={{ 'display': props.validationErrors.length == 0 ? 'none' : '' }}>
+            <ul style={{ 'display': props.validationErrors.length === 0 ? 'none' : '' }}>
                 <li>{props.validationErrors.length > 0 ? props.validationErrors[0] : ''}</li>
             </ul>
 

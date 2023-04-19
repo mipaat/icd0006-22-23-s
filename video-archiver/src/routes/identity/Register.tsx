@@ -29,7 +29,6 @@ const Register = () => {
     const identityService = new IdentityService();
 
     const onSubmit = async (event: MouseEvent) => {
-        console.log('onSubmit', event);
         event.preventDefault();
 
         const jwtResponse = await identityService.register(values);
@@ -45,10 +44,9 @@ const Register = () => {
         }
 
         if (updateAuthState) {
-            updateAuthState(authState => {
-                authState.jwt = new DecodedJWT(jwtResponse.jwt);
-                authState.refreshToken = new RefreshToken(jwtResponse);
-                return authState;
+            updateAuthState({
+                jwt: new DecodedJWT(jwtResponse.jwt),
+                refreshToken: new RefreshToken(jwtResponse),
             });
             navigate("/");
         }

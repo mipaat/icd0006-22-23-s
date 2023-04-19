@@ -20,9 +20,6 @@ const Login = () => {
     const [validationErrors, setValidationErrors] = useState([] as string[]);
 
     const handleChange = (target: EventTarget & HTMLInputElement) => {
-        // debugger;
-        // console.log(target.name, target.value, target.type)
-
         setInput({ ...values, [target.name]: target.value });
     }
 
@@ -31,7 +28,6 @@ const Login = () => {
     const identityService = new IdentityService();
 
     const onSubmit = async (event: MouseEvent) => {
-        console.log('onSubmit', event);
         event.preventDefault();
 
         if (values.email.length === 0 || values.password.length === 0) {
@@ -54,10 +50,9 @@ const Login = () => {
         }
 
         if (updateAuthState) {
-            updateAuthState(authState => {
-                authState.jwt = new DecodedJWT(jwtResponse.jwt);
-                authState.refreshToken = new RefreshToken(jwtResponse);
-                return authState;
+            updateAuthState({
+                jwt: new DecodedJWT(jwtResponse.jwt),
+                refreshToken: new RefreshToken(jwtResponse),
             });
             navigate("/");
         }

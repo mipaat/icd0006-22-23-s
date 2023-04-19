@@ -18,11 +18,7 @@ const IdentityHeader = () => {
         if (authState)
             identityService.logout(authState).then(response => {
                 if (updateAuthState)
-                    updateAuthState(authState => {
-                        authState.jwt = null;
-                        authState.refreshToken = null;
-                        return authState;
-                    });
+                    updateAuthState({jwt: null, refreshToken: null});
                 navigate("/");
             });
     }
@@ -61,17 +57,13 @@ interface IUserInfoProps {
 }
 
 const UserInfo = (props: IUserInfoProps) => {
-    console.log(typeof(props.authState.refreshToken?.expiresAt));
     const refreshTokenExpiresAt = props.authState.refreshToken?.expiresAt instanceof Date ? props.authState.refreshToken?.expiresAt : null;
 
     return (
         <>
             {props.authState.jwt?.name}<br />
-            {props.authState.jwt?.expiresAt instanceof Date ? props.authState.jwt?.expiresAt.toLocaleString() : null}<br />
-            {props.authState.jwt?.token}<br />
-            RefreshToken:<br />
-            {props.authState.refreshToken?.token}<br />
-            {refreshTokenExpiresAt?.toLocaleString()}<br />
+            JWT Expires: {props.authState.jwt?.expiresAt instanceof Date ? props.authState.jwt?.expiresAt.toLocaleString() : null}<br />
+            Refresh Token Expires: {refreshTokenExpiresAt?.toLocaleString()}<br />
         </>
     );
 }

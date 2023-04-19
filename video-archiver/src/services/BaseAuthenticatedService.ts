@@ -23,10 +23,9 @@ export class BaseAuthenticationService extends BaseService {
                     });
 
                     if (isIJwtResponse(jwtResponse) && authContext.updateAuthState) {
-                        authContext.updateAuthState(authState => {
-                            authState.jwt = new DecodedJWT(jwtResponse.jwt);
-                            authState.refreshToken = new RefreshToken(jwtResponse);
-                            return authState;
+                        authContext.updateAuthState({
+                            jwt: new DecodedJWT(jwtResponse.jwt),
+                            refreshToken: new RefreshToken(jwtResponse),
                         });
                     }
                 }

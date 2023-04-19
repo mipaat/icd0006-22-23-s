@@ -13,8 +13,8 @@ export class LocalStorageService {
         localStorage.removeItem(this.getActualKey(key));
     }
 
-    public setItem<TItem = any>(key: string, item: TItem): void {
-        localStorage.setItem(this.getActualKey(key), JSON.stringify(item));
+    public setItem(key: string, item: string): void {
+        localStorage.setItem(this.getActualKey(key), item);
     }
 
     public getItem(key: string): string | null {
