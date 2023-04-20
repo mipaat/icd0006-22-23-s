@@ -1,8 +1,9 @@
-import { AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig, isAxiosError } from "axios";
+import { InternalAxiosRequestConfig, isAxiosError } from "axios";
 import { DecodedJWT } from "../dto/DecodedJWT";
 import { IAuthenticationContext } from "../dto/IAuthenticationContext";
 import { isIJwtResponse } from "../dto/IJWTResponse";
 import { RefreshToken } from "../dto/IRefreshToken";
+import { isBoolean } from "../utils/Utils";
 import { BaseService } from "./BaseService";
 import { IdentityService } from "./IdentityService";
 
@@ -33,12 +34,30 @@ export class BaseAuthenticatedService extends BaseService {
             return null;
         }
 
+        this.axios.interceptors.request.use(requestConfig => {
+            if (!isAxiosRetryConfig(requestConfig)) {
+                const retryRequestConfig = requestConfig as IAxiosRetryConfig;
+                retryRequestConfig.refreshAttempted = false;
+                return retryRequestConfig;
+            }
+            return requestConfig;
+        });
+
         this.axios.interceptors.request.use(request => {
             const currentTime = new Date();
             currentTime.setSeconds(currentTime.getSeconds() + 5);
 
+            if (isAxiosRetryConfig(request)) {
+                if (request.refreshAttempted === true) {
+                    return request;
+                }
+            }
+
             if (authContext?.authState?.jwt && authContext?.authState.refreshToken) {
                 if (authContext.authState.jwt.expiresAt.getTime() < currentTime.getTime()) {
+                    if (isAxiosRetryConfig(request)) {
+                        request.refreshAttempted = true;
+                    }
                     return refreshToken().then(jwt => {
                         if (jwt) {
                             setAuthorizationHeader(request, jwt);
@@ -64,14 +83,20 @@ export class BaseAuthenticatedService extends BaseService {
                     authContext?.authState?.jwt &&
                     authContext.authState.refreshToken) {
 
-                    return refreshToken().then(jwt => {
-                        if (error.config) {
-                            error.config.headers['Authorization'] = 'Bearer ' + jwt;
-                            return this.axios.request(error.config);
+                    const config = error.config;
+                    if (isAxiosRetryConfig(config)) {
+                        if (config.refreshAttempted === false) {
+                            config.refreshAttempted = true;
+
+                            return refreshToken().then(jwt => {
+                                if (jwt === null) {
+                                    return Promise.reject(error);
+                                }
+                                setAuthorizationHeader(config, jwt);
+                                return this.axios.request(config);
+                            });
                         }
-                        
-                        return Promise.reject(error);
-                    });
+                    }
                 }
             }
 
@@ -82,4 +107,18 @@ export class BaseAuthenticatedService extends BaseService {
 
 function setAuthorizationHeader(request: InternalAxiosRequestConfig, jwt: string) {
     request.headers.Authorization = "Bearer " + jwt;
+}
+
+interface IAxiosRetryConfig extends InternalAxiosRequestConfig {
+    refreshAttempted: boolean
+}
+
+function isAxiosRetryConfig(config: any): config is IAxiosRetryConfig {
+    if (!config) {
+        return false;
+    }
+    if (config.refreshAttempted !== undefined) {
+        return isBoolean(config.refreshAttempted);
+    }
+    return false;
 }
