@@ -40,7 +40,7 @@ const GameIndexRow = (props: IGameIndexRowProps) => {
     return (
         <tr>
             <td>
-                {props.game.idgbId}
+                {props.game.igdbId}
             </td>
             <td>
                 {props.game.name}
@@ -58,9 +58,9 @@ const GameIndexRow = (props: IGameIndexRowProps) => {
                 {props.game.lastSuccessfulFetch?.toLocaleString()}
             </td>
             <td>
-                <Link to={queryString.stringifyUrl({ url: "Edit", query: { id: props.game.id } })}>Edit</Link> |{"\u00A0"}
-                <Link to={queryString.stringifyUrl({ url: "Details", query: { id: props.game.id } })}>Details</Link> |{"\u00A0"}
-                <Link to={queryString.stringifyUrl({ url: "Delete", query: { id: props.game.id } })}>Delete</Link>
+                <Link to={`Edit/${encodeURIComponent(props.game.id)}`}>Edit</Link> |{"\u00A0"}
+                <Link to={`Details/${encodeURIComponent(props.game.id)}`}>Details</Link> |{"\u00A0"}
+                <Link to={`Delete/${encodeURIComponent(props.game.id)}`}>Delete</Link>
             </td>
         </tr>
     );

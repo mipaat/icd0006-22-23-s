@@ -3,6 +3,7 @@ import Axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import * as configJson from '../config.json';
 import IConfig, { conformApiBaseUrl } from '../config';
 import { IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
+import { IRestApiResponse } from '../dto/IRestApiResponse';
 const config = configJson as IConfig;
 
 export abstract class BaseService {
@@ -44,10 +45,10 @@ export abstract class BaseService {
         }
     }
 
-    protected async delete<TResponse>(url: string, config?: AxiosRequestConfig | undefined): Promise<TResponse | IRestApiErrorResponse | undefined> {
+    protected async delete(url: string, config?: AxiosRequestConfig | undefined): Promise<IRestApiResponse | IRestApiErrorResponse | undefined> {
         try {
-            const response = await this.axios.delete<TResponse>(url, config);
-            return response.data;
+            const response = await this.axios.delete(url, config);
+            return response;
         } catch (e) {
             const axiosError = e as AxiosError<IRestApiErrorResponse>;
             if (axiosError.response) {
