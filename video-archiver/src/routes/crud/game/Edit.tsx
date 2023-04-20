@@ -30,7 +30,7 @@ const GameEdit = () => {
             }
             fetchAndUpdateGame();
         }
-    }, [authContext]);
+    }, [authContext, id]);
 
     const handleChange = (target: EventTarget & HTMLInputElement) => {
         if (game) {
@@ -72,7 +72,7 @@ const GameEdit = () => {
                 <h1>Edit</h1>
 
 
-                <ul style={{ 'display': validationErrors.length == 0 ? 'none' : '' }}>
+                <ul style={{ 'display': validationErrors.length === 0 ? 'none' : '' }}>
                     <li>{validationErrors.length > 0 ? validationErrors[0] : ''}</li>
                 </ul>
 

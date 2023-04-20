@@ -35,7 +35,7 @@ export class BaseAuthenticatedService extends BaseService {
 
         this.axios.interceptors.request.use(request => {
             const currentTime = new Date();
-            currentTime.setSeconds(currentTime.getSeconds() - 5);
+            currentTime.setSeconds(currentTime.getSeconds() + 5);
 
             if (authContext?.authState?.jwt && authContext?.authState.refreshToken) {
                 if (authContext.authState.jwt.expiresAt.getTime() < currentTime.getTime()) {
