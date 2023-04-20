@@ -22,7 +22,6 @@ const GameCreate = () => {
     } as IGameData);
 
     const handleChange = (target: EventTarget & HTMLInputElement) => {
-        console.log("handleChange", gameData);
         if (gameData) {
             setGameData({ ...gameData, [target.name]: target.value });
         }
@@ -32,9 +31,7 @@ const GameCreate = () => {
         event.preventDefault();
         const newValidationErrors = [] as string[];
         if (gameData) {
-            console.log(gameData);
             if (!gameData.igdbId) {
-                console.log(gameData.igdbId);
                 newValidationErrors.push("IgdbID is required");
             }
             if (!gameData.name) {
@@ -159,7 +156,6 @@ function getDateString(date: Date | null): string {
 }
 
 function getDateFromDateString(dateString: string): Date {
-    console.log(DateTime.fromISO(dateString).toJSDate())
     return DateTime.fromISO(dateString).toJSDate();
 }
 

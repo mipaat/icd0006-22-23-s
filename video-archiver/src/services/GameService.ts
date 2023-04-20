@@ -44,7 +44,6 @@ export class GameService extends BaseAuthenticatedService {
     }
 
     async update(data: IGame): Promise<string | null> {
-        console.log(data.lastSuccessfulFetch);
         const result = await this.post<IRestApiResponse>("Update", data);
         if (isIRestApiResponse(result)) {
             if (result.status === 200) {
