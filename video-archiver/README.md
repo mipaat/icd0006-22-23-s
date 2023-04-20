@@ -1,3 +1,14 @@
+# VideoArchiver
+
+Make sure to copy `config.example.json` to `config.json` and configure it as needed!  
+
+To access the CRUD page, log in with email `admin@test.com` and password `admin123`  
+
+JWT is automatically refreshed using refresh token if needed, but if the refresh token expires or becomes invalid for some other reason, the app will just be stuck loading and you'll need to manually log out.
+
+
+# React default README below
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
