@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
@@ -14,16 +14,20 @@ import { IRefreshToken } from "../dto/IRefreshToken";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
+import { IdentityService } from "../services/IdentityService";
 
 const config = configJson as IConfig;
-
 
 export const ConfigContext = createContext<IConfig>(config);
 
 export const AuthContext = createContext<IAuthenticationContext>({ authState: null, updateAuthState: null });
 
+const identityService = new IdentityService();
+
+export const IdentityServiceContext = createContext<IdentityService>(identityService);
+
 const Root = () => {
-    const localStorageService = new LocalStorageService(config.localStorageKey);
+    const localStorageService = useMemo(() => new LocalStorageService(config.localStorageKey), [config]);
     const storedJwt = localStorageService.getItem(JWT_KEY);
     const storedRefreshToken = localStorageService.getItem(REFRESH_TOKEN_KEY);
 
@@ -52,22 +56,24 @@ const Root = () => {
         } else {
             localStorageService.removeItem(REFRESH_TOKEN_KEY);
         }
-    }, [authState]);
+    }, [authState, localStorageService]);
 
     return (
-        <ConfigContext.Provider value={config}>
-            <AuthContext.Provider value={{ authState, updateAuthState }}>
-                <Header />
+        <IdentityServiceContext.Provider value={identityService}>
+            <ConfigContext.Provider value={config}>
+                <AuthContext.Provider value={{ authState, updateAuthState }}>
+                    <Header />
 
-                <div className="container">
-                    <main role="main" className="pb-3">
-                        <Outlet />
-                    </main>
-                </div>
+                    <div className="container">
+                        <main role="main" className="pb-3">
+                            <Outlet />
+                        </main>
+                    </div>
 
-                <Footer />
-            </AuthContext.Provider>
-        </ConfigContext.Provider>
+                    <Footer />
+                </AuthContext.Provider>
+            </ConfigContext.Provider>
+        </IdentityServiceContext.Provider>
     );
 }
 

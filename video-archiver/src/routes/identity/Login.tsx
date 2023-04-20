@@ -1,7 +1,6 @@
 import { MouseEvent, useContext, useState } from "react";
 import { ILoginData } from "../../dto/ILoginData";
-import { IdentityService } from "../../services/IdentityService";
-import { AuthContext } from "../Root";
+import { AuthContext, IdentityServiceContext } from "../Root";
 import LoginFormView from "./LoginFormView";
 import { useNavigate } from "react-router-dom";
 import { isIJwtResponse } from "../../dto/IJWTResponse";
@@ -25,7 +24,7 @@ const Login = () => {
 
     const { authState: jwtResponse, updateAuthState } = useContext(AuthContext);
 
-    const identityService = new IdentityService();
+    const identityService = useContext(IdentityServiceContext);
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();

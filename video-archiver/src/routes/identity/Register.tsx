@@ -6,7 +6,7 @@ import { RefreshToken } from "../../dto/IRefreshToken";
 import { IRegisterData } from "../../dto/IRegisterData";
 import { isIRestApiErrorResponse } from "../../dto/IRestApiErrorResponse";
 import { IdentityService } from "../../services/IdentityService";
-import { AuthContext } from "../Root";
+import { AuthContext, IdentityServiceContext } from "../Root";
 import RegisterFormView from "./RegisterFormView";
 
 const Register = () => {
@@ -26,7 +26,7 @@ const Register = () => {
 
     const { authState: jwtResponse, updateAuthState } = useContext(AuthContext);
 
-    const identityService = new IdentityService();
+    const identityService = useContext(IdentityServiceContext);
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();

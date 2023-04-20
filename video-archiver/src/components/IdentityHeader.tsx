@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ConfigContext, AuthContext } from "../routes/Root";
+import { ConfigContext, AuthContext, IdentityServiceContext } from "../routes/Root";
 import { IdentityService } from "../services/IdentityService";
 import { LocalStorageService } from "../localStorage/LocalStorageService";
 import { REFRESH_TOKEN_KEY } from "../localStorage/LocalStorageKeys";
@@ -10,7 +10,7 @@ const IdentityHeader = () => {
     const { authState, updateAuthState } = useContext(AuthContext);
     const config = useContext(ConfigContext);
     const navigate = useNavigate();
-    const identityService = new IdentityService();
+    const identityService = useContext(IdentityServiceContext);
     const localStorageService = new LocalStorageService(config.localStorageKey);
 
     const logout = () => {

@@ -28,9 +28,41 @@ export abstract class BaseService {
         })
     }
 
-    protected async post<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<TResponse | IRestApiErrorResponse | undefined> {
+    protected async post<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D> | undefined): Promise<TResponse | IRestApiErrorResponse | undefined> {
         try {
-            const response = await this.axios.post<TResponse>(url, data);
+            const response = await this.axios.post<TResponse>(url, data, config);
+            return response.data;
+        } catch (e) {
+            const axiosError = e as AxiosError<IRestApiErrorResponse>;
+            if (axiosError.response) {
+                console.log('Error:', axiosError.message, 'Response:', axiosError.response.data);
+                return axiosError.response!.data;
+            }
+
+            console.log('error: ', (e as Error).message);
+            return undefined;
+        }
+    }
+
+    protected async delete<TResponse>(url: string, config?: AxiosRequestConfig | undefined): Promise<TResponse | IRestApiErrorResponse | undefined> {
+        try {
+            const response = await this.axios.delete<TResponse>(url, config);
+            return response.data;
+        } catch (e) {
+            const axiosError = e as AxiosError<IRestApiErrorResponse>;
+            if (axiosError.response) {
+                console.log('Error:', axiosError.message, 'Response:', axiosError.response.data);
+                return axiosError.response!.data;
+            }
+
+            console.log('error: ', (e as Error).message);
+            return undefined;
+        }
+    }
+
+    protected async get<TResponse>(url: string, config?: AxiosRequestConfig | undefined) {
+        try {
+            const response = await this.axios.get<TResponse>(url, config);
             return response.data;
         } catch (e) {
             const axiosError = e as AxiosError<IRestApiErrorResponse>;
