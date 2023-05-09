@@ -6,22 +6,22 @@ import IdentityHeader from './IdentityHeader.vue';
 
 <template>
     <header>
-        <nav className="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div className="container-fluid">
-                <RouterLink className="navbar-brand" to="/">WebApp</RouterLink>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <RouterLink class="navbar-brand" to="/">WebApp</RouterLink>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span className="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
                 </button>
-                <div className="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul className="navbar-nav flex-grow-1">
-                        <li className="nav-item">
-                            <RouterLink to="/" className="nav-link text-dark">Home</RouterLink>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <RouterLink to="/" class="nav-link text-dark">Home</RouterLink>
                         </li>
                         <CrudDropdown />
                     </ul>
 
-                    <ul className="navbar-nav">
+                    <ul class="navbar-nav">
                         <IdentityHeader />
                     </ul>
                 </div>
