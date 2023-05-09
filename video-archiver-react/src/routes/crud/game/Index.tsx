@@ -49,7 +49,7 @@ const GameIndexRow = (props: IGameIndexRowProps) => {
                 {props.game.boxArtUrl}
             </td>
             <td>
-                {props.game.eTag}
+                {props.game.etag}
             </td>
             <td>
                 {props.game.lastFetched.toLocaleString()}

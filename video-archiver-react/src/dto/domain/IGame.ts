@@ -5,7 +5,7 @@ export interface IGame extends IIdDomainEntity {
     igdbId: string;
     name: string;
     boxArtUrl: string | null;
-    eTag: string | null;
+    etag: string | null;
     lastFetched: Date;
     lastSuccessfulFetch: Date | null;
 }

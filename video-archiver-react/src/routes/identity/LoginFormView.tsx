@@ -26,10 +26,10 @@ const LoginFormView = (props: IProps) => {
             <div className="form-floating mb-3">
                 <input
                     onChange={(e) => props.handleChange(e.target)}
-                    value={props.values.email}
-                    className="form-control" autoComplete="username" aria-required="true" placeholder="name@example.com" type="email"
-                    id="Input_Email" name="email" />
-                <label htmlFor="Input_Email">Email</label>
+                    value={props.values.username}
+                    className="form-control" autoComplete="username" aria-required="true" placeholder="username" type="text"
+                    id="Input_Username" name="username" />
+                <label htmlFor="Input_Username">Username</label>
             </div>
             <div className="form-floating mb-3">
                 <input

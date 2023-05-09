@@ -56,7 +56,7 @@ const GameDetails = () => {
                             Etag
                         </dt>
                         <dd className="col-sm-10">
-                            {game.eTag}
+                            {game.etag}
                         </dd>
                         <dt className="col-sm-2">
                             LastFetched

@@ -12,7 +12,7 @@ const Login = () => {
     const navigate = useNavigate();
 
     const [values, setInput] = useState({
-        email: "",
+        username: "",
         password: "",
     } as ILoginData);
 
@@ -29,7 +29,7 @@ const Login = () => {
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
 
-        if (values.email.length === 0 || values.password.length === 0) {
+        if (values.username.length === 0 || values.password.length === 0) {
             setValidationErrors(["Bad input values!"]);
             return;
         }

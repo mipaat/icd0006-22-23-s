@@ -1,43 +1,54 @@
-import { useContext, useState, MouseEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useContext, useEffect, useState, MouseEvent, ChangeEvent } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { isDate } from "util/types";
+import { IGame } from "../../../dto/domain/IGame";
 import { IGameData } from "../../../dto/domain/IGameData";
+import { isIRestApiErrorResponse } from "../../../dto/IRestApiErrorResponse";
 import { GameService } from "../../../services/GameService";
 import { AuthContext } from "../../Root";
-import { DateTime } from "luxon";
+import {DateTime} from "luxon";
 
-const GameCreate = () => {
+const GameEdit = () => {
     const authContext = useContext(AuthContext);
 
     const navigate = useNavigate();
 
     const [validationErrors, setValidationErrors] = useState([] as string[]);
 
-    const [gameData, setGameData] = useState({
-        igdbId: "",
-        name: "",
-        boxArtUrl: "",
-        eTag: "",
-        lastFetched: null as Date | null,
-        lastSuccessfulFetch: null as  Date | null,
-    } as IGameData);
+    const { id } = useParams();
+
+    const [game, setGame] = useState(null as IGame | null);
+
+    useEffect(() => {
+        if (id) {
+            const gameService = new GameService(authContext);
+            const fetchAndUpdateGame = async () => {
+                const fetchedGame = await gameService.getById(id);
+                if (!isIRestApiErrorResponse(fetchedGame) && fetchedGame !== undefined) {
+                    setGame(fetchedGame);
+                }
+            }
+            fetchAndUpdateGame();
+        }
+    }, [authContext, id]);
 
     const handleChange = (target: EventTarget & HTMLInputElement) => {
-        if (gameData) {
-            setGameData({ ...gameData, [target.name]: target.value });
+        if (game) {
+            setGame({ ...game, [target.name]: target.value });
         }
     }
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
         const newValidationErrors = [] as string[];
-        if (gameData) {
-            if (!gameData.igdbId) {
+        if (game) {
+            if (!game.igdbId) {
                 newValidationErrors.push("IgdbID is required");
             }
-            if (!gameData.name) {
+            if (!game.name) {
                 newValidationErrors.push("Name is required");
             }
-            if (!gameData.lastFetched) {
+            if (!game.lastFetched) {
                 newValidationErrors.push("LastFetched is required");
             }
             if (newValidationErrors.length > 0) {
@@ -46,7 +57,7 @@ const GameCreate = () => {
             }
 
             const gameService = new GameService(authContext);
-            const result = await gameService.create(gameData);
+            const result = await gameService.update(game);
             if (result) {
                 setValidationErrors([result]);
             }
@@ -55,13 +66,13 @@ const GameCreate = () => {
         }
     }
 
-    if (gameData) {
+    if (game) {
         return (
             <>
                 <h1>Edit</h1>
 
 
-                <ul style={{ 'display': validationErrors.length == 0 ? 'none' : '' }}>
+                <ul style={{ 'display': validationErrors.length === 0 ? 'none' : '' }}>
                     <li>{validationErrors.length > 0 ? validationErrors[0] : ''}</li>
                 </ul>
 
@@ -79,7 +90,7 @@ const GameCreate = () => {
                                     id="igdbId"
                                     maxLength={16}
                                     name="igdbId"
-                                    value={gameData.igdbId ?? ""} />
+                                    value={game.igdbId} />
                             </div>
                             <div className="form-group">
                                 <label className="control-label" htmlFor="name">Name</label>
@@ -90,7 +101,7 @@ const GameCreate = () => {
                                     id="name"
                                     maxLength={512}
                                     name="name"
-                                    value={gameData.name ?? ""} />
+                                    value={game.name} />
                             </div>
                             <div className="form-group">
                                 <label className="control-label" htmlFor="boxArtUrl">BoxArtUrl</label>
@@ -100,37 +111,37 @@ const GameCreate = () => {
                                     type="text"
                                     maxLength={4096}
                                     name="boxArtUrl"
-                                    value={gameData.boxArtUrl ?? ""} />
+                                    value={game.boxArtUrl ?? ""} />
                             </div>
                             <div className="form-group">
-                                <label className="control-label" htmlFor="eTag">Etag</label>
+                                <label className="control-label" htmlFor="etag">Etag</label>
                                 <input
                                     className="form-control"
                                     onChange={e => handleChange(e.target)}
                                     type="text"
-                                    id="eTag" maxLength={4096}
-                                    name="eTag"
-                                    value={gameData.eTag ?? ""} />
+                                    id="etag" maxLength={4096}
+                                    name="etag"
+                                    value={game.etag ?? ""} />
                             </div>
                             <div className="form-group">
                                 <label className="control-label" htmlFor="lastFetched">LastFetched</label>
                                 <input
                                     className="form-control"
-                                    onChange={e => setGameData({ ...gameData, lastFetched: getDateFromDateString(e.target.value) })}
+                                    onChange={e => setGame({...game, lastFetched: getDateFromDateString(e.target.value)})}
                                     type="datetime-local"
                                     id="lastFetched"
                                     name="lastFetched"
-                                    value={getDateString(gameData.lastFetched)} />
+                                    value={getDateString(game.lastFetched)} />
                             </div>
                             <div className="form-group">
                                 <label className="control-label" htmlFor="lastSuccessfulFetch">LastSuccessfulFetch</label>
                                 <input
                                     className="form-control"
-                                    onChange={e => setGameData({ ...gameData, lastSuccessfulFetch: getDateFromDateString(e.target.value) })}
+                                    onChange={e => setGame({...game, lastSuccessfulFetch: getDateFromDateString(e.target.value)})}
                                     type="datetime-local"
                                     id="lastSuccessfulFetch"
                                     name="lastSuccessfulFetch"
-                                    value={getDateString(gameData.lastSuccessfulFetch)} />
+                                    value={getDateString(game.lastSuccessfulFetch)} />
                             </div>
                             <div className="form-group">
                                 <input type="submit" value="Save" className="btn btn-primary" onClick={e => onSubmit(e)} />
@@ -152,11 +163,11 @@ const GameCreate = () => {
 
 function getDateString(date: Date | null): string {
     date ??= new Date();
-    return DateTime.fromJSDate(date).toISO({ includeOffset: false })!;
+    return DateTime.fromJSDate(date).toISO({includeOffset: false})!;
 }
 
 function getDateFromDateString(dateString: string): Date {
     return DateTime.fromISO(dateString).toJSDate();
 }
 
-export default GameCreate;
+export default GameEdit;

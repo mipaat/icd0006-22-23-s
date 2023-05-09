@@ -15,7 +15,7 @@ const Register = () => {
     const [values, setInput] = useState({
         password: "",
         confirmPassword: "",
-        email: ""
+        username: ""
     } as IRegisterData);
 
     const [validationErrors, setValidationErrors] = useState([] as string[]);
