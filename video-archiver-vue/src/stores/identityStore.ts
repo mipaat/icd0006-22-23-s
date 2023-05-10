@@ -1,16 +1,12 @@
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
-import * as configJson from '@/config.json';
-import { type IConfig } from '@/config';
 import { LocalStorageService } from '@/localStorage/LocalStorageService';
 import { JWT_KEY, REFRESH_TOKEN_KEY } from '@/localStorage/LocalStorageKeys';
 import type { IRefreshToken } from '@/dto/IRefreshToken';
 import { DecodedJWT } from '@/dto/DecodedJWT';
 
-const config = configJson as IConfig;
-
-const localStorageService = new LocalStorageService(config.localStorageKey);
+const localStorageService = new LocalStorageService();
 const storedJwt = localStorageService.getItem(JWT_KEY);
 const storedRefreshToken = localStorageService.getItem(REFRESH_TOKEN_KEY);
 

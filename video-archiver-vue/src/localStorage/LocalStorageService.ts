@@ -1,8 +1,13 @@
+import * as configJson from '@/config.json';
+import { type IConfig } from '@/config';
+
+const config = configJson as IConfig;
+
 export class LocalStorageService {
     private localStorageKey: string;
 
-    constructor(localStorageKey: string) {
-        this.localStorageKey = localStorageKey;
+    constructor() {
+        this.localStorageKey = config.localStorageKey;
     }
 
     private getActualKey(key: string): string {
