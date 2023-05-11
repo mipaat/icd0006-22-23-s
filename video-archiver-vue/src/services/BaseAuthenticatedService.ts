@@ -7,11 +7,10 @@ import { BaseService } from "./BaseService";
 import { IdentityService } from "./IdentityService";
 import { useIdentityStore } from "@/stores/identityStore";
 
-const store = useIdentityStore();
-
 export class BaseAuthenticatedService extends BaseService {
     constructor(baseUrl: string, identityService: IdentityService | null = null) {
         super(baseUrl);
+        const store = useIdentityStore();
 
         identityService ??= new IdentityService();
 

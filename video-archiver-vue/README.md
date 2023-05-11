@@ -1,3 +1,11 @@
+# VideoArchiver
+
+Make sure to copy `config.example.json` to `config.json` and configure it as needed!  
+
+To access the CRUD page, log in with username `admin` and password `admin123`  
+
+JWT is automatically refreshed using refresh token if needed, but if the refresh token expires or becomes invalid for some other reason, the app will just be stuck loading and you'll need to manually log out.
+
 # video-archiver-vue
 
 This template should help get you started developing with Vue 3 in Vite.

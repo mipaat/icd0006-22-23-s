@@ -3,6 +3,7 @@ import { type IJWTResponse } from '../dto/IJWTResponse';
 import { type IRefreshTokenData } from '../dto/IRefreshTokenData';
 import { type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
 import { BaseService } from './BaseService';
+import { isAxiosResponse } from '@/utils/Utils';
 
 export class IdentityService extends BaseService {
     constructor() {
@@ -13,11 +14,19 @@ export class IdentityService extends BaseService {
         username: string,
         password: string
     ): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
-        return await this.post<IJWTResponse>('register', { username, password });
+        const result = await this.post<IJWTResponse>('register', { username, password });
+        if (isAxiosResponse<IJWTResponse>(result)) {
+            return result.data;
+        }
+        return result;
     }
 
     async login(username: string, password: string): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
-        return await this.post<IJWTResponse>('login', {username: username, password});
+        const result = await this.post<IJWTResponse>('login', {username: username, password});
+        if (isAxiosResponse<IJWTResponse>(result)) {
+            return result.data;
+        }
+        return result;
     }
 
     async logout(refreshToken: IRefreshToken, jwt: string): Promise<void> {
@@ -31,6 +40,10 @@ export class IdentityService extends BaseService {
     async refreshToken(
         data: IRefreshTokenData
     ): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
-        return await this.post<IJWTResponse>('refreshToken', data);
+        const result = await this.post<IJWTResponse>('refreshToken', data);
+        if (isAxiosResponse<IJWTResponse>(result)) {
+            return result.data;
+        }
+        return result;
     }
 }

@@ -1,8 +1,7 @@
-import Axios, { AxiosError, type AxiosInstance, type AxiosRequestConfig } from 'axios';
+import Axios, { isAxiosError, type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 
 import * as configJson from '../config.json';
-import { type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
-import { type IRestApiResponse } from '../dto/IRestApiResponse';
+import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
 import { conformApiBaseUrl, type IConfig } from '@/config';
 const config = configJson as IConfig;
 
@@ -29,51 +28,34 @@ export abstract class BaseService {
         })
     }
 
-    protected async post<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D> | undefined): Promise<TResponse | IRestApiErrorResponse | undefined> {
+    private async baseRequest<TResponse>(requestFunc: () => Promise<AxiosResponse<TResponse>>): Promise<AxiosResponse<TResponse> | IRestApiErrorResponse | undefined> {
         try {
-            const response = await this.axios.post<TResponse>(url, data, config);
-            return response.data;
-        } catch (e) {
-            const axiosError = e as AxiosError<IRestApiErrorResponse>;
-            if (axiosError.response) {
-                console.log('Error:', axiosError.message, 'Response:', axiosError.response.data);
-                return axiosError.response!.data;
-            }
-
-            console.log('error: ', (e as Error).message);
-            return undefined;
-        }
-    }
-
-    protected async delete(url: string, config?: AxiosRequestConfig | undefined): Promise<IRestApiResponse | IRestApiErrorResponse | undefined> {
-        try {
-            const response = await this.axios.delete(url, config);
+            const response = await requestFunc();
             return response;
         } catch (e) {
-            const axiosError = e as AxiosError<IRestApiErrorResponse>;
-            if (axiosError.response) {
-                console.log('Error:', axiosError.message, 'Response:', axiosError.response.data);
-                return axiosError.response!.data;
+            if (isAxiosError<IRestApiErrorResponse>(e)) {
+                if (e.response) {
+                    if (isIRestApiErrorResponse(e.response.data)) {
+                        console.log('Error:', e.message, 'Response:', e.response.data);
+                    return e.response.data;
+                    }
+                }
             }
 
-            console.log('error: ', (e as Error).message);
+            console.log('Error:', (e as Error).message);
             return undefined;
         }
     }
 
-    protected async get<TResponse>(url: string, config?: AxiosRequestConfig | undefined) {
-        try {
-            const response = await this.axios.get<TResponse>(url, config);
-            return response.data;
-        } catch (e) {
-            const axiosError = e as AxiosError<IRestApiErrorResponse>;
-            if (axiosError.response) {
-                console.log('Error:', axiosError.message, 'Response:', axiosError.response.data);
-                return axiosError.response!.data;
-            }
+    protected async post<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D> | undefined): Promise<AxiosResponse<TResponse> | IRestApiErrorResponse | undefined> {
+        return await this.baseRequest(() => this.axios.post<TResponse>(url, data, config));
+    }
 
-            console.log('error: ', (e as Error).message);
-            return undefined;
-        }
+    protected async delete(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse | IRestApiErrorResponse | undefined> {
+        return await this.baseRequest(() => this.axios.delete(url, config));
+    }
+
+    protected async get<TResponse>(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse<TResponse> | IRestApiErrorResponse | undefined> {
+        return await this.baseRequest(() => this.axios.get<TResponse>(url, config));
     }
 }

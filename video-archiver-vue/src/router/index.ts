@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/identity/LoginView.vue';
 import RegisterView from '../views/identity/RegisterView.vue';
+import CrudGameIndexView from '../views/crud/game/IndexView.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,6 +29,34 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             component: RegisterView
+        },
+        {
+            path: '/crud/game',
+            name: 'crudGameIndex',
+            component: CrudGameIndexView
+        },
+        {
+            path: '/crud/game/create',
+            name: 'crudGameCreate',
+            component: () => import('../views/crud/game/CreateView.vue')
+        },
+        {
+            path: '/crud/game/details/:id',
+            name: 'crudGameDetails',
+            props: true,
+            component: () => import('../views/crud/game/DetailsView.vue')
+        },
+        {
+            path: '/crud/game/edit/:id',
+            name: 'crudGameEdit',
+            props: true,
+            component: () => import('../views/crud/game/EditView.vue')
+        },
+        {
+            path: '/crud/game/delete/:id',
+            name: 'crudGameDelete',
+            props: true,
+            component: () => import('../views/crud/game/DeleteView.vue')
         }
     ]
 });

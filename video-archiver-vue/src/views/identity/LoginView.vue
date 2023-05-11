@@ -6,8 +6,9 @@ import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { IdentityService } from '@/services/IdentityService';
 import { useIdentityStore } from '@/stores/identityStore';
 import router from '@/router/index';
+import { ref } from 'vue';
 
-let validationErrors = new Array<string>();
+let validationErrors = ref(new Array<string>());
 let username = "";
 let password = "";
 const identityService = new IdentityService();
@@ -15,21 +16,21 @@ const login = async (event: MouseEvent) => {
     event.preventDefault();
 
     if (username.length === 0 || password.length === 0) {
-        validationErrors.push("Bad input values!");
+        validationErrors.value.push("Bad input values!");
         return;
     }
 
-    validationErrors = [];
+    validationErrors.value = [];
 
     const jwtResponse = await identityService.login(username, password);
 
     if (isIRestApiErrorResponse(jwtResponse)) {
-        validationErrors.push(jwtResponse.error);
+        validationErrors.value.push(jwtResponse.error);
         return;
     }
 
     if (!isIJwtResponse(jwtResponse)) {
-        validationErrors.push("Unknown error occurred");
+        validationErrors.value.push("Unknown error occurred");
         return;
     }
 
