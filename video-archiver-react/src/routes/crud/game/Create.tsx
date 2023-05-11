@@ -4,6 +4,7 @@ import { IGameData } from "../../../dto/domain/IGameData";
 import { GameService } from "../../../services/GameService";
 import { AuthContext } from "../../Root";
 import { DateTime } from "luxon";
+import ValidationErrors from "../../../components/ValidationErrors";
 
 const GameCreate = () => {
     const authContext = useContext(AuthContext);
@@ -49,6 +50,7 @@ const GameCreate = () => {
             const result = await gameService.create(gameData);
             if (result) {
                 setValidationErrors([result]);
+                return;
             }
 
             navigate("/Crud/Game/");
@@ -60,10 +62,7 @@ const GameCreate = () => {
             <>
                 <h1>Edit</h1>
 
-
-                <ul style={{ 'display': validationErrors.length === 0 ? 'none' : '' }}>
-                    <li>{validationErrors.length > 0 ? validationErrors[0] : ''}</li>
-                </ul>
+                <ValidationErrors errors={validationErrors}/>
 
                 <h4>Game</h4>
                 <hr />

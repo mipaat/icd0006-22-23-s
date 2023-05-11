@@ -5,6 +5,7 @@ import { isIRestApiErrorResponse } from "../../../dto/IRestApiErrorResponse";
 import { GameService } from "../../../services/GameService";
 import { AuthContext } from "../../Root";
 import {DateTime} from "luxon";
+import ValidationErrors from "../../../components/ValidationErrors";
 
 const GameEdit = () => {
     const authContext = useContext(AuthContext);
@@ -69,10 +70,7 @@ const GameEdit = () => {
             <>
                 <h1>Edit</h1>
 
-
-                <ul style={{ 'display': validationErrors.length === 0 ? 'none' : '' }}>
-                    <li>{validationErrors.length > 0 ? validationErrors[0] : ''}</li>
-                </ul>
+                <ValidationErrors errors={validationErrors} />
 
                 <h4>Game</h4>
                 <hr />

@@ -14,6 +14,7 @@ import GameCreate from './routes/crud/game/Create';
 import GameDetails from './routes/crud/game/Details';
 import GameEdit from './routes/crud/game/Edit';
 import GameDelete from './routes/crud/game/Delete';
+import PendingApproval from './components/PendingApproval';
 
 const router = createBrowserRouter([
     {
@@ -32,6 +33,10 @@ const router = createBrowserRouter([
             {
                 path: "register/",
                 element: <Register />,
+            },
+            {
+                path: "pendingApproval/",
+                element: <PendingApproval />
             },
             {
                 path: "crud/game/",

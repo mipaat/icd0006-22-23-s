@@ -3,6 +3,7 @@ import { IGameData } from "../dto/domain/IGameData";
 import { IAuthenticationContext } from "../dto/IAuthenticationContext";
 import { IRestApiErrorResponse, isIRestApiErrorResponse } from "../dto/IRestApiErrorResponse";
 import { IRestApiResponse, isIRestApiResponse } from "../dto/IRestApiResponse";
+import { isAxiosResponse } from "../utils/Utils";
 import { BaseAuthenticatedService } from "./BaseAuthenticatedService";
 import { IdentityService } from "./IdentityService";
 
@@ -13,24 +14,27 @@ export class GameService extends BaseAuthenticatedService {
 
     async getAll(): Promise<IGame[] | IRestApiErrorResponse | undefined> {
         const result = await this.get<IGame[]>("listAll");
-        if (!isIRestApiErrorResponse(result) && result !== undefined) {
-            for (const game of result) {
+        if (isAxiosResponse<IGame[]>(result)) {
+            for (const game of result.data) {
                 game.lastFetched = new Date(game.lastFetched);
                 if (game.lastSuccessfulFetch) {
                     game.lastSuccessfulFetch = new Date(game.lastSuccessfulFetch);
                 }
             }
+            return result.data;
         }
         return result;
     }
 
     async getById(id: string): Promise<IGame | IRestApiErrorResponse | undefined> {
         const result = await this.get<IGame>("GetById", {params: {id: id}});
-        if (!isIRestApiErrorResponse(result) && result !== undefined) {
-            result.lastFetched = new Date(result.lastFetched);
-            if (result.lastSuccessfulFetch) {
-                result.lastSuccessfulFetch = new Date(result.lastSuccessfulFetch);
+        if (isAxiosResponse<IGame>(result)) {
+            const game = result.data;
+            game.lastFetched = new Date(game.lastFetched);
+            if (game.lastSuccessfulFetch) {
+                game.lastSuccessfulFetch = new Date(game.lastSuccessfulFetch);
             }
+            return game;
         }
         return result;
     }
@@ -45,7 +49,6 @@ export class GameService extends BaseAuthenticatedService {
 
     async update(data: IGame): Promise<string | null> {
         const result = await this.post<IRestApiResponse>("Update", data);
-        console.log("HERE", result);
         if (isIRestApiResponse(result)) {
             if (result.status === 200) {
                 return null;
