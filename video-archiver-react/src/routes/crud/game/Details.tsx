@@ -23,7 +23,7 @@ const GameDetails = () => {
             }
             fetchAndUpdateGame();
         }
-    }, [authContext]);
+    }, [id, authContext]);
 
     if (game) {
         return (

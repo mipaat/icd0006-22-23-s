@@ -5,7 +5,6 @@ import { isIJwtResponse } from "../../dto/IJWTResponse";
 import { RefreshToken } from "../../dto/IRefreshToken";
 import { IRegisterData } from "../../dto/IRegisterData";
 import { isIRestApiErrorResponse } from "../../dto/IRestApiErrorResponse";
-import { IdentityService } from "../../services/IdentityService";
 import { AuthContext, IdentityServiceContext } from "../Root";
 import RegisterFormView from "./RegisterFormView";
 
@@ -24,7 +23,7 @@ const Register = () => {
         setInput({ ...values, [target.name]: target.value });
     }
 
-    const { authState: jwtResponse, updateAuthState } = useContext(AuthContext);
+    const { updateAuthState } = useContext(AuthContext);
 
     const identityService = useContext(IdentityServiceContext);
 

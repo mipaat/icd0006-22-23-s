@@ -27,7 +27,7 @@ const identityService = new IdentityService();
 export const IdentityServiceContext = createContext<IdentityService>(identityService);
 
 const Root = () => {
-    const localStorageService = useMemo(() => new LocalStorageService(config.localStorageKey), [config]);
+    const localStorageService = useMemo(() => new LocalStorageService(config.localStorageKey), []);
     const storedJwt = localStorageService.getItem(JWT_KEY);
     const storedRefreshToken = localStorageService.getItem(REFRESH_TOKEN_KEY);
 

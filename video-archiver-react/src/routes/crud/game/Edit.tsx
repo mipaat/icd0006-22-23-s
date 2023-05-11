@@ -1,8 +1,6 @@
-import { useContext, useEffect, useState, MouseEvent, ChangeEvent } from "react";
+import { useContext, useEffect, useState, MouseEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { isDate } from "util/types";
 import { IGame } from "../../../dto/domain/IGame";
-import { IGameData } from "../../../dto/domain/IGameData";
 import { isIRestApiErrorResponse } from "../../../dto/IRestApiErrorResponse";
 import { GameService } from "../../../services/GameService";
 import { AuthContext } from "../../Root";

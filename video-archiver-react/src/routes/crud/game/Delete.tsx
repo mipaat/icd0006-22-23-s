@@ -25,7 +25,7 @@ const GameDelete = () => {
             }
             fetchAndUpdateGame();
         }
-    }, [authContext]);
+    }, [id, authContext]);
 
     const Error = () => {
         if (error) {

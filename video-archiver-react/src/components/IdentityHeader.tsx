@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ConfigContext, AuthContext, IdentityServiceContext } from "../routes/Root";
-import { IdentityService } from "../services/IdentityService";
 import { LocalStorageService } from "../localStorage/LocalStorageService";
 import { REFRESH_TOKEN_KEY } from "../localStorage/LocalStorageKeys";
 import { IAuthenticationState } from "../dto/IAuthenticationState";
@@ -27,15 +26,13 @@ const IdentityHeader = () => {
         return (
             <>
                 <li className="nav-item">
-                    <Link to="info" className="nav-link text-dark">
-                        <UserInfo authState={authState} />
-                    </Link>
+                    <UserInfo authState={authState} />
                 </li>
                 <li className="nav-item">
-                    <a onClick={(e) => {
+                    <button onClick={(e) => {
                         e.preventDefault();
                         logout();
-                    }} className="nav-link text-dark" href="#">Logout</a>
+                    }} className="nav-link text-dark">Logout</button>
                 </li>
             </>
         );

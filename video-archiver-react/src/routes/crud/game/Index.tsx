@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { IGame } from "../../../dto/domain/IGame";
-import queryString from 'query-string';
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../Root";
 import { GameService } from "../../../services/GameService";

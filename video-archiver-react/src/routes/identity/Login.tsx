@@ -22,7 +22,7 @@ const Login = () => {
         setInput({ ...values, [target.name]: target.value });
     }
 
-    const { authState: jwtResponse, updateAuthState } = useContext(AuthContext);
+    const { updateAuthState } = useContext(AuthContext);
 
     const identityService = useContext(IdentityServiceContext);
 
