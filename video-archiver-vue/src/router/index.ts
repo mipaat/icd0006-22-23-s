@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/identity/LoginView.vue';
 import RegisterView from '../views/identity/RegisterView.vue';
 import CrudGameIndexView from '../views/crud/game/IndexView.vue';
+import PendingApprovalView from '../views/identity/PendingApproval.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,6 +30,11 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             component: RegisterView
+        },
+        {
+            path: '/pendingApproval',
+            name: 'pendingApproval',
+            component: PendingApprovalView
         },
         {
             path: '/crud/game',

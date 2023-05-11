@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { DecodedJWT } from '@/dto/DecodedJWT';
-import { isIJwtResponse } from '@/dto/IJWTResponse';
+import { isIJwtResponse, type IJWTResponse } from '@/dto/IJWTResponse';
 import { RefreshToken } from '@/dto/IRefreshToken';
-import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
+import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
+import { isPendingApprovalError } from '@/dto/PendingApprovalError';
 import router from '@/router';
 import { IdentityService } from '@/services/IdentityService';
 import { useIdentityStore } from '@/stores/identityStore';
@@ -30,7 +31,17 @@ const register = async (event: MouseEvent) => {
 
     validationErrors.value = [];
 
-    const jwtResponse = await identityService.register(username, password);
+    let jwtResponse: IJWTResponse | IRestApiErrorResponse | undefined;
+    try {
+        jwtResponse = await identityService.register(username, password);
+    } catch (e) {
+        if (isPendingApprovalError(e)) {
+            await router.push("/pendingApproval");
+            return;
+        }
+        validationErrors.value.push("Unknown error occurred");
+        return;
+    }
 
     if (isIRestApiErrorResponse(jwtResponse)) {
         validationErrors.value.push(jwtResponse.error);

@@ -4,6 +4,7 @@ import { type IRefreshTokenData } from '../dto/IRefreshTokenData';
 import { type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
 import { BaseService } from './BaseService';
 import { isAxiosResponse } from '@/utils/Utils';
+import { PendingApprovalError } from '@/dto/PendingApprovalError';
 
 export class IdentityService extends BaseService {
     constructor() {
@@ -15,7 +16,10 @@ export class IdentityService extends BaseService {
         password: string
     ): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
         const result = await this.post<IJWTResponse>('register', { username, password });
-        if (isAxiosResponse<IJWTResponse>(result)) {
+        if (isAxiosResponse(result)) {
+            if (result.status === 202) {
+                throw new PendingApprovalError();
+            }
             return result.data;
         }
         return result;

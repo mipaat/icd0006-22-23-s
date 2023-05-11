@@ -7,8 +7,10 @@ import { IdentityService } from '@/services/IdentityService';
 import { useIdentityStore } from '@/stores/identityStore';
 import router from '@/router/index';
 import { ref } from 'vue';
+import PendingApproval from '@/components/PendingApproval.vue';
 
 let validationErrors = ref(new Array<string>());
+let pendingApproval = ref(false);
 let username = "";
 let password = "";
 const identityService = new IdentityService();
@@ -20,12 +22,18 @@ const login = async (event: MouseEvent) => {
         return;
     }
 
+    pendingApproval.value = false;
     validationErrors.value = [];
 
     const jwtResponse = await identityService.login(username, password);
 
     if (isIRestApiErrorResponse(jwtResponse)) {
-        validationErrors.value.push(jwtResponse.error);
+        console.log(jwtResponse);
+        if (jwtResponse.status === 401) {
+            pendingApproval.value = true;
+        } else {
+            validationErrors.value.push(jwtResponse.error);
+        }
         return;
     }
 
@@ -46,6 +54,7 @@ const login = async (event: MouseEvent) => {
         <h2>Login</h2>
         <hr />
 
+        <PendingApproval v-if="pendingApproval"/>
         <ul :class="{ 'd-none': validationErrors.length === 0 }">
             <li v-for="(item) in validationErrors" :key="item">
                 {{ item }}
@@ -58,7 +67,7 @@ const login = async (event: MouseEvent) => {
         </div>
 
         <div class="form-floating mb-3">
-            <input v-model="password" class="form-control" id="Input_Password" />
+            <input v-model="password" class="form-control" id="Input_Password" type="password" />
             <label for="Input_Password">Password</label>
         </div>
 
