@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ValidationErrors from '@/components/ValidationErrors.vue';
 import { DecodedJWT } from '@/dto/DecodedJWT';
 import { isIJwtResponse, type IJWTResponse } from '@/dto/IJWTResponse';
 import { RefreshToken } from '@/dto/IRefreshToken';
@@ -19,6 +20,8 @@ const identityService = new IdentityService();
 const register = async (event: MouseEvent) => {
     event.preventDefault();
 
+    validationErrors.value = [];
+
     if (username.length === 0 || password.length === 0) {
         validationErrors.value.push("Bad input values!");
         return;
@@ -28,8 +31,6 @@ const register = async (event: MouseEvent) => {
         validationErrors.value.push("Passwords must match!");
         return;
     }
-
-    validationErrors.value = [];
 
     let jwtResponse: IJWTResponse | IRestApiErrorResponse | undefined;
     try {
@@ -65,11 +66,7 @@ const register = async (event: MouseEvent) => {
         <h2>Create a new account.</h2>
         <hr />
 
-        <ul :class="{ 'd-none': validationErrors.length === 0 }">
-            <li v-for="(item) in validationErrors" :key="item">
-                {{ item }}
-            </li>
-        </ul>
+        <ValidationErrors :errors="validationErrors" />
 
         <div class="form-floating mb-3">
             <input v-model="username" class="form-control" id="Input_Username" />

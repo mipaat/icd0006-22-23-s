@@ -4,6 +4,7 @@ import router from '@/router';
 import { GameService } from '@/services/GameService';
 import { ref } from 'vue';
 import { getDateString, getDateFromDateString } from '@/utils/Utils';
+import ValidationErrors from '@/components/ValidationErrors.vue';
 
 const validationErrors = ref(new Array<string>());
 const gameData = ref({
@@ -47,11 +48,7 @@ const submit = async (event: MouseEvent) => {
 <template>
     <h1>Edit</h1>
 
-    <ul :class="{ 'd-none': validationErrors.length === 0 }">
-        <li v-for="(item) in validationErrors" :key="item">
-            {{ item }}
-        </li>
-    </ul>
+    <ValidationErrors :errors="validationErrors" />
 
     <h4>Game</h4>
     <hr />

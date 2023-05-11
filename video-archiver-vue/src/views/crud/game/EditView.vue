@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import type { IGame } from '@/dto/domain/IGame';
 import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { getDateString, getDateFromDateString } from '@/utils/Utils';
+import ValidationErrors from '@/components/ValidationErrors.vue';
 
 const props = defineProps({
     id: String
@@ -60,11 +61,7 @@ const submit = async (event: MouseEvent) => {
     <h1>Edit</h1>
 
     <template v-if="game">
-        <ul :class="{ 'd-none': validationErrors.length === 0 }">
-            <li v-for="(item) in validationErrors" :key="item">
-                {{ item }}
-            </li>
-        </ul>
+        <ValidationErrors :errors="validationErrors" />
 
         <h4>Game</h4>
         <hr />
@@ -93,17 +90,13 @@ const submit = async (event: MouseEvent) => {
                         <label class="control-label" for="lastFetched">LastFetched</label>
                         <input class="form-control" :value="getDateString(game.lastFetched)"
                             @input="game ? game.lastFetched = getDateFromDateString(($event.target as HTMLInputElement).value) : null"
-                            type="datetime-local"
-                            id="lastFetched"
-                            name="lastFetched" />
+                            type="datetime-local" id="lastFetched" name="lastFetched" />
                     </div>
                     <div class="form-group">
                         <label class="control-label" for="lastSuccessfulFetch">LastSuccessfulFetch</label>
                         <input class="form-control" :value="getDateString(game.lastSuccessfulFetch)"
                             @input="game ? game.lastSuccessfulFetch = getDateFromDateString(($event.target as HTMLInputElement).value) : null"
-                            type="datetime-local"
-                            id="lastSuccessfulFetch"
-                            name="lastSuccessfulFetch" />
+                            type="datetime-local" id="lastSuccessfulFetch" name="lastSuccessfulFetch" />
                     </div>
 
                     <div class="form-group">
@@ -115,7 +108,7 @@ const submit = async (event: MouseEvent) => {
 
         <div>
             <RouterLink to="/Crud/Game">Back to List</RouterLink>
-        </div> 
+        </div>
     </template>
     <div v-else>LOADING GAME</div>
 </template>

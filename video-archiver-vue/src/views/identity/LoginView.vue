@@ -8,6 +8,7 @@ import { useIdentityStore } from '@/stores/identityStore';
 import router from '@/router/index';
 import { ref } from 'vue';
 import PendingApproval from '@/components/PendingApproval.vue';
+import ValidationErrors from '@/components/ValidationErrors.vue';
 
 let validationErrors = ref(new Array<string>());
 let pendingApproval = ref(false);
@@ -17,18 +18,17 @@ const identityService = new IdentityService();
 const login = async (event: MouseEvent) => {
     event.preventDefault();
 
+    pendingApproval.value = false;
+    validationErrors.value = [];
+
     if (username.length === 0 || password.length === 0) {
         validationErrors.value.push("Bad input values!");
         return;
     }
 
-    pendingApproval.value = false;
-    validationErrors.value = [];
-
     const jwtResponse = await identityService.login(username, password);
 
     if (isIRestApiErrorResponse(jwtResponse)) {
-        console.log(jwtResponse);
         if (jwtResponse.status === 401) {
             pendingApproval.value = true;
         } else {
@@ -54,12 +54,8 @@ const login = async (event: MouseEvent) => {
         <h2>Login</h2>
         <hr />
 
-        <PendingApproval v-if="pendingApproval"/>
-        <ul :class="{ 'd-none': validationErrors.length === 0 }">
-            <li v-for="(item) in validationErrors" :key="item">
-                {{ item }}
-            </li>
-        </ul>
+        <PendingApproval v-if="pendingApproval" />
+        <ValidationErrors :errors="validationErrors" />
 
         <div class="form-floating mb-3">
             <input v-model="username" class="form-control" id="Input_Username" />
@@ -71,8 +67,7 @@ const login = async (event: MouseEvent) => {
             <label for="Input_Password">Password</label>
         </div>
 
-        <button @click="login"
-            class="w-100 btn btn-lg btn-primary">
+        <button @click="login" class="w-100 btn btn-lg btn-primary">
             Login
         </button>
     </form>
