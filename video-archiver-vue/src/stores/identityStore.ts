@@ -57,6 +57,10 @@ export const useIdentityStore = defineStore('identityStore', () => {
         selectedAuthor.value = null;
     }
 
+    if (!readJwt || !readRefreshToken) {
+        clearAll();
+    }
+
     watch(jwt, (newJwt) => {
         if (newJwt) {
             localStorageService.setItem(JWT_KEY, newJwt.token);

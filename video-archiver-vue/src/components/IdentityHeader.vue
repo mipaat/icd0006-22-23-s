@@ -17,7 +17,7 @@ const store = useIdentityStore();
     </template>
     <template v-else>
         <li class="nav-item">
-            <RouterLink to="/register" class="nav-link text-dark">Register</RouterLink>
+            <RouterLink :to="{ name: 'register' }" class="nav-link text-dark">Register</RouterLink>
         </li>
         <li class="nav-item">
             <RouterLink :to="{ name: 'login', params: { returnUrl: router.currentRoute.value.fullPath } }"

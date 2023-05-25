@@ -14,24 +14,24 @@ const router = createRouter({
             component: HomeView
         },
         {
-            path: '/login/:returnUrl?',
+            path: '/identity/account/login/:returnUrl?',
             name: 'login',
             props: true,
             component: LoginView
         },
         {
-            path: '/selectAuthor/:returnUrl?',
+            path: '/identity/account/selectAuthor/:returnUrl?',
             name: 'selectAuthor',
             props: true,
             component: SelectAuthorView,
         },
         {
-            path: '/register',
+            path: '/identity/account/register',
             name: 'register',
             component: RegisterView
         },
         {
-            path: '/pendingApproval',
+            path: '/identity/account/pendingApproval',
             name: 'pendingApproval',
             component: PendingApprovalView
         },

@@ -9,6 +9,7 @@ import router from '@/router/index';
 import { ref } from 'vue';
 import PendingApproval from '@/components/PendingApproval.vue';
 import ValidationErrors from '@/components/ValidationErrors.vue';
+import { redirectToSelectAuthor } from '@/router/identityRedirects';
 
 const props = defineProps({
     returnUrl: {
@@ -54,7 +55,7 @@ const login = async (event: MouseEvent) => {
 
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);
-    await router.push(`/selectAuthor?returnUrl=${props.returnUrl}`);
+    await redirectToSelectAuthor(props.returnUrl);
 }
 </script>
 

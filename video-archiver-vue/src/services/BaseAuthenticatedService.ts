@@ -6,7 +6,7 @@ import { isBoolean } from "../utils/Utils";
 import { BaseService } from "./BaseService";
 import { IdentityService } from "./IdentityService";
 import { useIdentityStore } from "@/stores/identityStore";
-import router from "@/router";
+import { redirectToLogin } from "@/router/identityRedirects";
 
 export class BaseAuthenticatedService extends BaseService {
     constructor(baseUrl: string, identityService: IdentityService | null = null) {
@@ -97,7 +97,7 @@ export class BaseAuthenticatedService extends BaseService {
                         setAuthorizationHeader(config, jwt);
                         return await this.axios.request(config);
                     }
-                    
+
                     await redirectToLogin();
                     return Promise.reject(error);
                 }
@@ -106,10 +106,6 @@ export class BaseAuthenticatedService extends BaseService {
             return Promise.reject(error);
         });
     }
-}
-
-async function redirectToLogin() {
-    return await router.push(`/login?returnUrl=${router.currentRoute.value.fullPath}`);
 }
 
 function setAuthorizationHeader(request: InternalAxiosRequestConfig, jwt: string) {

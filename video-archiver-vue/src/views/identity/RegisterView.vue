@@ -6,6 +6,7 @@ import { RefreshToken } from '@/dto/IRefreshToken';
 import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { isPendingApprovalError } from '@/dto/PendingApprovalError';
 import router from '@/router';
+import { redirectToSelectAuthor } from '@/router/identityRedirects';
 import { IdentityService } from '@/services/IdentityService';
 import { useIdentityStore } from '@/stores/identityStore';
 import { ref } from 'vue';
@@ -37,7 +38,7 @@ const register = async (event: MouseEvent) => {
         jwtResponse = await identityService.register(username, password);
     } catch (e) {
         if (isPendingApprovalError(e)) {
-            await router.push("/pendingApproval");
+            await router.push(router.resolve({ name: "pendingApproval" }).fullPath);
             return;
         }
         validationErrors.value.push("Unknown error occurred");
@@ -57,7 +58,7 @@ const register = async (event: MouseEvent) => {
     const identityStore = useIdentityStore();
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);
-    await router.push("/selectAuthor");
+    await redirectToSelectAuthor();
 }
 </script>
 

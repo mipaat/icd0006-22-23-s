@@ -2,6 +2,7 @@
 import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import type { IUserSubAuthor } from '@/dto/IUserSubAuthor';
 import router from '@/router';
+import { redirectToLogin } from '@/router/identityRedirects';
 import { UserService } from '@/services/UserService';
 import { useIdentityStore } from '@/stores/identityStore';
 import { ref } from 'vue';
@@ -17,7 +18,7 @@ const identityStore = useIdentityStore();
 identityStore.selectedAuthor = null;
 
 if (identityStore.loginRequired) {
-    router.push(`/login?returnUrl=${props.returnUrl}`);
+    await redirectToLogin(props.returnUrl);
 }
 
 let authors = ref(null as IUserSubAuthor[] | null);
