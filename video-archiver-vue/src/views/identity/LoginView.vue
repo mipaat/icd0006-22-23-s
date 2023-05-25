@@ -10,6 +10,13 @@ import { ref } from 'vue';
 import PendingApproval from '@/components/PendingApproval.vue';
 import ValidationErrors from '@/components/ValidationErrors.vue';
 
+const props = defineProps({
+    returnUrl: {
+        type: String,
+        default: "/",
+    }
+});
+
 let validationErrors = ref(new Array<string>());
 let pendingApproval = ref(false);
 let username = "";
@@ -45,7 +52,7 @@ const login = async (event: MouseEvent) => {
     const identityStore = useIdentityStore();
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);
-    await router.push("/");
+    await router.push(`/selectAuthor?returnUrl=${props.returnUrl}`);
 }
 </script>
 

@@ -57,7 +57,7 @@ const register = async (event: MouseEvent) => {
     const identityStore = useIdentityStore();
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);
-    await router.push("/");
+    await router.push("/selectAuthor");
 }
 </script>
 

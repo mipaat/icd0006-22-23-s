@@ -8,4 +8,7 @@ const identityStore = useIdentityStore();
     JWT expires: {{ identityStore.jwt?.expiresAt }}
     <br />
     Refresh token expires: {{ identityStore.refreshToken?.expiresAt }}
+    <br />
+    User: {{ identityStore.jwt?.name }}
+    Author: {{ identityStore.selectedAuthor?.displayName ?? identityStore.selectedAuthor?.userName }}
 </template>

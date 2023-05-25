@@ -2,6 +2,7 @@
 import { useIdentityStore } from '@/stores/identityStore';
 import UserInfo from './UserInfo.vue';
 import LogOut from './LogOut.vue';
+import router from '@/router/index';
 const store = useIdentityStore();
 </script>
 
@@ -16,10 +17,11 @@ const store = useIdentityStore();
     </template>
     <template v-else>
         <li class="nav-item">
-                <RouterLink to="register" class="nav-link text-dark">Register</RouterLink>
-            </li>
-            <li class="nav-item">
-                <RouterLink to="login" class="nav-link text-dark">Login</RouterLink>
-            </li>
+            <RouterLink to="/register" class="nav-link text-dark">Register</RouterLink>
+        </li>
+        <li class="nav-item">
+            <RouterLink :to="{ name: 'login', params: { returnUrl: router.currentRoute.value.fullPath } }"
+                class="nav-link text-dark">Login</RouterLink>
+        </li>
     </template>
 </template>
