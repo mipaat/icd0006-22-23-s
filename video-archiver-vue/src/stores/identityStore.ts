@@ -44,12 +44,18 @@ export const useIdentityStore = defineStore('identityStore', () => {
 
     const isRefreshTokenExpired = computed(() => {
         if (!refreshToken.value) return false;
-        return refreshToken.value.expiresAt < new Date();
+        return refreshToken.value.expiresAt.getTime() < new Date().getTime();
     });
 
     const loginRequired = computed(() => {
         return !isLoggedIn.value || isRefreshTokenExpired.value;
     });
+
+    const clearAll = () => {
+        jwt.value = null;
+        refreshToken.value = null;
+        selectedAuthor.value = null;
+    }
 
     watch(jwt, (newJwt) => {
         if (newJwt) {
@@ -75,5 +81,5 @@ export const useIdentityStore = defineStore('identityStore', () => {
         }
     });
 
-    return { jwt, refreshToken, selectedAuthor, isLoggedIn, isRefreshTokenExpired, loginRequired };
+    return { jwt, refreshToken, selectedAuthor, isLoggedIn, isRefreshTokenExpired, loginRequired, clearAll };
 });

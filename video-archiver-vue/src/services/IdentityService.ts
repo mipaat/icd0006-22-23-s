@@ -5,7 +5,6 @@ import { type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
 import { BaseService } from './BaseService';
 import { isAxiosResponse } from '@/utils/Utils';
 import { PendingApprovalError } from '@/dto/PendingApprovalError';
-import type { IUserSubAuthor } from '@/dto/IUserSubAuthor';
 
 export class IdentityService extends BaseService {
     constructor() {

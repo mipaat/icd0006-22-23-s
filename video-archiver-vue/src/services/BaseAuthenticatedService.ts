@@ -6,6 +6,7 @@ import { isBoolean } from "../utils/Utils";
 import { BaseService } from "./BaseService";
 import { IdentityService } from "./IdentityService";
 import { useIdentityStore } from "@/stores/identityStore";
+import router from "@/router";
 
 export class BaseAuthenticatedService extends BaseService {
     constructor(baseUrl: string, identityService: IdentityService | null = null) {
@@ -15,7 +16,7 @@ export class BaseAuthenticatedService extends BaseService {
         identityService ??= new IdentityService();
 
         const refreshToken = async () => {
-            if (store.jwt && store.refreshToken) {
+            if (store.jwt && store.refreshToken && store.refreshToken.expiresAt.getTime() < new Date().getTime()) {
                 const jwtResponse = await identityService!.refreshToken({
                     jwt: store.jwt.token,
                     refreshToken: store.refreshToken.token,
@@ -40,7 +41,7 @@ export class BaseAuthenticatedService extends BaseService {
             return requestConfig;
         });
 
-        this.axios.interceptors.request.use(request => {
+        this.axios.interceptors.request.use(async request => {
             const currentTime = new Date();
             currentTime.setSeconds(currentTime.getSeconds() + 5);
 
@@ -50,56 +51,65 @@ export class BaseAuthenticatedService extends BaseService {
                 }
             }
 
-            if (store.jwt && store.refreshToken) {
-                if (store.jwt.expiresAt.getTime() < currentTime.getTime()) {
-                    if (isAxiosRetryConfig(request)) {
-                        request.refreshAttempted = true;
-                    }
-                    return refreshToken().then(jwt => {
-                        if (jwt) {
-                            setAuthorizationHeader(request, jwt);
-                            return request;
-                        }
-                        return Promise.reject("Failed to get JWT");
-                    }).catch(error => {
-                        return Promise.reject(error);
-                    });
-                }
+            if (!store.jwt) {
+                await redirectToLogin();
+                return Promise.reject("No JWT");
             }
 
-            if (store.jwt) {
-                setAuthorizationHeader(request, store.jwt.token);
+            if (store.jwt.expiresAt.getTime() < currentTime.getTime()) {
+                if (!store.refreshToken || store.refreshToken.expiresAt.getTime() < currentTime.getTime()) {
+                    await redirectToLogin();
+                    return Promise.reject("Invalid refresh token");
+                }
+
+                if (isAxiosRetryConfig(request)) {
+                    request.refreshAttempted = true;
+                }
+                return refreshToken().then(async jwt => {
+                    if (jwt) {
+                        setAuthorizationHeader(request, jwt);
+                        return request;
+                    }
+                    await redirectToLogin();
+                    return Promise.reject("Failed to get JWT");
+                }).catch(async error => {
+                    await redirectToLogin();
+                    return Promise.reject(error);
+                });
             }
+
+            setAuthorizationHeader(request, store.jwt.token);
 
             return request;
         });
 
-        this.axios.interceptors.response.use(response => response, error => {
+        this.axios.interceptors.response.use(response => response, async error => {
             if (isAxiosError(error)) {
-                if (error.response?.status === 401 &&
-                    store.jwt &&
-                    store.refreshToken) {
-
+                if (error.response?.status === 401) {
                     const config = error.config;
-                    if (isAxiosRetryConfig(config)) {
-                        if (config.refreshAttempted === false) {
-                            config.refreshAttempted = true;
-
-                            return refreshToken().then(jwt => {
-                                if (jwt === null) {
-                                    return Promise.reject(error);
-                                }
-                                setAuthorizationHeader(config, jwt);
-                                return this.axios.request(config);
-                            });
+                    if (isAxiosRetryConfig(config) && config.refreshAttempted === false && store.isLoggedIn && !store.isRefreshTokenExpired) {
+                        config.refreshAttempted = true;
+                        const jwt = await refreshToken();
+                        if (!jwt) {
+                            await redirectToLogin();
+                            return Promise.reject(error);
                         }
+                        setAuthorizationHeader(config, jwt);
+                        return await this.axios.request(config);
                     }
+                    
+                    await redirectToLogin();
+                    return Promise.reject(error);
                 }
             }
 
             return Promise.reject(error);
         });
     }
+}
+
+async function redirectToLogin() {
+    return await router.push(`/login?returnUrl=${router.currentRoute.value.fullPath}`);
 }
 
 function setAuthorizationHeader(request: InternalAxiosRequestConfig, jwt: string) {

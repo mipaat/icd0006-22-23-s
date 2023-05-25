@@ -17,6 +17,9 @@ const props = defineProps({
     }
 });
 
+const identityStore = useIdentityStore();
+identityStore.clearAll();
+
 let validationErrors = ref(new Array<string>());
 let pendingApproval = ref(false);
 let username = "";
@@ -49,7 +52,6 @@ const login = async (event: MouseEvent) => {
         return;
     }
 
-    const identityStore = useIdentityStore();
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);
     await router.push(`/selectAuthor?returnUrl=${props.returnUrl}`);
