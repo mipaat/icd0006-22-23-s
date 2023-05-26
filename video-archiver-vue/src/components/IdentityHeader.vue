@@ -2,7 +2,6 @@
 import { useIdentityStore } from '@/stores/identityStore';
 import UserInfo from './UserInfo.vue';
 import LogOut from './LogOut.vue';
-import router from '@/router/index';
 const store = useIdentityStore();
 </script>
 
@@ -20,8 +19,13 @@ const store = useIdentityStore();
             <RouterLink :to="{ name: 'register' }" class="nav-link text-dark">Register</RouterLink>
         </li>
         <li class="nav-item">
-            <RouterLink :to="{ name: 'login', params: { returnUrl: router.currentRoute.value.fullPath } }"
-                class="nav-link text-dark">Login</RouterLink>
+            <RouterLink :to="{
+                name: 'login', query: {
+                    returnUrl: $router.currentRoute.value.name !== 'login'
+                        ? $router.currentRoute.value.fullPath
+                        : $router.currentRoute.value.query.returnUrl?.toString()
+                }
+            }" class="nav-link text-dark">Login</RouterLink>
         </li>
     </template>
 </template>

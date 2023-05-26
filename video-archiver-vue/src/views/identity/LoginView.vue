@@ -1,22 +1,19 @@
 <script setup lang="ts">
 import { DecodedJWT } from '@/dto/DecodedJWT';
-import { isIJwtResponse } from '@/dto/IJWTResponse';
+import { type IJWTResponse } from '@/dto/IJWTResponse';
 import { RefreshToken } from '@/dto/IRefreshToken';
 import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { IdentityService } from '@/services/IdentityService';
 import { useIdentityStore } from '@/stores/identityStore';
-import router from '@/router/index';
 import { ref } from 'vue';
 import PendingApproval from '@/components/PendingApproval.vue';
 import ValidationErrors from '@/components/ValidationErrors.vue';
 import { redirectToSelectAuthor } from '@/router/identityRedirects';
+import { ERestApiErrorType } from '@/dto/ERestApiErrorType';
+import { useRoute } from 'vue-router';
 
-const props = defineProps({
-    returnUrl: {
-        type: String,
-        default: "/",
-    }
-});
+const route = useRoute();
+const returnUrl = route.query.returnUrl?.toString() ?? "/";
 
 const identityStore = useIdentityStore();
 identityStore.clearAll();
@@ -37,25 +34,25 @@ const login = async (event: MouseEvent) => {
         return;
     }
 
-    const jwtResponse = await identityService.login(username, password);
-
-    if (isIRestApiErrorResponse(jwtResponse)) {
-        if (jwtResponse.status === 401) {
-            pendingApproval.value = true;
-        } else {
-            validationErrors.value.push(jwtResponse.error);
+    let jwtResponse: IJWTResponse;
+    try {
+        jwtResponse = await identityService.login(username, password);
+    } catch (e) {
+        if (isIRestApiErrorResponse(e)) {
+            if (e.error === ERestApiErrorType.UserNotApproved) {
+                pendingApproval.value = true;
+            } else {
+                validationErrors.value.push(e.error);
+            }
+            return;
         }
-        return;
-    }
-
-    if (!isIJwtResponse(jwtResponse)) {
         validationErrors.value.push("Unknown error occurred");
         return;
     }
 
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);
-    await redirectToSelectAuthor(props.returnUrl);
+    await redirectToSelectAuthor(returnUrl);
 }
 </script>
 

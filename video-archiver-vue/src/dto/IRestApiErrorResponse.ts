@@ -1,5 +1,7 @@
+import type { ERestApiErrorType } from "./ERestApiErrorType";
+
 export interface IRestApiErrorResponse {
-    status: number,
+    errorType: ERestApiErrorType,
     error: string,
 }
 
@@ -9,5 +11,5 @@ export function isIRestApiErrorResponse(response: any): response is IRestApiErro
     }
     const restApiErrorResponse = response as IRestApiErrorResponse;
     return restApiErrorResponse.error !== undefined &&
-        restApiErrorResponse.status !== undefined;
+        restApiErrorResponse.errorType !== undefined;
 }

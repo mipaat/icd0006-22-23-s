@@ -16,7 +16,7 @@ export class BaseAuthenticatedService extends BaseService {
         identityService ??= new IdentityService();
 
         const refreshToken = async () => {
-            if (store.jwt && store.refreshToken && store.refreshToken.expiresAt.getTime() < new Date().getTime()) {
+            if (store.jwt && store.refreshToken && !store.isRefreshTokenExpired) {
                 const jwtResponse = await identityService!.refreshToken({
                     jwt: store.jwt.token,
                     refreshToken: store.refreshToken.token,
@@ -56,8 +56,8 @@ export class BaseAuthenticatedService extends BaseService {
                 return Promise.reject("No JWT");
             }
 
-            if (store.jwt.expiresAt.getTime() < currentTime.getTime()) {
-                if (!store.refreshToken || store.refreshToken.expiresAt.getTime() < currentTime.getTime()) {
+            if (store.isJwtExpired) {
+                if (store.isRefreshTokenExpired) {
                     await redirectToLogin();
                     return Promise.reject("Invalid refresh token");
                 }
@@ -65,17 +65,20 @@ export class BaseAuthenticatedService extends BaseService {
                 if (isAxiosRetryConfig(request)) {
                     request.refreshAttempted = true;
                 }
-                return refreshToken().then(async jwt => {
-                    if (jwt) {
-                        setAuthorizationHeader(request, jwt);
-                        return request;
-                    }
+
+                let jwt: string | null;
+                try {
+                    jwt = await refreshToken();
+                } catch (e) {
                     await redirectToLogin();
                     return Promise.reject("Failed to get JWT");
-                }).catch(async error => {
-                    await redirectToLogin();
-                    return Promise.reject(error);
-                });
+                }
+                if (jwt) {
+                    setAuthorizationHeader(request, jwt);
+                    return request;
+                }
+                await redirectToLogin();
+                return Promise.reject("Failed to get JWT");
             }
 
             setAuthorizationHeader(request, store.jwt.token);

@@ -28,7 +28,7 @@ export abstract class BaseService {
         })
     }
 
-    private async baseRequest<TResponse>(requestFunc: () => Promise<AxiosResponse<TResponse>>): Promise<AxiosResponse<TResponse> | IRestApiErrorResponse | undefined> {
+    private async baseRequest<TResponse>(requestFunc: () => Promise<AxiosResponse<TResponse>>): Promise<AxiosResponse<TResponse>> {
         try {
             const response = await requestFunc();
             return response;
@@ -37,25 +37,25 @@ export abstract class BaseService {
                 if (e.response) {
                     if (isIRestApiErrorResponse(e.response.data)) {
                         console.log('Error:', e.message, 'Response:', e.response.data);
-                    return e.response.data;
+                        throw e.response.data;
                     }
                 }
             }
 
-            console.log('Error:', (e as Error).message);
-            return undefined;
+            console.log('Error:', e);
+            throw e;
         }
     }
 
-    protected async post<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D> | undefined): Promise<AxiosResponse<TResponse> | IRestApiErrorResponse | undefined> {
+    protected async post<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D> | undefined): Promise<AxiosResponse<TResponse>> {
         return await this.baseRequest(() => this.axios.post<TResponse>(url, data, config));
     }
 
-    protected async delete(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse | IRestApiErrorResponse | undefined> {
+    protected async delete(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse> {
         return await this.baseRequest(() => this.axios.delete(url, config));
     }
 
-    protected async get<TResponse>(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse<TResponse> | IRestApiErrorResponse | undefined> {
+    protected async get<TResponse>(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse<TResponse>> {
         return await this.baseRequest(() => this.axios.get<TResponse>(url, config));
     }
 }

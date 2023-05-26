@@ -1,41 +1,36 @@
 <script setup lang="ts">
-import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import type { IUserSubAuthor } from '@/dto/IUserSubAuthor';
 import router from '@/router';
 import { redirectToLogin } from '@/router/identityRedirects';
 import { UserService } from '@/services/UserService';
 import { useIdentityStore } from '@/stores/identityStore';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
-const props = defineProps({
-    returnUrl: {
-        type: String,
-        default: "/",
-    }
-});
+const route = useRoute();
+const returnUrl = route.query.returnUrl?.toString() ?? "/";
 
 const identityStore = useIdentityStore();
 identityStore.selectedAuthor = null;
 
-if (identityStore.loginRequired) {
-    await redirectToLogin(props.returnUrl);
-}
-
 let authors = ref(null as IUserSubAuthor[] | null);
 
-const userService = new UserService();
-userService.listUserSubAuthors().then(async (fetchedAuthors) => {
-    if (!isIRestApiErrorResponse(fetchedAuthors) && fetchedAuthors !== undefined) {
-        authors.value = fetchedAuthors;
-        if (fetchedAuthors.length == 1) {
-            await selectAuthor(fetchedAuthors[0]);
-        }
+onMounted(async () => {
+    if (identityStore.loginRequired) {
+        await redirectToLogin(returnUrl);
+        return;
+    }
+    const userService = new UserService();
+    const fetchedAuthors = await userService.listUserSubAuthors();
+    authors.value = fetchedAuthors;
+    if (fetchedAuthors.length == 1) {
+        await selectAuthor(fetchedAuthors[0]);
     }
 });
 
 const selectAuthor = async (author: IUserSubAuthor) => {
     identityStore.selectedAuthor = author;
-    await router.push(props.returnUrl);
+    await router.push(returnUrl);
 }
 
 const onSelectAuthor = async (event: MouseEvent, author: IUserSubAuthor) => {
@@ -48,7 +43,7 @@ const onSelectAuthor = async (event: MouseEvent, author: IUserSubAuthor) => {
 <template>
     <div v-if="authors">
         <h2>Choose an author to act as</h2>
-        <div v-for="author in authors" @click="event => onSelectAuthor(event, author)">
+        <div v-for="author in authors" :key="author.id" @click="event => onSelectAuthor(event, author)">
             {{ author.displayName ?? author.userName }}
         </div>
     </div>

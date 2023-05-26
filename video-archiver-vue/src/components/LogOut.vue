@@ -15,7 +15,10 @@ const logOut = async (event: MouseEvent) => {
     identityStore.refreshToken = null;
 
     if (refreshToken && jwt) {
-        await identityService.logout(refreshToken, jwt.token);
+        try {
+            await identityService.logout(refreshToken.token, jwt.token);
+        } catch (_) {
+        }
     }
 
     await router.push("/");
