@@ -5,7 +5,9 @@
     </button>
     <ul class="dropdown-menu">
         <li class="nav-item">
-            <a class="dropdown-item nav-link text-dark" asp-area="Admin" asp-controller="UserManagement" asp-action="Index">Manage users</a>
+            <RouterLink :to="{name: 'manageUsers'}" class="dropdown-item nav-link text-dark">
+                Manage users
+            </RouterLink>
         </li>
         <li class="nav-item">
             <RouterLink :to="{name: 'approveQueueItems'}" class="dropdown-item nav-link text-dark">

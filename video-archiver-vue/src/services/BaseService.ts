@@ -58,4 +58,8 @@ export abstract class BaseService {
     protected async get<TResponse>(url: string, config?: AxiosRequestConfig | undefined): Promise<AxiosResponse<TResponse>> {
         return await this.baseRequest(() => this.axios.get<TResponse>(url, config));
     }
+
+    protected async put<TResponse, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D> | undefined): Promise<AxiosResponse<TResponse>> {
+        return await this.baseRequest(() => this.axios.put<TResponse>(url, data, config));
+    }
 }

@@ -6,8 +6,8 @@ import SelectAuthorView from '../views/identity/SelectAuthorView.vue';
 import PendingApprovalView from '../views/identity/PendingApproval.vue';
 import SubmitUrlResultView from '../views/submitUrl/SubmitUrlResult.vue';
 import AccessDeniedView from '../views/ForbidView.vue';
-import AdminDashboardView from '../views/admin/AdminDashboardView.vue';
 import ApproveQueueItemsView from '../views/admin/QueueItemsApprovalView.vue';
+import ManageUsersView from '../views/admin/ManageUsersView.vue';
 import { adminNavigationGuard, loginNavigationGuard } from './identityRedirects';
 
 const router = createRouter({
@@ -58,6 +58,11 @@ const router = createRouter({
                     name: 'approveQueueItems',
                     component: ApproveQueueItemsView,
                 },
+                {
+                    path: 'manageUsers',
+                    name: 'manageUsers',
+                    component: ManageUsersView,
+                }
             ]
         }
     ]
