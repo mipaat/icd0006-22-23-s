@@ -1,5 +1,5 @@
-import type { EEntityType } from "./EEntityType";
-import type { EPlatform } from "./EPlatform";
+import type { EEntityType } from "./enums/EEntityType";
+import type { EPlatform } from "./enums/EPlatform";
 
 export interface IUrlSubmissionResult {
     queueItemId: string,

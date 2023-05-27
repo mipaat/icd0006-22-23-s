@@ -4,9 +4,7 @@ import SubmitUrlVue from '@/components/SubmitUrl.vue';
 </script>
 
 <template>
-  <main>
-    Welcome!
-
+  <main class="text-center">
     <SubmitUrlVue />
   </main>
 </template>

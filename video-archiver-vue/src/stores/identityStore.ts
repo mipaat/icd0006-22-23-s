@@ -3,9 +3,9 @@ import { computed, ref, watch } from 'vue';
 
 import { LocalStorageService } from '@/localStorage/LocalStorageService';
 import { JWT_KEY, REFRESH_TOKEN_KEY, SELECTED_AUTHOR_KEY } from '@/localStorage/LocalStorageKeys';
-import type { IRefreshToken } from '@/dto/IRefreshToken';
-import { DecodedJWT } from '@/dto/DecodedJWT';
-import type { IUserSubAuthor } from '@/dto/IUserSubAuthor';
+import type { IRefreshToken } from '@/dto/identity/IRefreshToken';
+import { DecodedJWT } from '@/dto/identity/DecodedJWT';
+import type { IUserSubAuthor } from '@/dto/identity/IUserSubAuthor';
 
 const localStorageService = new LocalStorageService();
 const storedJwt = localStorageService.getItem(JWT_KEY);

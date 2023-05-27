@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import CrudDropdown from './CrudDropdown.vue';
+import { useIdentityStore } from '@/stores/identityStore';
+import AdminDropdown from './AdminDropdown.vue';
 import IdentityHeader from './IdentityHeader.vue';
+
+const identityStore = useIdentityStore();
 
 </script>
 
@@ -18,7 +21,7 @@ import IdentityHeader from './IdentityHeader.vue';
                         <li class="nav-item">
                             <RouterLink to="/" class="nav-link text-dark">Home</RouterLink>
                         </li>
-                        <CrudDropdown />
+                        <AdminDropdown v-if="identityStore.jwt?.isAdmin"/>
                     </ul>
 
                     <ul class="navbar-nav">

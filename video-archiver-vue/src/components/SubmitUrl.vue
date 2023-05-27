@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ERestApiErrorType } from '@/dto/ERestApiErrorType';
+import { ERestApiErrorType } from '@/dto/enums/ERestApiErrorType.js';
 import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import type { IUrlSubmissionData } from '@/dto/IUrlSubmissionData';
 import router from '@/router';
@@ -51,7 +51,7 @@ const submit = async (event: MouseEvent | Event) => {
 
 <template>
     <template v-if="identityStore.isLoggedIn">
-        <div v-if="!submitting">
+        <div class="text-center" v-if="!submitting">
             <h2>Add a YouTube link to the archive</h2>
             <form @submit="event => submit(event)">
                 <div>
@@ -66,11 +66,11 @@ const submit = async (event: MouseEvent | Event) => {
                 <input type="submit" @click="event => submit(event)" value="Submit" class="btn btn-primary" />
             </form>
         </div>
-        <div v-else>
+        <div class="text-center" v-else>
             Please wait, submitting URL {{ urlSubmissionData.link }}
         </div>
     </template>
     <template v-else>
-        <p>Log in to submit a link to the archive</p>
+        <p class text-center>Log in to submit a link to the archive</p>
     </template>
 </template>

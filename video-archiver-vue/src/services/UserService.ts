@@ -1,4 +1,4 @@
-import type { IUserSubAuthor } from "@/dto/IUserSubAuthor";
+import type { IUserSubAuthor } from "@/dto/identity/IUserSubAuthor";
 import { BaseAuthenticatedService } from "./BaseAuthenticatedService";
 import type { IdentityService } from "./IdentityService";
 

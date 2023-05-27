@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IUserSubAuthor } from '@/dto/IUserSubAuthor';
+import type { IUserSubAuthor } from '@/dto/identity/IUserSubAuthor';
 import router from '@/router';
 import { redirectToLogin } from '@/router/identityRedirects';
 import { UserService } from '@/services/UserService';

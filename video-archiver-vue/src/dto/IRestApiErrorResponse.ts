@@ -1,4 +1,4 @@
-import type { ERestApiErrorType } from "./ERestApiErrorType";
+import type { ERestApiErrorType } from "./enums/ERestApiErrorType";
 
 export interface IRestApiErrorResponse {
     errorType: ERestApiErrorType,

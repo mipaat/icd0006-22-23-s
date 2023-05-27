@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ValidationErrors from '@/components/ValidationErrors.vue';
-import { DecodedJWT } from '@/dto/DecodedJWT';
-import { isIJwtResponse, type IJWTResponse } from '@/dto/IJWTResponse';
-import { RefreshToken } from '@/dto/IRefreshToken';
+import { DecodedJWT } from '@/dto/identity/DecodedJWT';
+import { isIJwtResponse, type IJWTResponse } from '@/dto/identity/IJWTResponse';
+import { RefreshToken } from '@/dto/identity/IRefreshToken';
 import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { isPendingApprovalError } from '@/dto/PendingApprovalError';
 import router from '@/router';

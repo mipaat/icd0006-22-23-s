@@ -1,6 +1,5 @@
-import type { IRefreshToken } from '@/dto/IRefreshToken';
-import { type IJWTResponse } from '../dto/IJWTResponse';
-import { type IRefreshTokenData } from '../dto/IRefreshTokenData';
+import { type IJWTResponse } from '../dto/identity/IJWTResponse';
+import { type IRefreshTokenData } from '../dto/identity/IRefreshTokenData';
 import { BaseService } from './BaseService';
 import { isAxiosResponse } from '@/utils/Utils';
 import { PendingApprovalError } from '@/dto/PendingApprovalError';

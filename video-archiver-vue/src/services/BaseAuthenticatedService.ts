@@ -1,7 +1,7 @@
 import { type InternalAxiosRequestConfig, isAxiosError } from "axios";
-import { DecodedJWT } from "../dto/DecodedJWT";
-import { isIJwtResponse } from "../dto/IJWTResponse";
-import { RefreshToken } from "../dto/IRefreshToken";
+import { DecodedJWT } from "../dto/identity/DecodedJWT";
+import { isIJwtResponse } from "../dto/identity/IJWTResponse";
+import { RefreshToken } from "../dto/identity/IRefreshToken";
 import { isBoolean } from "../utils/Utils";
 import { BaseService } from "./BaseService";
 import { IdentityService } from "./IdentityService";

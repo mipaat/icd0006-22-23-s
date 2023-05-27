@@ -17,7 +17,8 @@ const logOut = async (event: MouseEvent) => {
     if (refreshToken && jwt) {
         try {
             await identityService.logout(refreshToken.token, jwt.token);
-        } catch (_) {
+        } catch (e) {
+            console.log("Error logging out:", e);
         }
     }
 

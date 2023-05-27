@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { DecodedJWT } from '@/dto/DecodedJWT';
-import { type IJWTResponse } from '@/dto/IJWTResponse';
-import { RefreshToken } from '@/dto/IRefreshToken';
+import { DecodedJWT } from '@/dto/identity/DecodedJWT';
+import { type IJWTResponse } from '@/dto/identity/IJWTResponse';
+import { RefreshToken } from '@/dto/identity/IRefreshToken';
 import { isIRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { IdentityService } from '@/services/IdentityService';
 import { useIdentityStore } from '@/stores/identityStore';
@@ -9,7 +9,7 @@ import { ref } from 'vue';
 import PendingApproval from '@/components/PendingApproval.vue';
 import ValidationErrors from '@/components/ValidationErrors.vue';
 import { redirectToSelectAuthor } from '@/router/identityRedirects';
-import { ERestApiErrorType } from '@/dto/ERestApiErrorType';
+import { ERestApiErrorType } from '@/dto/enums/ERestApiErrorType.js';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
