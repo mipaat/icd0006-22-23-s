@@ -9,6 +9,7 @@ import AccessDeniedView from '../views/ForbidView.vue';
 import ApproveQueueItemsView from '../views/admin/QueueItemsApprovalView.vue';
 import ManageUsersView from '../views/admin/ManageUsersView.vue';
 import VideoSearchView from '../views/video/VideoSearchView.vue';
+import VideoWatchView from '../views/video/VideoWatchView.vue';
 import { adminNavigationGuard, loginNavigationGuard } from './identityRedirects';
 
 const router = createRouter({
@@ -71,6 +72,11 @@ const router = createRouter({
             name: 'videoSearch',
             beforeEnter: loginNavigationGuard,
             component: VideoSearchView,
+        },
+        {
+            path: '/video/watch',
+            name: 'videoWatch',
+            component: VideoWatchView,
         }
     ]
 });

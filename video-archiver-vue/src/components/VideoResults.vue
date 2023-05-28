@@ -24,7 +24,9 @@ const props = defineProps<IProps>();
             <tbody>
                 <tr v-for="video in videos">
                     <td>
-                        <LangStringDisplay :lang-string="video.title" /> // TODO: Link to watch page
+                        <RouterLink :to="{ name: 'videoWatch', query: { id: video.id } }">
+                            <LangStringDisplay :lang-string="video.title" />
+                        </RouterLink>
                     </td>
                     <td>
                         <AuthorSummary :author="video.author" />

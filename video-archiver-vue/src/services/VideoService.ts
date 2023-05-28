@@ -3,6 +3,7 @@ import { BaseAuthenticatedService, type IAxiosRetryConfig } from "./BaseAuthenti
 import type { IdentityService } from "./IdentityService";
 import type { IVideoSearchResult } from "@/dto/IVideoSearchResult";
 import { newLangString } from "@/dto/LangString";
+import type { IVideoWithAuthor } from "@/dto/IVideoWithAuthor";
 
 export class VideoService extends BaseAuthenticatedService {
     constructor(identityService: IdentityService | null = null) {
@@ -39,5 +40,21 @@ export class VideoService extends BaseAuthenticatedService {
             video.title = newLangString(video.title);
         }
         return result;
+    }
+
+    async getById(id: string): Promise<IVideoWithAuthor> {
+        const video = (await this.get<IVideoWithAuthor>(`getById?id=${id}`)).data;
+        video.title = newLangString(video.title);
+        video.description = newLangString(video.description);
+        if (video.publishedAt) {
+            video.publishedAt = new Date(video.publishedAt);
+        }
+        if (video.createdAt) {
+            video.createdAt = new Date(video.createdAt);
+        }
+        if (video.updatedAt) {
+            video.updatedAt = new Date(video.updatedAt);
+        }
+        return video;
     }
 }
