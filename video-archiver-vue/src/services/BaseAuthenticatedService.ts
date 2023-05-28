@@ -36,6 +36,7 @@ export class BaseAuthenticatedService extends BaseService {
             if (!isAxiosRetryConfig(requestConfig)) {
                 const retryRequestConfig = requestConfig as IAxiosRetryConfig;
                 retryRequestConfig.refreshAttempted = false;
+                retryRequestConfig.allowUnauthenticated = false;
                 return retryRequestConfig;
             }
             return requestConfig;
@@ -45,13 +46,18 @@ export class BaseAuthenticatedService extends BaseService {
             const currentTime = new Date();
             currentTime.setSeconds(currentTime.getSeconds() + 5);
 
+            let allowUnauthenticated = false;
             if (isAxiosRetryConfig(request)) {
+                allowUnauthenticated = request.allowUnauthenticated;
                 if (request.refreshAttempted === true) {
                     return request;
                 }
             }
 
             if (!store.jwt) {
+                if (allowUnauthenticated) {
+                    return request;
+                }
                 await redirectToLogin();
                 return Promise.reject("No JWT");
             }
@@ -115,16 +121,17 @@ function setAuthorizationHeader(request: InternalAxiosRequestConfig, jwt: string
     request.headers.Authorization = "Bearer " + jwt;
 }
 
-interface IAxiosRetryConfig extends InternalAxiosRequestConfig {
-    refreshAttempted: boolean
+export interface IAxiosRetryConfig extends InternalAxiosRequestConfig {
+    refreshAttempted: boolean,
+    allowUnauthenticated: boolean,
 }
 
-function isAxiosRetryConfig(config: any): config is IAxiosRetryConfig {
+export function isAxiosRetryConfig(config: any): config is IAxiosRetryConfig {
     if (!config) {
         return false;
     }
-    if (config.refreshAttempted !== undefined) {
-        return isBoolean(config.refreshAttempted);
+    if (config.refreshAttempted !== undefined && config.allowUnauthenticated !== undefined) {
+        return isBoolean(config.refreshAttempted) && isBoolean(config.allowUnauthenticated);
     }
     return false;
 }
