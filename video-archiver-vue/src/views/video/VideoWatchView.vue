@@ -2,11 +2,12 @@
 import type { IVideoWithAuthor } from '@/dto/IVideoWithAuthor';
 import { redirectToError } from '@/router/redirects';
 import { VideoService } from '@/services/VideoService';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import * as configJson from '@/config.json';
 import { type IConfig, conformApiBaseUrl } from '@/config';
 import { ESimplePrivacyStatus } from '@/dto/enums/ESimplePrivacyStatus';
+import { FileService } from '@/services/FileService';
 
 const config = configJson as IConfig;
 
@@ -17,11 +18,20 @@ const embedView = ref(route.query.embedView?.toString().toLowerCase() === true.t
 
 const video = ref(null as IVideoWithAuthor | null);
 const videoService = new VideoService();
+const fileService = new FileService();
 onMounted(async () => {
     if (!id) {
         return await redirectToError("Video ID not specified");
     }
-    video.value = await videoService.getById(id);
+    const fetchedVideo = await videoService.getById(id);
+    if (fetchedVideo.internalPrivacyStatus === ESimplePrivacyStatus.Private) {
+        await fileService.getVideoAccessToken();
+        const intervalId = setInterval(fileService.getVideoAccessToken, 55);
+        onUnmounted(() => {
+            clearInterval(intervalId);
+        });
+    }
+    video.value = fetchedVideo;
 });
 
 const videoCanBeEmbedded = (video: IVideoWithAuthor) => {
@@ -43,10 +53,9 @@ const showEmbedView = (video: IVideoWithAuthor) => {
                 :title="`${video.platform} video player`"
                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
-            <video v-else-if="video.internalPrivacyStatus !== ESimplePrivacyStatus.Private" controls width="560" height="315">
+            <video v-else controls width="560" height="315">
                 <source :src="`${conformApiBaseUrl(config)}v1/File/VideoFileJwt/${video.id}`" />
             </video>
-            <div v-else style="width: 560px; height: 315px;">Authenticated video playback not supported on this client yet.</div>
         </div>
     </div>
 </template>
