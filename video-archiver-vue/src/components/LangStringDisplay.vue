@@ -8,7 +8,5 @@ const props = defineProps<IProps>();
 </script>
 
 <template>
-    <span>
-        {{ langString?.translate() }}
-    </span>
+    {{ langString?.translate() }}
 </template>

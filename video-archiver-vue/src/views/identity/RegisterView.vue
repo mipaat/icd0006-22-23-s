@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ValidationErrors from '@/components/ValidationErrors.vue';
+import { ERestApiErrorType } from '@/dto/enums/ERestApiErrorType';
 import { DecodedJWT } from '@/dto/identity/DecodedJWT';
 import { isIJwtResponse, type IJWTResponse } from '@/dto/identity/IJWTResponse';
 import { RefreshToken } from '@/dto/identity/IRefreshToken';
@@ -39,6 +40,10 @@ const register = async (event: MouseEvent) => {
     } catch (e) {
         if (isPendingApprovalError(e)) {
             await router.push(router.resolve({ name: "pendingApproval" }).fullPath);
+            return;
+        }
+        if (isIRestApiErrorResponse(e) && [ERestApiErrorType.InvalidRegistrationData, ERestApiErrorType.UserAlreadyRegistered].includes(e.errorType)) {
+            validationErrors.value.push(e.error);
             return;
         }
         validationErrors.value.push("Unknown error occurred");

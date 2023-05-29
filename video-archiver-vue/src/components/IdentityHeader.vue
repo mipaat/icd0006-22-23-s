@@ -21,7 +21,7 @@ const store = useIdentityStore();
         <li class="nav-item">
             <RouterLink :to="{
                 name: 'login', query: {
-                    returnUrl: $router.currentRoute.value.name !== 'login'
+                    returnUrl: !['login', 'register', 'pendingApproval'].includes($router.currentRoute.value.name?.toString() ?? '')
                         ? $router.currentRoute.value.fullPath
                         : $router.currentRoute.value.query.returnUrl?.toString()
                 }

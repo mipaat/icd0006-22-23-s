@@ -6,6 +6,8 @@ export class DecodedJWT {
     public name: string;
     public isAdmin: boolean;
     public isSuperAdmin: boolean;
+    public isHelper: boolean;
+    public isAllowedToSubmitEntity: boolean;
 
     constructor(token: string) {
         this.token = token;
@@ -15,5 +17,7 @@ export class DecodedJWT {
         const roles: string = jwtObject['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
         this.isAdmin = (roles !== null && roles !== undefined) ? roles.includes('Admin') || roles.includes('SuperAdmin') : false;
         this.isSuperAdmin = (roles !== null && roles !== undefined) ? roles.includes('SuperAdmin') : false;
+        this.isHelper = (roles !== null && roles !== undefined) ? roles.includes('Helper') : false;
+        this.isAllowedToSubmitEntity = this.isAdmin || this.isSuperAdmin || this.isHelper;
     }
 }

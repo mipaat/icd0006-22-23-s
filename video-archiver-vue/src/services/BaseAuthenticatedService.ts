@@ -16,7 +16,7 @@ export class BaseAuthenticatedService extends BaseService {
         identityService ??= new IdentityService();
 
         const refreshToken = async () => {
-            if (store.jwt && store.refreshToken && !store.isRefreshTokenExpired) {
+            if (store.jwt && store.refreshToken && !store.isRefreshTokenExpired()) {
                 const jwtResponse = await identityService!.refreshToken({
                     jwt: store.jwt.token,
                     refreshToken: store.refreshToken.token,
@@ -62,8 +62,8 @@ export class BaseAuthenticatedService extends BaseService {
                 return Promise.reject("No JWT");
             }
 
-            if (store.isJwtExpired) {
-                if (store.isRefreshTokenExpired) {
+            if (store.isJwtExpired()) {
+                if (store.isRefreshTokenExpired()) {
                     await redirectToLogin();
                     return Promise.reject("Invalid refresh token");
                 }
@@ -76,6 +76,7 @@ export class BaseAuthenticatedService extends BaseService {
                 try {
                     jwt = await refreshToken();
                 } catch (e) {
+                    console.log("Failed to get JWT", e);
                     await redirectToLogin();
                     return Promise.reject("Failed to get JWT");
                 }

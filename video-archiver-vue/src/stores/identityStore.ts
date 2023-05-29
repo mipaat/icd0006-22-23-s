@@ -42,18 +42,18 @@ export const useIdentityStore = defineStore('identityStore', () => {
         return jwt.value && refreshToken.value;
     });
 
-    const isRefreshTokenExpired = computed(() => {
+    const isRefreshTokenExpired = () => {
         if (!refreshToken.value) return true;
         return refreshToken.value.expiresAt.getTime() < new Date().getTime();
-    });
+    };
 
-    const isJwtExpired = computed(() => {
+    const isJwtExpired = () => {
         if (!jwt.value) return true;
         return jwt.value.expiresAt.getTime() < new Date().getTime();
-    });
+    };
 
     const loginRequired = computed(() => {
-        return !isLoggedIn.value || isRefreshTokenExpired.value;
+        return !isLoggedIn.value || isRefreshTokenExpired();
     });
 
     const clearAll = () => {

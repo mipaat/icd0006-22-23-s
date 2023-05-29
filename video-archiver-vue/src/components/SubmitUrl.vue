@@ -50,7 +50,7 @@ const submit = async (event: MouseEvent | Event) => {
 </script>
 
 <template>
-    <template v-if="identityStore.isLoggedIn">
+    <template v-if="identityStore.isLoggedIn && identityStore.jwt?.isAllowedToSubmitEntity">
         <div class="text-center" v-if="!submitting">
             <h2>Add a YouTube link to the archive</h2>
             <form @submit="event => submit(event)">
@@ -70,7 +70,10 @@ const submit = async (event: MouseEvent | Event) => {
             Please wait, submitting URL {{ urlSubmissionData.link }}
         </div>
     </template>
+    <template v-else-if="identityStore.isLoggedIn">
+        <h2>Sorry, you are not authorized to submit a link to the archive</h2>
+    </template>
     <template v-else>
-        <p class text-center>Log in to submit a link to the archive</p>
+        <p class text-center>Log in with an authorized account to submit a link to the archive</p>
     </template>
 </template>
