@@ -19,6 +19,8 @@ const embedView = ref(route.query.embedView?.toString().toLowerCase() === true.t
 const video = ref(null as IVideoWithAuthor | null);
 const videoService = new VideoService();
 const fileService = new FileService();
+let intervalId = null as number | null;
+
 onMounted(async () => {
     if (!id) {
         return await redirectToError("Video ID not specified");
@@ -26,12 +28,15 @@ onMounted(async () => {
     const fetchedVideo = await videoService.getById(id);
     if (fetchedVideo.internalPrivacyStatus === ESimplePrivacyStatus.Private) {
         await fileService.getVideoAccessToken();
-        const intervalId = setInterval(fileService.getVideoAccessToken, 55);
-        onUnmounted(() => {
-            clearInterval(intervalId);
-        });
+        intervalId = setInterval(() => fileService.getVideoAccessToken(), 55000);
     }
     video.value = fetchedVideo;
+});
+
+onUnmounted(() => {
+    if (intervalId !== null) {
+        clearInterval(intervalId);
+    }
 });
 
 const videoCanBeEmbedded = (video: IVideoWithAuthor) => {
@@ -47,11 +52,16 @@ const showEmbedView = (video: IVideoWithAuthor) => {
 <template>
     <div v-if="!video">LOADING...</div>
     <div v-else>
-        // TODO: Embed toggle
+        <RouterLink v-if="videoCanBeEmbedded(video)" :to="{
+            name: 'videoWatch', query: { id: video.id, embedView: (!embedView).toString(), }
+        }" @click="embedView = !embedView">
+            <div v-if="embedView">View archived version</div>
+            <div v-else>View on platform</div>
+        </RouterLink>
         <div>
             <iframe v-if="showEmbedView(video)" width="560" height="315" :src="video.embedUrl ?? video.url ?? undefined"
                 :title="`${video.platform} video player`"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture;"
                 allowfullscreen></iframe>
             <video v-else controls width="560" height="315">
                 <source :src="`${conformApiBaseUrl(config)}v1/File/VideoFileJwt/${video.id}`" />
