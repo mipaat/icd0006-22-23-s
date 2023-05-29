@@ -27,6 +27,7 @@ let pagesSelection = [] as IPaginationItem[];
 
 const update = () => {
     pagesSelection = [];
+    let maxAddedPage = 0;
     const selectionAmountToShow = 5;
     if (props.page - Math.ceil(selectionAmountToShow / 2) > 0) {
         pagesSelection.push({ page: 0 });
@@ -49,11 +50,12 @@ const update = () => {
         if (pagesSelection.some(p => p.page === page)) {
             offset++;
         }
+        maxAddedPage = page;
         pagesSelection.push({ page: page });
         offset++;
         selectedAmount++;
     }
-    if (totalPages.value && props.page + selectionAmountToShow / 2 < totalPages.value) {
+    if (totalPages.value && maxAddedPage < totalPages.value - 1) {
         pagesSelection.push({ separator: "..." });
         pagesSelection.push({ page: totalPages.value });
     }
