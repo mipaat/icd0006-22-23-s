@@ -18,9 +18,17 @@ const totalPages = computed(() => {
     return Math.ceil(props.total / props.limit);
 });
 
+const pageRangeStart = computed(() => {
+    return props.limit * props.page + 1;
+});
+
+const pageRangeEnd = computed(() => {
+    return props.limit * props.page + props.amountOnPage;
+});
+
 interface IPaginationItem {
-    page?: number,
-    separator?: string,
+    page: number,
+    previousPage?: number | null,
 }
 
 let pagesSelection = [] as IPaginationItem[];
@@ -28,10 +36,11 @@ let pagesSelection = [] as IPaginationItem[];
 const update = () => {
     pagesSelection = [];
     let maxAddedPage = 0;
+    let previousPage = null as number | null;
     const selectionAmountToShow = 5;
     if (props.page - Math.ceil(selectionAmountToShow / 2) > 0) {
         pagesSelection.push({ page: 0 });
-        pagesSelection.push({ separator: "..." });
+        previousPage = 0;
     }
     let selectedAmount = 0;
     let offset = 0;
@@ -49,15 +58,17 @@ const update = () => {
         }
         if (pagesSelection.some(p => p.page === page)) {
             offset++;
+            continue;
         }
         maxAddedPage = page;
-        pagesSelection.push({ page: page });
+        pagesSelection.push({ page: page, previousPage: previousPage });
+        previousPage = page;
         offset++;
         selectedAmount++;
     }
     if (totalPages.value && maxAddedPage < totalPages.value - 1) {
-        pagesSelection.push({ separator: "..." });
-        pagesSelection.push({ page: totalPages.value });
+        pagesSelection.push({ page: totalPages.value, previousPage: previousPage });
+        previousPage = totalPages.value;
     }
 };
 
@@ -67,25 +78,32 @@ onBeforeMount(update);
 </script>
 
 <template>
-    <div v-if="!isOnlyPage(total, limit) && !(page == 0 && amountOnPage < limit)">
+    <div v-if="!isOnlyPage(total, limit) && !(page === 0 && amountOnPage < limit)">
         <div class="d-flex gap-1">
             <div :key="index" v-for="(selectionPage, index) in pagesSelection">
-                <PaginationButton v-if="selectionPage.page !== undefined" :page="selectionPage.page" :current-page="page"
+                <span class="rounded-3 p-2" v-if="
+                    selectionPage.previousPage !== undefined
+                    && selectionPage.previousPage !== null
+                    && selectionPage.previousPage + 1 < selectionPage.page">
+                    ...
+                </span>
+                <PaginationButton :page="selectionPage.page" :current-page="page"
                     @page-change="$emit('page-change', selectionPage.page)" />
-                <span class="rounded-3 p-2" v-else-if="selectionPage.separator !== undefined">{{ selectionPage.separator
-                }}</span>
             </div>
             <PaginationButton :page="page + 1" :current-page="page" v-if="!total && amountOnPage >= limit"
                 @page-change="$emit('page-change', page + 1)">Next</PaginationButton>
         </div>
-        <div v-if="total">
-            Showing {{ limit * page + 1 }}-{{ limit * page + amountOnPage }} of {{ total }} results
+        <div v-if="amountOnPage === 0">
+            0 results on page
         </div>
-        <div v-else-if="amountOnPage < limit && page === 0">
-            {{ amountOnPage }} results
+        <div v-else-if="total">
+            Showing {{ pageRangeStart }}-{{ pageRangeEnd }} of {{ total }} results
+        </div>
+        <div v-else-if="amountOnPage < limit">
+            Showing {{ pageRangeStart }}-{{ pageRangeEnd }} of {{ pageRangeEnd }} results
         </div>
         <div v-else>
-            Showing {{ limit * page + 1 }}-{{ limit * page + amountOnPage }} results (of unknown total)
+            Showing {{ pageRangeStart }}-{{ pageRangeEnd }} results (of unknown total)
         </div>
     </div>
     <div v-else>
