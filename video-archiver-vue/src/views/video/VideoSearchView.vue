@@ -113,7 +113,7 @@ const onSearchSubmit = async (event: Event | MouseEvent) => {
         <input id="AuthorQuery" v-model="query.authorQuery" />
         <label for="SortingOptions">Sort by</label>
         <select id="SortingOptions" v-model="query.sortingOptions">
-            <option :key="value" @select="query.sortingOptions = value" :selected="query.sortingOptions === value"
+            <option :key="value" :selected="query.sortingOptions === value"
                 v-for="value in Object.values(EVideoSortingOptions)">{{ value }}</option>
         </select>
         <label for="Descending">Sort descending</label>

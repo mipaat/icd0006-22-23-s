@@ -27,6 +27,8 @@ const videoService = new VideoService();
 const fileService = new FileService();
 let intervalId = null as number | null;
 
+const internalPrivacyStatus = ref(null as ESimplePrivacyStatus | null);
+
 const commentService = new CommentService();
 const comments = ref(null as IComment[] | null);
 const commentsLimit = 50;
@@ -47,6 +49,7 @@ onMounted(async () => {
         return await redirectToError("Video ID not specified");
     }
     const fetchedVideo = await videoService.getById(id);
+    internalPrivacyStatus.value = fetchedVideo.internalPrivacyStatus;
     if (fetchedVideo.internalPrivacyStatus === ESimplePrivacyStatus.Private) {
         await fileService.getVideoAccessToken();
         intervalId = setInterval(() => fileService.getVideoAccessToken(), 55000);
@@ -67,6 +70,13 @@ const videoCanBeEmbedded = (video: IVideoWithAuthor) => {
 
 const showEmbedView = (video: IVideoWithAuthor) => {
     return embedView.value && videoCanBeEmbedded(video);
+}
+
+const submitPrivacyStatus = async (event: MouseEvent | Event) => {
+    event.preventDefault();
+    if (!video.value || !internalPrivacyStatus.value) return;
+    await videoService.setPrivacyStatus(video.value.id, internalPrivacyStatus.value);
+    video.value.internalPrivacyStatus = internalPrivacyStatus.value;
 }
 
 </script>
@@ -93,6 +103,14 @@ const showEmbedView = (video: IVideoWithAuthor) => {
             </h1>
         </div>
         <div>
+            <form>
+                <label for="status">Set privacy status (in archive)</label>
+                <select id="status" v-model="internalPrivacyStatus">
+                    <option :key="value" :selected="video.internalPrivacyStatus === value"
+                        v-for="value in Object.values(ESimplePrivacyStatus)">{{ value }}</option>
+                </select>
+                <input type="submit" class="btn btn-primary" value="Submit" @click="event => submitPrivacyStatus(event)"/>
+            </form>
             <span style="white-space: pre-wrap;">
                 <LangStringDisplay :lang-string="video.description"></LangStringDisplay>
             </span>
@@ -102,7 +120,8 @@ const showEmbedView = (video: IVideoWithAuthor) => {
             Comments on platform: {{ video.commentCount }}
             Archived root comments: {{ video.archivedRootCommentCount }}
             Archived total comments: {{ video.archivedCommentCount }}
-            <PaginationComponent v-on:page-change="onCommentsPageChange" :page="commentsPage" :limit="commentsLimit" :total="video.archivedRootCommentCount" :amount-on-page="comments.length"></PaginationComponent>
+            <PaginationComponent v-on:page-change="onCommentsPageChange" :page="commentsPage" :limit="commentsLimit"
+                :total="video.archivedRootCommentCount" :amount-on-page="comments.length"></PaginationComponent>
             <CommentComponent :comment="comment" :key="comment.id" v-for="comment in comments" />
         </div>
         <div v-else>Loading comments...</div>
