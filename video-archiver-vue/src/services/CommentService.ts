@@ -24,6 +24,24 @@ function handleComment(comment: IComment): void {
     if (comment.createdAt) {
         comment.createdAt = new Date(comment.createdAt);
     }
+    if (comment.deletedAt) {
+        comment.deletedAt = new Date(comment.deletedAt);
+    }
+    if (comment.addedToArchiveAt) {
+        comment.addedToArchiveAt = new Date(comment.addedToArchiveAt);
+    }
+    if (comment.lastFetchOfficial) {
+        comment.lastFetchOfficial = new Date(comment.lastFetchOfficial);
+    }
+    if (comment.lastSuccessfulFetchOfficial) {
+        comment.lastSuccessfulFetchOfficial = new Date(comment.lastSuccessfulFetchOfficial);
+    }
+    if (comment.lastFetchUnofficial) {
+        comment.lastFetchUnofficial = new Date(comment.lastFetchUnofficial);
+    }
+    if (comment.lastSuccessfulFetchUnofficial) {
+        comment.lastSuccessfulFetchUnofficial = new Date(comment.lastSuccessfulFetchUnofficial);
+    }
     for (const reply of comment.replies) {
         handleComment(reply);
     }
