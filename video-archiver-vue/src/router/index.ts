@@ -7,6 +7,7 @@ import PendingApprovalView from '../views/identity/PendingApproval.vue';
 import SubmitUrlResultView from '../views/submitUrl/SubmitUrlResult.vue';
 import AccessDeniedView from '../views/ForbidView.vue';
 import NotFoundView from '../views/NotFoundView.vue';
+import ErrorView from '../views/ErrorView.vue';
 import ApproveQueueItemsView from '../views/admin/QueueItemsApprovalView.vue';
 import ManageUsersView from '../views/admin/ManageUsersView.vue';
 import VideoSearchView from '../views/video/VideoSearchView.vue';
@@ -50,6 +51,11 @@ const router = createRouter({
             path: '/accessDenied',
             name: 'accessDenied',
             component: AccessDeniedView,
+        },
+        {
+            path: '/error',
+            name: 'error',
+            component: ErrorView,
         },
         {
             path: '/notFound',

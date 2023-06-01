@@ -39,7 +39,7 @@ export abstract class BaseService {
                 }
             }
 
-            return Promise.reject(error);
+            throw error;
         });
     }
 

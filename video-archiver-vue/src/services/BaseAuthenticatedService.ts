@@ -7,6 +7,7 @@ import { BaseService } from "./BaseService";
 import { IdentityService } from "./IdentityService";
 import { useIdentityStore } from "@/stores/identityStore";
 import { redirectToLogin } from "@/router/identityRedirects";
+import { redirectToError } from "@/router/redirects";
 
 export class BaseAuthenticatedService extends BaseService {
     constructor(baseUrl: string, identityService: IdentityService | null = null) {
@@ -85,7 +86,11 @@ export class BaseAuthenticatedService extends BaseService {
                     jwt = await refreshToken();
                 } catch (e) {
                     console.log("Failed to get JWT", e);
-                    await redirectToLogin();
+                    if (isAxiosError(e) && e.response?.status === 401) {
+                        await redirectToLogin();
+                    } else {
+                        await redirectToError();
+                    }
                     return Promise.reject("Failed to get JWT");
                 }
                 if (jwt) {
