@@ -13,6 +13,5 @@ const idOnPlatform = route.query.idOnPlatform?.toString();
         <div>
             Submission for {{ type }} on platform {{ platform }} with ID {{ idOnPlatform }} successfully processed.
         </div>
-        TODO: link to queue item page
     </div>
 </template>

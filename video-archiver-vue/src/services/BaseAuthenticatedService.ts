@@ -105,7 +105,7 @@ export class BaseAuthenticatedService extends BaseService {
             if (isAxiosError(error)) {
                 if (error.response?.status === 401) {
                     const config = error.config;
-                    if (isAxiosRetryConfig(config) && config.refreshAttempted === false && store.isLoggedIn && !store.isRefreshTokenExpired) {
+                    if (isAxiosRetryConfig(config) && config.refreshAttempted === false && store.isLoggedIn && !store.isRefreshTokenExpired()) {
                         config.refreshAttempted = true;
                         const jwt = await refreshToken();
                         if (!jwt) {
