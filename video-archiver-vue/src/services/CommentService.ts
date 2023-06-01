@@ -1,6 +1,7 @@
 import type { IComment } from '@/dto/IComment';
 import { BaseAuthenticatedService } from './BaseAuthenticatedService';
 import type { IdentityService } from './IdentityService';
+import { handleBaseArchiveEntity } from '@/utils/Utils';
 
 export class CommentService extends BaseAuthenticatedService {
     constructor(identityService: IdentityService | null = null) {
@@ -27,21 +28,7 @@ function handleComment(comment: IComment): void {
     if (comment.deletedAt) {
         comment.deletedAt = new Date(comment.deletedAt);
     }
-    if (comment.addedToArchiveAt) {
-        comment.addedToArchiveAt = new Date(comment.addedToArchiveAt);
-    }
-    if (comment.lastFetchOfficial) {
-        comment.lastFetchOfficial = new Date(comment.lastFetchOfficial);
-    }
-    if (comment.lastSuccessfulFetchOfficial) {
-        comment.lastSuccessfulFetchOfficial = new Date(comment.lastSuccessfulFetchOfficial);
-    }
-    if (comment.lastFetchUnofficial) {
-        comment.lastFetchUnofficial = new Date(comment.lastFetchUnofficial);
-    }
-    if (comment.lastSuccessfulFetchUnofficial) {
-        comment.lastSuccessfulFetchUnofficial = new Date(comment.lastSuccessfulFetchUnofficial);
-    }
+    handleBaseArchiveEntity(comment);
     for (const reply of comment.replies) {
         handleComment(reply);
     }

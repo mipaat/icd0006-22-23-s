@@ -19,10 +19,12 @@ const props = defineProps<IProps>();
                     <th>Author</th>
                     <th>Thumbnail</th>
                     <th>Duration</th>
+                    <th>Created at</th>
+                    <th>Added to archive at</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="video in videos">
+                <tr :key="video.id" v-for="video in videos">
                     <td>
                         <RouterLink :to="{ name: 'videoWatch', query: { id: video.id } }">
                             <LangStringDisplay :lang-string="video.title" />
@@ -37,6 +39,12 @@ const props = defineProps<IProps>();
                     </td>
                     <td>
                         {{ video.duration }}
+                    </td>
+                    <td>
+                        {{ (video.publishedAt ?? video.createdAt)?.toLocaleString() }}
+                    </td>
+                    <td>
+                        {{ video.addedToArchiveAt.toLocaleString() }}
                     </td>
                 </tr>
             </tbody>

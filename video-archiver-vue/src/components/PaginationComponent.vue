@@ -107,6 +107,6 @@ onBeforeMount(update);
         </div>
     </div>
     <div v-else>
-        {{ amountOnPage }} results
+        Results: {{ amountOnPage }}
     </div>
 </template>

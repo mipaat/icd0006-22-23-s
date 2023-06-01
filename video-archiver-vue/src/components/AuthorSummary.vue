@@ -10,7 +10,7 @@ const props = defineProps<IProps>();
 </script>
 
 <template>
-    <div>
+    <div class="gap-1 d-flex">
         <div class="d-inline-block">
             <img v-if="author.profileImages?.length ?? 0 > 0" v-lazy="author.profileImages![0].url" width="40" height="40"
                 alt="Author profile image" />

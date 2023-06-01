@@ -1,10 +1,11 @@
 import type { IAuthor } from "./IAuthor";
+import type { IBaseArchiveEntity } from "./IBaseArchiveEntity";
 import type { LangString } from "./LangString";
 import type { EPlatform } from "./enums/EPlatform";
 import type { EPrivacyStatus } from "./enums/EPrivacyStatus";
 import type { ESimplePrivacyStatus } from "./enums/ESimplePrivacyStatus";
 
-export interface IVideoWithAuthor {
+export interface IVideoWithAuthor extends IBaseArchiveEntity {
     id: string,
     title: LangString | null,
     description: LangString | null,
@@ -24,4 +25,5 @@ export interface IVideoWithAuthor {
     archivedCommentCount: number,
     archivedRootCommentCount: number,
     author: IAuthor,
+    lastCommentsFetch: Date | null,
 }

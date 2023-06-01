@@ -18,4 +18,8 @@ export interface IBasicVideoWithAuthor {
     platform: EPlatform,
     idOnPlatform: string,
     author: IAuthor,
+
+    createdAt: Date | null,
+    publishedAt: Date | null,
+    addedToArchiveAt: Date,
 }

@@ -55,7 +55,9 @@ onMounted(async () => {
         intervalId = setInterval(() => fileService.getVideoAccessToken(), 55000);
     }
     video.value = fetchedVideo;
-    await updateComments(commentsPage.value);
+    if (fetchedVideo.lastCommentsFetch) {
+        await updateComments(commentsPage.value);
+    }
 });
 
 onUnmounted(() => {
@@ -98,6 +100,7 @@ const submitPrivacyStatus = async (event: MouseEvent | Event) => {
                 <source :src="`${conformApiBaseUrl(config)}v1/File/VideoFileJwt/${video.id}`" />
             </video>
             <AuthorSummary :author="video.author" />
+            <br/>
             <h1>
                 <LangStringDisplay :lang-string="video.title" />
             </h1>
@@ -111,19 +114,22 @@ const submitPrivacyStatus = async (event: MouseEvent | Event) => {
                 </select>
                 <input type="submit" class="btn btn-primary" value="Submit" @click="event => submitPrivacyStatus(event)"/>
             </form>
-            <span style="white-space: pre-wrap;">
+            <span class="card card-body" style="white-space: pre-wrap;">
                 <LangStringDisplay :lang-string="video.description"></LangStringDisplay>
             </span>
         </div>
         <div v-if="comments">
             <h4>Comments</h4>
+            <h6 v-if="video.lastCommentsFetch">Last fetched: {{ video.lastCommentsFetch.toLocaleString() }}</h6><br/>
             Comments on platform: {{ video.commentCount }}
             Archived root comments: {{ video.archivedRootCommentCount }}
             Archived total comments: {{ video.archivedCommentCount }}
             <PaginationComponent v-on:page-change="onCommentsPageChange" :page="commentsPage" :limit="commentsLimit"
                 :total="video.archivedRootCommentCount" :amount-on-page="comments.length"></PaginationComponent>
+            <br/>
             <CommentComponent :comment="comment" :key="comment.id" v-for="comment in comments" />
         </div>
-        <div v-else>Loading comments...</div>
+        <div v-else-if="video.lastCommentsFetch">Loading comments...</div>
+        <div v-else><h4>Comments not archived yet</h4></div>
     </div>
 </template>

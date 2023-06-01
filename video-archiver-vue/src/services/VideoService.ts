@@ -5,6 +5,7 @@ import type { IVideoSearchResult } from '@/dto/IVideoSearchResult';
 import { newLangString } from '@/dto/LangString';
 import type { IVideoWithAuthor } from '@/dto/IVideoWithAuthor';
 import type { ESimplePrivacyStatus } from '@/dto/enums/ESimplePrivacyStatus';
+import { handleBaseArchiveEntity } from '@/utils/Utils';
 
 export class VideoService extends BaseAuthenticatedService {
     constructor(identityService: IdentityService | null = null) {
@@ -43,6 +44,13 @@ export class VideoService extends BaseAuthenticatedService {
         const result = (await this.get<IVideoSearchResult>(`search?${queryString}`)).data;
         for (const video of result.videos) {
             video.title = newLangString(video.title);
+            if (video.createdAt) {
+                video.createdAt = new Date(video.createdAt);
+            }
+            if (video.publishedAt) {
+                video.publishedAt = new Date(video.publishedAt);
+            }
+            video.addedToArchiveAt = new Date(video.addedToArchiveAt);
         }
         return result;
     }
@@ -60,6 +68,10 @@ export class VideoService extends BaseAuthenticatedService {
         if (video.updatedAt) {
             video.updatedAt = new Date(video.updatedAt);
         }
+        if (video.lastCommentsFetch) {
+            video.lastCommentsFetch = new Date(video.lastCommentsFetch);
+        }
+        handleBaseArchiveEntity(video);
         return video;
     }
 
