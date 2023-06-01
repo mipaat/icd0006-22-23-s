@@ -15,7 +15,15 @@ export class BaseAuthenticatedService extends BaseService {
 
         identityService ??= new IdentityService();
 
-        const refreshToken = async () => {
+        const refreshToken = async (): Promise<string | null> => {
+            if (store.ongoingRefreshPromise !== null) {
+                return await store.ongoingRefreshPromise;
+            }
+            store.ongoingRefreshPromise = _refreshToken();
+            return await store.ongoingRefreshPromise;
+        }
+
+        const _refreshToken = async (): Promise<string | null> => {
             if (store.jwt && store.refreshToken && !store.isRefreshTokenExpired()) {
                 const jwtResponse = await identityService!.refreshToken({
                     jwt: store.jwt.token,

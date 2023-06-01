@@ -37,6 +37,7 @@ export const useIdentityStore = defineStore('identityStore', () => {
     const jwt = ref(readJwt);
     const refreshToken = ref(readRefreshToken);
     const selectedAuthor = ref(readSelectedAuthor);
+    const ongoingRefreshPromise = ref(null as Promise<string | null> | null);
 
     const isLoggedIn = computed(() => {
         return jwt.value && refreshToken.value;
@@ -44,12 +45,12 @@ export const useIdentityStore = defineStore('identityStore', () => {
 
     const isRefreshTokenExpired = () => {
         if (!refreshToken.value) return true;
-        return refreshToken.value.expiresAt.getTime() < new Date().getTime();
+        return refreshToken.value.expiresAt.getTime() < new Date().getTime() + 5000;
     };
 
     const isJwtExpired = () => {
         if (!jwt.value) return true;
-        return jwt.value.expiresAt.getTime() < new Date().getTime();
+        return jwt.value.expiresAt.getTime() < new Date().getTime() + 5000;
     };
 
     const loginRequired = computed(() => {
@@ -90,5 +91,5 @@ export const useIdentityStore = defineStore('identityStore', () => {
         }
     });
 
-    return { jwt, refreshToken, selectedAuthor, isLoggedIn, isRefreshTokenExpired, loginRequired, clearAll, isJwtExpired };
+    return { jwt, refreshToken, selectedAuthor, isLoggedIn, isRefreshTokenExpired, loginRequired, clearAll, isJwtExpired, ongoingRefreshPromise };
 });
