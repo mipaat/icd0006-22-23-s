@@ -118,7 +118,7 @@ const onSearchSubmit = async (event: Event | MouseEvent) => {
         </select>
         <label for="Descending">Sort descending</label>
         <input type="checkbox" id="Descending" v-model="query.descending" />
-        <CategoryPicker :selected-category-ids="query.categoryIdsQuery" />
+        <CategoryPicker v-model:selected-category-ids="query.categoryIdsQuery" />
         <input type="submit" class="btn btn-primary" @click="onSearchSubmit" value="Search" />
     </form>
     <PaginationComponent :page="query.page" :limit="query.limit" :total="null"

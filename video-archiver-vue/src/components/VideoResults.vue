@@ -6,7 +6,7 @@ export interface IProps {
     videos: IBasicVideoWithAuthor[]
 }
 
-const props = defineProps<IProps>();
+defineProps<IProps>();
 
 </script>
 

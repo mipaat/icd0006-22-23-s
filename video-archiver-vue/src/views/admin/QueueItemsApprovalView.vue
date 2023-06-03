@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { IQueueItemForApproval } from '@/dto/IQueueItemForApproval';
 import { QueueItemApprovalService } from '@/services/admin/QueueItemApprovalService';
-import { onBeforeMount, onMounted, ref } from 'vue';
+import { onBeforeMount, ref } from 'vue';
 
 const queueItems = ref(null as IQueueItemForApproval[] | null);
 const queueItemApprovalService = new QueueItemApprovalService();
@@ -40,7 +40,7 @@ const approveQueueItem = async (event: MouseEvent | Event, queueItem: IQueueItem
             Loading...
         </template>
         <template v-else>
-            <div v-for="(queueItem) in queueItems" class="dashboard-item">
+            <div :key="queueItem.id" v-for="(queueItem) in queueItems" class="dashboard-item">
                 {{ queueItem.entityType }} on platform {{ queueItem.platform }}
                 Id on platform: {{ queueItem.idOnPlatform }}
                 Added at: {{ queueItem.addedAt }}

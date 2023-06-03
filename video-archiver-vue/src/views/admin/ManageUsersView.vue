@@ -38,7 +38,6 @@ const getSelectedRoles = (user: IUserWithRoles, roleNames: string[]): ISelectedR
 }
 
 onMounted(async () => {
-    const fetchedUsers = await userManagementService.listAll(filters.value);
     await refresh();
 });
 
@@ -126,13 +125,13 @@ const isAllowedToManageRole = (role: ISelectedRole): boolean => {
                 <input type="checkbox" id="includeOnlyNotApproved" v-model="filters.includeOnlyNotApproved" />
                 <input type="submit" class="btn btn-primary" @click="refresh" value="Apply" />
             </form>
-            <div v-for="(user) in users" class="dashboard-item">
+            <div :key="user.id" v-for="(user) in users" class="dashboard-item">
                 {{ user.userName }}<br />
                 <input type="submit" v-if="!user.isApproved" class="btn btn-success"
                     @click="event => approveUser(event, user)" value="Approve registration" />
                 <button class="btn btn-outline-primary" :id="getRoleMenuButtonId(user)" @click="toggleRoleMenu(user)">Manage roles</button>
                 <div class="popup-menu" :style="getRoleSelectionMenuStyle(user)" v-if="selectedUser?.id === user.id">
-                    <div v-for="role in user.roles">
+                    <div :key="role.name" v-for="role in user.roles">
                         <label>
                             {{ role.name }}
                             <input type="checkbox" :disabled="!isAllowedToManageRole(role)" :checked="role.selected" @click="updateRole(user, role)" />

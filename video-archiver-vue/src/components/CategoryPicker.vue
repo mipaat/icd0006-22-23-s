@@ -11,6 +11,9 @@ export interface IProps {
 }
 
 const props = defineProps<IProps>();
+const emits = defineEmits<{
+    (e: 'update:selectedCategoryIds', value: string[]): void
+}>();
 
 const categoryService = new CategoryService();
 const categories = ref(null as Map<EPlatform, ICategoryWithCreator[]> | null);
@@ -27,11 +30,13 @@ const isSelectedAuthorCreatedCategory = (category: ICategoryWithCreator) =>
 
 const toggleCategorySelect = (category: ICategoryWithCreator) => {
     const index = props.selectedCategoryIds.findIndex(i => i === category.id);
+    const updatedCategoryIds = [...props.selectedCategoryIds];
     if (index === -1) {
-        props.selectedCategoryIds.push(category.id);
+        updatedCategoryIds.push(category.id);
     } else {
-        props.selectedCategoryIds.splice(index, 1);
+        updatedCategoryIds.splice(index, 1);
     }
+    emits('update:selectedCategoryIds', updatedCategoryIds);
 }
 
 </script>
@@ -43,16 +48,15 @@ const toggleCategorySelect = (category: ICategoryWithCreator) => {
             Category filter
         </button>
         <div class="collapse" id="category-collapse">
-            <div v-for="platform in categories.keys()">
+            <div :key="platform" v-for="platform in categories.keys()">
                 <button type="button" class="btn btn-outline-dark" data-bs-toggle="collapse"
                     :data-bs-target="`#category-${platform}-collapse`" aria-expanded="false"
                     :aria-controls="`category-${platform}-collapse`">
                     {{ platform }}
                 </button>
                 <div class="collapse" :id="`category-${platform}-collapse`">
-                    <template v-for="category in categories.get(platform)">
+                    <template :key="category.id" v-for="category in categories.get(platform)">
                         <label :for="`category-${category.id}`">
-                            // TODO: Link to details and edit page.
                             <a v-if="isSelectedAuthorCreatedCategory(category)">
                                 {{ isPublicArchiveCategory(category) ? "(Public) " : "" }}
                                 <LangStringDisplay :lang-string="category.name" />

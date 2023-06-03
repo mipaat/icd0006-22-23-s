@@ -4,7 +4,7 @@ export interface IProps {
     currentPage: number,
 }
 
-const props = defineProps<IProps>();
+defineProps<IProps>();
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 import type { IVideoSearchQuery } from '@/dto/input/IVideoSearchQuery';
-import { BaseAuthenticatedService, type IAxiosRetryConfig } from './BaseAuthenticatedService';
+import { BaseAuthenticatedService } from './BaseAuthenticatedService';
 import type { IdentityService } from './IdentityService';
 import type { IVideoSearchResult } from '@/dto/IVideoSearchResult';
 import { newLangString } from '@/dto/LangString';

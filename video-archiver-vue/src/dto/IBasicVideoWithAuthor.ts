@@ -1,6 +1,5 @@
 import type { IAuthor } from "./IAuthor";
 import type { IImageFile } from "./IImageFile";
-import type { ITimeSpan } from "./ITimeSpan";
 import type { LangString } from "./LangString";
 import type { EPlatform } from "./enums/EPlatform";
 import type { EPrivacyStatus } from "./enums/EPrivacyStatus";

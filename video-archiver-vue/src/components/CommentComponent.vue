@@ -6,7 +6,7 @@ export interface IProps {
     comment: IComment,
 }
 
-const props = defineProps<IProps>();
+defineProps<IProps>();
 
 </script>
 

@@ -6,7 +6,7 @@ export interface IProps {
     author: IAuthor,
 }
 
-const props = defineProps<IProps>();
+defineProps<IProps>();
 </script>
 
 <template>
