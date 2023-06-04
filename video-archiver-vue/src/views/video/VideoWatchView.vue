@@ -14,8 +14,11 @@ import type { IComment } from '@/dto/IComment';
 import { CommentService } from '@/services/CommentService';
 import PaginationComponent from '@/components/PaginationComponent.vue';
 import CommentComponent from '@/components/CommentComponent.vue';
+import { useIdentityStore } from '@/stores/identityStore';
 
 const config = configJson as IConfig;
+
+const identityStore = useIdentityStore();
 
 const route = useRoute();
 const id = route.query.id?.toString();
@@ -106,7 +109,7 @@ const submitPrivacyStatus = async (event: MouseEvent | Event) => {
             </h1>
         </div>
         <div>
-            <form>
+            <form v-if="identityStore.jwt?.isAdmin">
                 <label for="status">Set privacy status (in archive)</label>
                 <select id="status" v-model="internalPrivacyStatus">
                     <option :key="value" :selected="video.internalPrivacyStatus === value"

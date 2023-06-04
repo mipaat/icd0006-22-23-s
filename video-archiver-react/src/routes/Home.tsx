@@ -1,5 +1,7 @@
+import SubmitUrl from "../components/SubmitUrl";
+
 const Home = () => {
-    return <h1>HOME</h1>
+    return <SubmitUrl />
 }
 
 export default Home;

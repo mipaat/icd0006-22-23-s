@@ -11,7 +11,7 @@ const Header = () => {
         return (
             <div className="btn-group">
                 <button type="button" className="btn btn-danger dropdown-toggle"
-                data-bs-toggle="dropdown" aria-expanded="false">
+                    data-bs-toggle="dropdown" aria-expanded="false">
                     ADMIN
                 </button>
                 <ul className="dropdown-menu">
@@ -45,9 +45,10 @@ const Header = () => {
                             <li className="nav-item">
                                 <NavLink to="/" className="nav-link text-dark">Home</NavLink>
                             </li>
-                            <li>
-                                <NavLink to="/videos/search">Videos</NavLink>
-                            </li>
+                            {jwt !== null ?
+                                <li>
+                                    <NavLink className="nav-link text-dark" to="/videos/search">Videos</NavLink>
+                                </li> : <></>}
                             <AdminDropdown />
                         </ul>
 

@@ -1,5 +1,5 @@
 import type { IVideoSearchQuery } from '@/dto/input/IVideoSearchQuery';
-import { BaseAuthenticatedService } from './BaseAuthenticatedService';
+import { BaseAuthenticatedService, type IAxiosRetryConfig } from './BaseAuthenticatedService';
 import type { IdentityService } from './IdentityService';
 import type { IVideoSearchResult } from '@/dto/IVideoSearchResult';
 import { newLangString } from '@/dto/LangString';
@@ -56,7 +56,10 @@ export class VideoService extends BaseAuthenticatedService {
     }
 
     async getById(id: string): Promise<IVideoWithAuthor> {
-        const video = (await this.get<IVideoWithAuthor>(`getById?id=${id}`)).data;
+        const video = (await this.get<IVideoWithAuthor>(`getById?id=${id}`, {
+            refreshAttempted: false,
+            allowUnauthenticated: true,
+        } as IAxiosRetryConfig)).data;
         video.title = newLangString(video.title);
         video.description = newLangString(video.description);
         if (video.publishedAt) {

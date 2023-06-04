@@ -5,7 +5,7 @@ import { newLangString } from '../dto/LangString';
 import { ESimplePrivacyStatus } from '../dto/enums/ESimplePrivacyStatus';
 import { IVideoSearchQuery } from '../dto/input/IVideoSearchQuery';
 import { handleBaseArchiveEntity } from '../utils/Utils';
-import { BaseAuthenticatedService } from './BaseAuthenticatedService';
+import { BaseAuthenticatedService, IAxiosRetryConfig } from './BaseAuthenticatedService';
 
 export class VideoService extends BaseAuthenticatedService {
     constructor(authContext: IAuthenticationContext) {
@@ -14,7 +14,8 @@ export class VideoService extends BaseAuthenticatedService {
 
     async search(query: IVideoSearchQuery): Promise<IVideoSearchResult> {
         const params = new URLSearchParams();
-        const categoryIdsPlaceholder = "CATEGORY_IDS_PLACEHOLDER_2314848d9sfubjhkcxvsdfbhj435gdfsgfdsgfdfr32awerfv"
+        const categoryIdsPlaceholder =
+            'CATEGORY_IDS_PLACEHOLDER_2314848d9sfubjhkcxvsdfbhj435gdfsgfdsgfdfr32awerfv';
         if (query.categoryIdsQuery && query.categoryIdsQuery.length > 0) {
             params.append('categoryIdsQuery', categoryIdsPlaceholder);
         }
@@ -56,7 +57,12 @@ export class VideoService extends BaseAuthenticatedService {
     }
 
     async getById(id: string): Promise<IVideoWithAuthor> {
-        const video = (await this.get<IVideoWithAuthor>(`getById?id=${id}`)).data;
+        const video = (
+            await this.get<IVideoWithAuthor>(`getById?id=${id}`, {
+                refreshAttempted: false,
+                allowUnauthenticated: true
+            } as IAxiosRetryConfig)
+        ).data;
         video.title = newLangString(video.title);
         video.description = newLangString(video.description);
         if (video.publishedAt) {

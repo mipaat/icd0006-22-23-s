@@ -74,6 +74,6 @@ const submit = async (event: MouseEvent | Event) => {
         <h2>Sorry, you are not authorized to submit a link to the archive</h2>
     </template>
     <template v-else>
-        <p class text-center>Log in with an authorized account to submit a link to the archive</p>
+        <p class="text-center">Log in with an authorized account to submit a link to the archive</p>
     </template>
 </template>

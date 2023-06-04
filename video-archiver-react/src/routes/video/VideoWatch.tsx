@@ -113,16 +113,17 @@ const VideoWatch = () => {
             <h1><LangStringDisplay langString={video.title} /></h1>
         </div>
         <div>
-            <form onSubmit={submitPrivacyStatus}>
-                <label htmlFor="status">Set privacy status (in archive)</label>
-                <select id="status"
-                    value={internalPrivacyStatus!}
-                    onChange={e => setInternalPrivacyStatus(e.target.value as ESimplePrivacyStatus)}>
-                    <SelectListOptions<ESimplePrivacyStatus>
-                        values={Object.values(ESimplePrivacyStatus)} />
-                </select>
-                <input type="submit" className="btn btn-primary" value="Submit" />
-            </form>
+            {authContext.jwt?.isAdmin ?
+                <form onSubmit={submitPrivacyStatus}>
+                    <label htmlFor="status">Set privacy status (in archive)</label>
+                    <select id="status"
+                        value={internalPrivacyStatus!}
+                        onChange={e => setInternalPrivacyStatus(e.target.value as ESimplePrivacyStatus)}>
+                        <SelectListOptions<ESimplePrivacyStatus>
+                            values={Object.values(ESimplePrivacyStatus)} />
+                    </select>
+                    <input type="submit" className="btn btn-primary" value="Submit" />
+                </form> : <></>}
             <span className="card card-body" style={{ whiteSpace: "pre-wrap" }}>
                 <LangStringDisplay langString={video.description} />
             </span>
@@ -142,7 +143,7 @@ const VideoWatch = () => {
                     amountOnPage={comments.length}
                     onPageChange={onCommentsPageChange} />
                 {comments.map(comment => {
-                    return <CommentComponent comment={comment} />
+                    return <CommentComponent key={comment.id} comment={comment} />
                 })}
             </div>
             : (video.lastCommentsFetch ?

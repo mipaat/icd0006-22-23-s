@@ -12,6 +12,8 @@ import Register from './routes/identity/Register';
 import PendingApproval from './components/PendingApproval';
 import VideoSearch from './routes/video/VideoSearch';
 import VideoWatch from './routes/video/VideoWatch';
+import Forbidden from './routes/Forbidden';
+import NotFound from './routes/NotFound';
 
 const router = createBrowserRouter([
     {
@@ -26,6 +28,14 @@ const router = createBrowserRouter([
             {
                 path: "error/",
                 element: <ErrorPage />
+            },
+            {
+                path: "forbid/",
+                element: <Forbidden />
+            },
+            {
+                path: "notFound/",
+                element: <NotFound />
             },
             {
                 path: "login/:returnUrl?",

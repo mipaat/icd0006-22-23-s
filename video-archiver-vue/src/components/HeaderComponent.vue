@@ -21,7 +21,7 @@ const identityStore = useIdentityStore();
                         <li class="nav-item">
                             <RouterLink to="/" class="nav-link text-dark">Home</RouterLink>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item" v-if="identityStore.jwt !== null">
                             <RouterLink :to="{ name: 'videoSearch' }" class="nav-link text-dark">Videos</RouterLink>
                         </li>
                         <AdminDropdown v-if="identityStore.jwt?.isAdmin" />

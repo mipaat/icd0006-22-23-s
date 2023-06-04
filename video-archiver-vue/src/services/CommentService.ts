@@ -1,5 +1,5 @@
 import type { IComment } from '@/dto/IComment';
-import { BaseAuthenticatedService } from './BaseAuthenticatedService';
+import { BaseAuthenticatedService, type IAxiosRetryConfig } from './BaseAuthenticatedService';
 import type { IdentityService } from './IdentityService';
 import { handleBaseArchiveEntity } from '@/utils/Utils';
 
@@ -11,7 +11,10 @@ export class CommentService extends BaseAuthenticatedService {
     async getVideoComments(videoId: string, limit: number, page: number): Promise<IComment[]> {
         const comments = (
             await this.get<IComment[]>(
-                `getVideoComments?videoId=${videoId}&limit=${limit}&page=${page}`
+                `getVideoComments?videoId=${videoId}&limit=${limit}&page=${page}`, {
+                    refreshAttempted: false,
+                    allowUnauthenticated: true,
+                } as IAxiosRetryConfig
             )
         ).data;
         for (const comment of comments) {
