@@ -11,6 +11,7 @@ import Login from './routes/identity/Login';
 import Register from './routes/identity/Register';
 import PendingApproval from './components/PendingApproval';
 import VideoSearch from './routes/video/VideoSearch';
+import VideoWatch from './routes/video/VideoWatch';
 
 const router = createBrowserRouter([
     {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
             {
                 path: 'videos/search/',
                 element: <VideoSearch />
+            },
+            {
+                path: 'video/watch/:id',
+                element: <VideoWatch />
             }
         ]
     },

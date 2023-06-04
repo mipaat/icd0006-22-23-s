@@ -18,7 +18,7 @@ defineProps<IProps>();
     <div v-if="comment.likeCount !== null">Likes: {{ comment.likeCount }}</div>
     <div v-if="comment.replies && comment.replies.length > 0">
         <button type="button" class="btn btn-primary" data-bs-toggle="collapse" :data-bs-target="`#comment-${comment.id}-collapse`"
-            aria-expanded="false" aria-controls="comment-@Model.Id-collapse">
+            aria-expanded="false" :aria-controls="`comment-${comment.id}-collapse`">
             Replies ({{ comment.replies.length }})
         </button>
         <div class="collapse ms-4" :id="`comment-${comment.id}-collapse`">

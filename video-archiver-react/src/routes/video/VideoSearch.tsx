@@ -3,7 +3,7 @@ import { IVideoSearchResult } from "../../dto/IVideoSearchResult";
 import { VideoService } from "../../services/VideoService";
 import { AuthContext } from "../Root";
 import { IVideoSearchQuery } from "../../dto/input/IVideoSearchQuery";
-import VideoSearchResult from "./VideoSearchResult";
+import VideoSearchResult from "../../components/video/search/VideoSearchResult";
 import { EVideoSortingOptions } from "../../dto/enums/EVideoSortingOptions";
 import VideoSearchForm from "../../components/video/search/VideoSearchForm";
 import { UpdateStateArg, handleChangeEvent } from "../../utils/Utils";
@@ -20,7 +20,7 @@ const VideoSearch = () => {
         platformQuery: null,
 
         page: 0,
-        limit: 3, // TODO change to 50
+        limit: 50,
         sortingOptions: EVideoSortingOptions.CreatedAt,
         descending: true,
     } as IVideoSearchQuery);
@@ -38,7 +38,6 @@ const VideoSearch = () => {
     }
 
     const fetchAndSetVideos = useCallback(async () => {
-        console.log("HI");
         const videoService = new VideoService(authContext);
         setSearchResult(await videoService.search(query));
     }, [authContext, query]);

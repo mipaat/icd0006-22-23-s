@@ -1,6 +1,7 @@
-import AuthorSummary from "../../components/AuthorSummary";
-import LangStringDisplay from "../../components/LangStringDisplay";
-import { IVideoSearchResult } from "../../dto/IVideoSearchResult";
+import AuthorSummary from "../../AuthorSummary";
+import LangStringDisplay from "../../LangStringDisplay";
+import { IVideoSearchResult } from "../../../dto/IVideoSearchResult";
+import { Link } from "react-router-dom";
 
 interface IProps {
     searchResult: IVideoSearchResult | null,
@@ -25,7 +26,7 @@ const VideoSearchResult = (props: IProps) => {
             <tbody>
                 {props.searchResult.videos.map(video => {
                     return (<tr key={video.id}>
-                        <td>TODO link <LangStringDisplay langString={video.title}/></td>
+                        <td><Link to={`/video/watch/${video.id}`}><LangStringDisplay langString={video.title}/></Link></td>
                         <td>
                             <AuthorSummary author={video.author} />
                         </td>
