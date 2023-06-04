@@ -7,6 +7,7 @@ import VideoSearchResult from "./VideoSearchResult";
 import { EVideoSortingOptions } from "../../dto/enums/EVideoSortingOptions";
 import VideoSearchForm from "../../components/video/search/VideoSearchForm";
 import { UpdateStateArg, handleChangeEvent } from "../../utils/Utils";
+import PaginationComponent from "../../components/PaginationComponent";
 
 const VideoSearch = () => {
     const authContext = useContext(AuthContext);
@@ -19,14 +20,14 @@ const VideoSearch = () => {
         platformQuery: null,
 
         page: 0,
-        limit: 50,
+        limit: 3, // TODO change to 50
         sortingOptions: EVideoSortingOptions.CreatedAt,
         descending: true,
     } as IVideoSearchQuery);
 
     const updateCategoryIds = (updateFunc: UpdateStateArg<string[]>) => {
         setQuery(previous => {
-            const updated = {...previous};
+            const updated = { ...previous };
             updated.categoryIdsQuery = updateFunc(previous.categoryIdsQuery);
             return updated;
         });
@@ -46,12 +47,24 @@ const VideoSearch = () => {
         fetchAndSetVideos();
     }, [authContext, fetchAndSetVideos]);
 
+    const onPageChange = async (page: number) => {
+        setQuery(previous => {
+            return { ...previous, page: page };
+        })
+    }
+
     return <>
         <VideoSearchForm
-        query={query}
-        handleChange={e => handleChangeEvent(e, setQuery)}
-        updateCategoryIds={updateCategoryIds}
-        onSubmit={onSubmit} />
+            query={query}
+            handleChange={e => handleChangeEvent(e, setQuery)}
+            updateCategoryIds={updateCategoryIds}
+            onSubmit={onSubmit} />
+        <PaginationComponent
+            page={query.page}
+            limit={query.limit}
+            total={null}
+            amountOnPage={searchResult?.videos.length ?? 0}
+            onPageChange={onPageChange} />
         <VideoSearchResult searchResult={searchResult} />
     </>
 }
