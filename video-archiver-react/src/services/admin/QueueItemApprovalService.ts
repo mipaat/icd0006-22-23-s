@@ -1,11 +1,10 @@
-import { NavigateFunction } from "react-router-dom";
 import { IAuthenticationContext } from "../../contexts/IAuthenticationContext";
 import type { IQueueItemForApproval } from "../../dto/IQueueItemForApproval";
 import { BaseAuthenticatedService } from "../BaseAuthenticatedService";
 
 export class QueueItemApprovalService extends BaseAuthenticatedService {
-    constructor(authContext: IAuthenticationContext, navigate: NavigateFunction, getLocation: () => Location) {
-        super("v1/admin/ApproveQueueItem/", authContext, navigate, getLocation);
+    constructor(authContext: IAuthenticationContext) {
+        super("v1/admin/ApproveQueueItem/", authContext);
     }
 
     public async listAll(): Promise<IQueueItemForApproval[]> {

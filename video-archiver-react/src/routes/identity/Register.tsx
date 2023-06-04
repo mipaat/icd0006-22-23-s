@@ -10,6 +10,7 @@ import { IRegisterData } from "../../dto/identity/IRegisterData";
 import { AuthContext } from "../Root";
 import { IdentityService } from "../../services/IdentityService";
 import { ERestApiErrorType } from "../../dto/enums/ERestApiErrorType";
+import { handleChangeEvent } from "../../utils/Utils";
 
 const Register = () => {
     const navigate = useNavigate();
@@ -26,13 +27,11 @@ const Register = () => {
         setValidationErrors(previous => [...previous, ...errors])
     }
 
-    const handleChange = (target: EventTarget & HTMLInputElement) => {
-        setInput({ ...values, [target.name]: target.value });
-    }
-
     const { setJwt, setRefreshToken } = useContext(AuthContext);
+    setJwt!(null);
+    setRefreshToken!(null);
 
-    const identityService = new IdentityService(navigate);
+    const identityService = new IdentityService();
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
@@ -71,7 +70,11 @@ const Register = () => {
     }
 
     return (
-        <RegisterFormView values={values} handleChange={handleChange} onSubmit={onSubmit} validationErrors={validationErrors} />
+        <RegisterFormView
+            values={values}
+            handleChange={v => handleChangeEvent<IRegisterData>(v, setInput)}
+            onSubmit={onSubmit}
+            validationErrors={validationErrors} />
     );
 }
 

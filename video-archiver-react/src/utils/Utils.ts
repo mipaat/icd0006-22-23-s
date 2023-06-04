@@ -43,3 +43,30 @@ export function handleBaseArchiveEntity(entity: IBaseArchiveEntity) {
         entity.lastSuccessfulFetchUnofficial = new Date(entity.lastSuccessfulFetchUnofficial);
     }
 }
+
+type HandleableHtmlElement = HTMLInputElement | HTMLSelectElement;
+export type SimpleSetStateAction<S> = (state: S) => void;
+export type UpdateStateArg<S> = (prevState: S) => S;
+export type UpdateStateAction<S> = (updateStateArg: UpdateStateArg<S>) => void;
+export type HandleChangeEventAction = (event: React.ChangeEvent<HandleableHtmlElement>) => void;
+export type HandleChangeAction = (target: EventTarget & HandleableHtmlElement) => void;
+export function handleChangeEvent<TInput>(
+    event: React.ChangeEvent<HandleableHtmlElement>,
+    setValue: UpdateStateAction<TInput>
+) {
+    handleChange(event.target, setValue);
+}
+export function handleChange<TInput>(
+    target: EventTarget & HandleableHtmlElement,
+    setValue: UpdateStateAction<TInput>
+): void {
+    setValue((previous: TInput) => {
+        if (target instanceof HTMLInputElement && target.type === 'checkbox') {
+            return { ...previous, [target.name]: target.checked };
+        }
+        return {
+            ...previous,
+            [target.name]: target.value
+        };
+    });
+}

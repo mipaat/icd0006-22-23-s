@@ -1,6 +1,7 @@
 import { DecodedJWT } from "../dto/identity/DecodedJWT";
 import { IRefreshToken } from "../dto/identity/IRefreshToken";
 import { IUserSubAuthor } from "../dto/identity/IUserSubAuthor";
+import { SimpleSetStateAction } from "../utils/Utils";
 
 export interface IAuthenticationContext {
     jwt: DecodedJWT | null,
@@ -13,8 +14,6 @@ export interface IAuthenticationContext {
     ongoingRefreshPromise: Promise<string | null> | null,
     setOngoingRefreshPromise: SimpleSetStateAction<Promise<string | null> | null> | null,
 }
-
-type SimpleSetStateAction<S> = (state: S) => void;
 
 export function isRefreshTokenExpired(authContext: IAuthenticationContext): boolean {
     if (!authContext.refreshToken) return true;

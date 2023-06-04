@@ -2,11 +2,10 @@ import type { IUserFilters } from "../../dto/input/IUserFilters";
 import { BaseAuthenticatedService } from "../BaseAuthenticatedService";
 import { type IUserWithRoles } from "../../dto/identity/IUserWithRoles";
 import { IAuthenticationContext } from "../../contexts/IAuthenticationContext";
-import { NavigateFunction } from "react-router-dom";
 
 export class UserManagementService extends BaseAuthenticatedService {
-    constructor(authContext: IAuthenticationContext, navigate: NavigateFunction, getLocation: () => Location) {
-        super("v1/admin/ManageUsers/", authContext, navigate, getLocation);
+    constructor(authContext: IAuthenticationContext) {
+        super("v1/admin/ManageUsers/", authContext);
     }
 
     async listAll(filters: IUserFilters): Promise<IUserWithRoles[]> {

@@ -11,6 +11,7 @@ import { IRefreshToken } from "../dto/identity/IRefreshToken";
 import { DecodedJWT } from "../dto/identity/DecodedJWT";
 import { IUserSubAuthor } from "../dto/identity/IUserSubAuthor";
 import { IAuthenticationContext } from "../contexts/IAuthenticationContext";
+import ErrorBoundary from "../components/ErrorBoundary";
 
 export const AuthContext = createContext<IAuthenticationContext>({
     jwt: null, setJwt: null,
@@ -74,13 +75,15 @@ const Root = () => {
             selectedAuthor, setSelectedAuthor,
             ongoingRefreshPromise, setOngoingRefreshPromise
         }}>
-            <Header />
+            <ErrorBoundary>
+                <Header />
 
-            <div className="container">
-                <main role="main" className="pb-3">
-                    <Outlet />
-                </main>
-            </div>
+                <div className="container">
+                    <main role="main" className="pb-3">
+                        <Outlet />
+                    </main>
+                </div>
+            </ErrorBoundary>
         </AuthContext.Provider>
     );
 }

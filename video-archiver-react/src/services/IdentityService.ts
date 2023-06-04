@@ -5,11 +5,10 @@ import { isAxiosResponse } from '../utils/Utils';
 import { PendingApprovalError } from '../dto/PendingApprovalError';
 import { IRefreshToken } from '../dto/identity/IRefreshToken';
 import { DecodedJWT } from '../dto/identity/DecodedJWT';
-import { NavigateFunction } from 'react-router-dom';
 
 export class IdentityService extends BaseService {
-    constructor(navigate: NavigateFunction) {
-        super('v1/identity/account/', navigate);
+    constructor() {
+        super('v1/identity/account/');
     }
 
     async register(

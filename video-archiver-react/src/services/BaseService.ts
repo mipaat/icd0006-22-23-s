@@ -3,7 +3,6 @@ import Axios, { isAxiosError, type AxiosInstance, type AxiosRequestConfig, type 
 import * as configJson from '../config.json';
 import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
 import { IConfig, conformApiBaseUrl } from '../config';
-import { NavigateFunction } from 'react-router-dom';
 const config = configJson as IConfig;
 
 export abstract class BaseService {
@@ -11,7 +10,7 @@ export abstract class BaseService {
 
     protected axios: AxiosInstance;
 
-    constructor(baseUrl: string, navigate: NavigateFunction) {
+    constructor(baseUrl: string) {
         this.axios = Axios.create(
             {
                 baseURL: BaseService.hostBaseURL + baseUrl,
@@ -27,20 +26,6 @@ export abstract class BaseService {
             console.log('Starting Request', JSON.stringify(request, null, 2));
             return request;
         })
-
-        this.axios.interceptors.response.use(response => response, async error => {
-            if (isAxiosError(error)) {
-                if (error.response?.status === 403) {
-                    navigate("/forbid");
-                } else if (error.response?.status === 404) {
-                    navigate("/notFound");
-                } else if (error.response?.status !== 401) {
-                    throw(error);
-                }
-            }
-
-            throw error;
-        });
     }
 
     private async baseRequest<TResponse>(requestFunc: () => Promise<AxiosResponse<TResponse>>): Promise<AxiosResponse<TResponse>> {

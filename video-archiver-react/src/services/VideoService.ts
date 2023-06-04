@@ -1,4 +1,3 @@
-import { NavigateFunction } from 'react-router-dom';
 import { IAuthenticationContext } from '../contexts/IAuthenticationContext';
 import { IVideoSearchResult } from '../dto/IVideoSearchResult';
 import { IVideoWithAuthor } from '../dto/IVideoWithAuthor';
@@ -9,8 +8,8 @@ import { handleBaseArchiveEntity } from '../utils/Utils';
 import { BaseAuthenticatedService } from './BaseAuthenticatedService';
 
 export class VideoService extends BaseAuthenticatedService {
-    constructor(authContext: IAuthenticationContext, navigate: NavigateFunction, getLocation: () => Location) {
-        super('v1/videos/', authContext, navigate, getLocation);
+    constructor(authContext: IAuthenticationContext) {
+        super('v1/videos/', authContext);
     }
 
     async search(query: IVideoSearchQuery): Promise<IVideoSearchResult> {

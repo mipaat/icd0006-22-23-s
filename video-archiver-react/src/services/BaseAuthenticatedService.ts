@@ -10,25 +10,13 @@ import {
     isJwtExpired,
     isRefreshTokenExpired
 } from '../contexts/IAuthenticationContext';
-import { NavigateFunction } from 'react-router-dom';
+import { LoginRequiredError } from '../errors/LoginRequiredError';
 
 export class BaseAuthenticatedService extends BaseService {
-    constructor(
-        baseUrl: string,
-        authContext: IAuthenticationContext,
-        navigate: NavigateFunction,
-        getLocation: () => Location,
-    ) {
-        super(baseUrl, navigate);
+    constructor(baseUrl: string, authContext: IAuthenticationContext) {
+        super(baseUrl);
 
-        function navigateToLogin() {
-            const location = getLocation();
-            return navigate(
-                `/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`
-            );
-        }
-
-        const identityService = new IdentityService(navigate);
+        const identityService = new IdentityService();
 
         const refreshToken = async (): Promise<string | null> => {
             if (authContext.ongoingRefreshPromise !== null) {
@@ -88,14 +76,12 @@ export class BaseAuthenticatedService extends BaseService {
                 if (allowUnauthenticated) {
                     return request;
                 }
-                navigateToLogin();
-                return Promise.reject('No JWT');
+                throw new LoginRequiredError();
             }
 
             if (isJwtExpired(authContext)) {
                 if (isRefreshTokenExpired(authContext)) {
-                    navigateToLogin();
-                    return Promise.reject('Invalid refresh token');
+                    throw new LoginRequiredError();
                 }
 
                 if (isAxiosRetryConfig(request)) {
@@ -107,19 +93,13 @@ export class BaseAuthenticatedService extends BaseService {
                     jwt = await refreshToken();
                 } catch (e) {
                     console.log('Failed to get JWT', e);
-                    if (isAxiosError(e) && e.response?.status === 401) {
-                        navigateToLogin();
-                    } else {
-                        throw e;
-                    }
-                    return Promise.reject('Failed to get JWT');
+                    throw new LoginRequiredError();
                 }
                 if (jwt) {
                     setAuthorizationHeader(request, jwt);
                     return request;
                 }
-                navigateToLogin();
-                return Promise.reject('Failed to get JWT');
+                throw new LoginRequiredError();
             }
 
             setAuthorizationHeader(request, authContext.jwt.token);
@@ -143,19 +123,17 @@ export class BaseAuthenticatedService extends BaseService {
                             config.refreshAttempted = true;
                             const jwt = await refreshToken();
                             if (!jwt) {
-                                navigateToLogin();
-                                return Promise.reject(error);
+                                throw new LoginRequiredError();
                             }
                             setAuthorizationHeader(config, jwt);
                             return await this.axios.request(config);
                         }
 
-                        navigateToLogin();
-                        return Promise.reject(error);
+                        throw new LoginRequiredError();
                     }
                 }
 
-                return Promise.reject(error);
+                throw error;
             }
         );
     }

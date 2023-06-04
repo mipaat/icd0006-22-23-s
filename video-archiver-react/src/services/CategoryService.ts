@@ -1,13 +1,12 @@
 import { BaseAuthenticatedService } from "./BaseAuthenticatedService";
 import { IAuthenticationContext } from "../contexts/IAuthenticationContext";
-import { NavigateFunction } from "react-router-dom";
 import { ICategoryWithCreator } from "../dto/ICategoryWithCreator";
 import { newLangString } from "../dto/LangString";
 import { EPlatform } from "../dto/enums/EPlatform";
 
 export class CategoryService extends BaseAuthenticatedService {
-    constructor(authContext: IAuthenticationContext, navigate: NavigateFunction, getLocation: () => Location) {
-        super("v1/categories/", authContext, navigate, getLocation);
+    constructor(authContext: IAuthenticationContext) {
+        super("v1/categories/", authContext);
     }
 
     async listAllCategories(authorId: string | null): Promise<ICategoryWithCreator[]> {

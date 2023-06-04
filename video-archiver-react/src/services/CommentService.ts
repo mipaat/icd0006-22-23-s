@@ -1,12 +1,11 @@
 import { BaseAuthenticatedService } from './BaseAuthenticatedService';
-import { NavigateFunction } from 'react-router-dom';
 import { IAuthenticationContext } from '../contexts/IAuthenticationContext';
 import { IComment } from '../dto/IComment';
 import { handleBaseArchiveEntity } from '../utils/Utils';
 
 export class CommentService extends BaseAuthenticatedService {
-    constructor(authContext: IAuthenticationContext, navigate: NavigateFunction, getLocation: () => Location) {
-        super('v1/comment/', authContext, navigate, getLocation);
+    constructor(authContext: IAuthenticationContext) {
+        super('v1/comment/', authContext);
     }
 
     async getVideoComments(videoId: string, limit: number, page: number): Promise<IComment[]> {

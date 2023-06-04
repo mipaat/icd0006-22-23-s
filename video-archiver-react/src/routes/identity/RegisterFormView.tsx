@@ -1,13 +1,14 @@
 import { MouseEvent } from 'react';
 import ValidationErrors from '../../components/ValidationErrors';
 import { IRegisterData } from '../../dto/identity/IRegisterData';
+import { HandleChangeEventAction } from '../../utils/Utils';
 
 interface IProps {
     values: IRegisterData;
 
     validationErrors: string[];
 
-    handleChange: (target: EventTarget & HTMLInputElement) => void;
+    handleChange: HandleChangeEventAction;
 
     onSubmit: (event: MouseEvent) => void;
 }
@@ -22,7 +23,7 @@ const RegisterFormView = (props: IProps) => {
 
             <div className="form-floating mb-3">
                 <input
-                    onChange={(e) => props.handleChange(e.target)}
+                    onChange={props.handleChange}
                     value={props.values.username}
                     className="form-control"
                     autoComplete="username"
@@ -36,7 +37,7 @@ const RegisterFormView = (props: IProps) => {
             </div>
             <div className="form-floating mb-3">
                 <input
-                    onChange={(e) => props.handleChange(e.target)}
+                    onChange={props.handleChange}
                     value={props.values.password}
                     className="form-control"
                     autoComplete="new-password"
@@ -51,7 +52,7 @@ const RegisterFormView = (props: IProps) => {
             </div>
             <div className="form-floating mb-3">
                 <input
-                    onChange={(e) => props.handleChange(e.target)}
+                    onChange={props.handleChange}
                     value={props.values.confirmPassword}
                     className="form-control"
                     autoComplete="new-password"

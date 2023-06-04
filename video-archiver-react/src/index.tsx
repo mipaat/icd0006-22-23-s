@@ -10,6 +10,7 @@ import Home from './routes/Home';
 import Login from './routes/identity/Login';
 import Register from './routes/identity/Register';
 import PendingApproval from './components/PendingApproval';
+import VideoSearch from './routes/video/VideoSearch';
 
 const router = createBrowserRouter([
     {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
                 path: "pendingApproval/",
                 element: <PendingApproval />
             },
+            {
+                path: 'videos/search/',
+                element: <VideoSearch />
+            }
         ]
     },
 ]);

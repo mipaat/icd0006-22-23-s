@@ -9,7 +9,7 @@ const IdentityHeader = () => {
     const { jwt, setJwt, refreshToken, setRefreshToken, setSelectedAuthor } = useContext(AuthContext);
     const navigate = useNavigate();
     
-    const identityService = new IdentityService(navigate);
+    const identityService = new IdentityService();
 
     const logout = async () => {
         setJwt!(null);

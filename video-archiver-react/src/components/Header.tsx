@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { AuthContext } from "../routes/Root";
 import IdentityHeader from "./IdentityHeader";
 
@@ -43,10 +43,10 @@ const Header = () => {
                     <div className="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                         <ul className="navbar-nav flex-grow-1">
                             <li className="nav-item">
-                                <Link to="/" className="nav-link text-dark">Home</Link>
+                                <NavLink to="/" className="nav-link text-dark">Home</NavLink>
                             </li>
                             <li>
-                                <Link to="">TODO: Videos search</Link>
+                                <NavLink to="/videos/search">Videos</NavLink>
                             </li>
                             <AdminDropdown />
                         </ul>

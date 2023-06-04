@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useState } from 'react';
+import { MouseEvent, useContext, useEffect, useState } from 'react';
 import LoginFormView from './LoginFormView';
 import { useNavigate, useParams } from 'react-router-dom';
 import { isIRestApiErrorResponse } from '../../dto/IRestApiErrorResponse';
@@ -9,6 +9,7 @@ import { DecodedJWT } from '../../dto/identity/DecodedJWT';
 import { ILoginData } from '../../dto/identity/ILoginData';
 import { RefreshToken } from '../../dto/identity/IRefreshToken';
 import { AuthContext } from '../Root';
+import { handleChangeEvent } from '../../utils/Utils';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -25,13 +26,13 @@ const Login = () => {
         setValidationErrors(previousErrors => [...previousErrors, ...errors]);
     }
 
-    const handleChange = (target: EventTarget & HTMLInputElement) => {
-        setInput({ ...values, [target.name]: target.value });
-    };
-
     const { setJwt, setRefreshToken } = useContext(AuthContext);
+    useEffect(() => {
+        setJwt!(null);
+        setRefreshToken!(null);
+    })
 
-    const identityService = new IdentityService(navigate);
+    const identityService = new IdentityService();
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
@@ -68,7 +69,7 @@ const Login = () => {
     return (
         <LoginFormView
             values={values}
-            handleChange={handleChange}
+            handleChange={e => handleChangeEvent<ILoginData>(e, setInput)}
             onSubmit={onSubmit}
             validationErrors={validationErrors}
             pendingApproval={pendingApproval}

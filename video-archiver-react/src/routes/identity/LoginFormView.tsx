@@ -3,6 +3,7 @@ import './login.css';
 import PendingApproval from '../../components/PendingApproval';
 import ValidationErrors from '../../components/ValidationErrors';
 import { ILoginData } from '../../dto/identity/ILoginData';
+import { HandleChangeEventAction } from '../../utils/Utils';
 
 interface IProps {
     values: ILoginData;
@@ -11,7 +12,7 @@ interface IProps {
 
     pendingApproval: boolean;
 
-    handleChange: (target: EventTarget & HTMLInputElement) => void;
+    handleChange: HandleChangeEventAction;
 
     onSubmit: (event: MouseEvent) => void;
 }
@@ -27,7 +28,7 @@ const LoginFormView = (props: IProps) => {
 
             <div className="form-floating mb-3">
                 <input
-                    onChange={(e) => props.handleChange(e.target)}
+                    onChange={props.handleChange}
                     value={props.values.username}
                     className="form-control"
                     autoComplete="username"
@@ -41,7 +42,7 @@ const LoginFormView = (props: IProps) => {
             </div>
             <div className="form-floating mb-3">
                 <input
-                    onChange={(e) => props.handleChange(e.target)}
+                    onChange={props.handleChange}
                     value={props.values.password}
                     className="form-control"
                     autoComplete="new-password"
