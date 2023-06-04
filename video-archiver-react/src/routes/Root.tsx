@@ -1,79 +1,87 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import { Outlet } from "react-router-dom";
-import Footer from "../components/Footer";
 import Header from "../components/Header";
 
-import * as configJson from '../config.json';
-import IConfig from "../config";
-import { IAuthenticationContext } from "../dto/IAuthenticationContext";
 import { LocalStorageService } from "../localStorage/LocalStorageService";
-import { JWT_KEY, REFRESH_TOKEN_KEY } from "../localStorage/LocalStorageKeys";
-import { DecodedJWT } from "../dto/DecodedJWT";
-import { IAuthenticationState } from "../dto/IAuthenticationState";
-import { IRefreshToken } from "../dto/IRefreshToken";
+import { JWT_KEY, REFRESH_TOKEN_KEY, SELECTED_AUTHOR_KEY } from "../localStorage/LocalStorageKeys";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import { IdentityService } from "../services/IdentityService";
+import { IRefreshToken } from "../dto/identity/IRefreshToken";
+import { DecodedJWT } from "../dto/identity/DecodedJWT";
+import { IUserSubAuthor } from "../dto/identity/IUserSubAuthor";
+import { IAuthenticationContext } from "../contexts/IAuthenticationContext";
 
-const config = configJson as IConfig;
-
-export const ConfigContext = createContext<IConfig>(config);
-
-export const AuthContext = createContext<IAuthenticationContext>({ authState: null, updateAuthState: null });
-
-const identityService = new IdentityService();
-
-export const IdentityServiceContext = createContext<IdentityService>(identityService);
+export const AuthContext = createContext<IAuthenticationContext>({
+    jwt: null, setJwt: null,
+    refreshToken: null, setRefreshToken: null,
+    selectedAuthor: null, setSelectedAuthor: null,
+    ongoingRefreshPromise: null, setOngoingRefreshPromise: null,
+});
 
 const Root = () => {
-    const localStorageService = useMemo(() => new LocalStorageService(config.localStorageKey), []);
+    const localStorageService = useMemo(() => new LocalStorageService(), []);
     const storedJwt = localStorageService.getItem(JWT_KEY);
     const storedRefreshToken = localStorageService.getItem(REFRESH_TOKEN_KEY);
+    const storedSelectedAuthor = localStorageService.getItem(SELECTED_AUTHOR_KEY);
 
-    let refreshToken: IRefreshToken | null = null;
+    let readRefreshToken: IRefreshToken | null = null;
     if (storedRefreshToken) {
         const parsedStoredRefreshToken = JSON.parse(storedRefreshToken);
-        refreshToken = {
+        readRefreshToken = {
             token: parsedStoredRefreshToken['token'],
             expiresAt: new Date(parsedStoredRefreshToken['expiresAt']),
         }
     }
 
-    const [authState, updateAuthState] = useState({
-        jwt: storedJwt !== null ? new DecodedJWT(storedJwt) : null,
-        refreshToken: refreshToken,
-    } as IAuthenticationState);
+    let readSelectedAuthor: IUserSubAuthor | null = null;
+    if (storedSelectedAuthor) {
+        const parsedStoredSelectedAuthor = JSON.parse(storedSelectedAuthor);
+        readSelectedAuthor = {
+            id: parsedStoredSelectedAuthor['id'],
+            userName: parsedStoredSelectedAuthor['userName'],
+            displayName: parsedStoredSelectedAuthor['displayName'],
+        };
+    }
+
+    const [jwt, setJwt] = useState(storedJwt !== null ? new DecodedJWT(storedJwt) : null);
+    const [refreshToken, setRefreshToken] = useState(readRefreshToken);
+    const [selectedAuthor, setSelectedAuthor] = useState(readSelectedAuthor);
+    const [ongoingRefreshPromise, setOngoingRefreshPromise] = useState(null as Promise<string | null> | null);
 
     useEffect(() => {
-        if (authState.jwt) {
-            localStorageService.setItem(JWT_KEY, authState.jwt.token);
+        if (jwt) {
+            localStorageService.setItem(JWT_KEY, jwt.token);
         } else {
             localStorageService.removeItem(JWT_KEY);
         }
-        if (authState.refreshToken) {
-            localStorageService.setItem(REFRESH_TOKEN_KEY, JSON.stringify(authState.refreshToken));
+        if (refreshToken) {
+            localStorageService.setItem(REFRESH_TOKEN_KEY, JSON.stringify(refreshToken));
         } else {
             localStorageService.removeItem(REFRESH_TOKEN_KEY);
         }
-    }, [authState, localStorageService]);
+        if (selectedAuthor) {
+            localStorageService.setItem(SELECTED_AUTHOR_KEY, JSON.stringify(selectedAuthor))
+        } else {
+            localStorageService.removeItem(SELECTED_AUTHOR_KEY);
+        }
+    }, [jwt, refreshToken, selectedAuthor, localStorageService]);
 
     return (
-        <IdentityServiceContext.Provider value={identityService}>
-            <ConfigContext.Provider value={config}>
-                <AuthContext.Provider value={{ authState, updateAuthState }}>
-                    <Header />
+        <AuthContext.Provider value={{
+            jwt, setJwt,
+            refreshToken, setRefreshToken,
+            selectedAuthor, setSelectedAuthor,
+            ongoingRefreshPromise, setOngoingRefreshPromise
+        }}>
+            <Header />
 
-                    <div className="container">
-                        <main role="main" className="pb-3">
-                            <Outlet />
-                        </main>
-                    </div>
-
-                    <Footer />
-                </AuthContext.Provider>
-            </ConfigContext.Provider>
-        </IdentityServiceContext.Provider>
+            <div className="container">
+                <main role="main" className="pb-3">
+                    <Outlet />
+                </main>
+            </div>
+        </AuthContext.Provider>
     );
 }
 

@@ -1,20 +1,22 @@
-import { IAuthenticationState } from "../dto/IAuthenticationState";
-import { IJWTResponse } from "../dto/IJWTResponse";
-import { ILoginData } from "../dto/ILoginData";
-import { IRefreshTokenData } from "../dto/IRefreshTokenData";
-import { IRegisterData } from "../dto/IRegisterData";
-import { IRestApiErrorResponse } from "../dto/IRestApiErrorResponse";
-import { PendingApprovalError } from "../dto/PendingApprovalError";
-import { isAxiosResponse } from "../utils/Utils";
-import { BaseService } from "./BaseService";
+import { type IJWTResponse } from '../dto/identity/IJWTResponse';
+import { type IRefreshTokenData } from '../dto/identity/IRefreshTokenData';
+import { BaseService } from './BaseService';
+import { isAxiosResponse } from '../utils/Utils';
+import { PendingApprovalError } from '../dto/PendingApprovalError';
+import { IRefreshToken } from '../dto/identity/IRefreshToken';
+import { DecodedJWT } from '../dto/identity/DecodedJWT';
+import { NavigateFunction } from 'react-router-dom';
 
 export class IdentityService extends BaseService {
-    constructor() {
-        super('v1/identity/account/');
+    constructor(navigate: NavigateFunction) {
+        super('v1/identity/account/', navigate);
     }
 
-    async register(data: IRegisterData): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
-        const result = await this.post<IJWTResponse>('register', data);
+    async register(
+        username: string,
+        password: string
+    ): Promise<IJWTResponse> {
+        const result = await this.post<IJWTResponse>('register', { username, password });
         if (isAxiosResponse(result)) {
             if (result.status === 202) {
                 throw new PendingApprovalError();
@@ -24,27 +26,21 @@ export class IdentityService extends BaseService {
         return result;
     }
 
-    async login(data: ILoginData): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
-        const result = await this.post<IJWTResponse>('login', data);
+    async login(username: string, password: string): Promise<IJWTResponse> {
+        const result = await this.post<IJWTResponse>('login', { username: username, password });
         if (isAxiosResponse<IJWTResponse>(result)) {
             return result.data;
         }
         return result;
     }
 
-    async logout(authState: IAuthenticationState): Promise<void> {
-        await this.post(
-            'logout',
-            authState.refreshToken,
-            {
-                headers: {
-                    'Authorization': 'Bearer ' + authState.jwt?.token
-                }
-            }
-        );
+    async logout(jwt: DecodedJWT, refreshToken: IRefreshToken): Promise<void> {
+        await this.post('logout', { refreshToken: refreshToken.token, jwt: jwt.token });
     }
 
-    async refreshToken(data: IRefreshTokenData): Promise<IJWTResponse | IRestApiErrorResponse | undefined> {
+    async refreshToken(
+        data: IRefreshTokenData
+    ): Promise<IJWTResponse> {
         const result = await this.post<IJWTResponse>('refreshToken', data);
         if (isAxiosResponse<IJWTResponse>(result)) {
             return result.data;

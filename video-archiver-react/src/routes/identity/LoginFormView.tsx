@@ -1,8 +1,8 @@
 import { MouseEvent } from 'react';
-import { ILoginData } from '../../dto/ILoginData';
 import './login.css';
 import PendingApproval from '../../components/PendingApproval';
 import ValidationErrors from '../../components/ValidationErrors';
+import { ILoginData } from '../../dto/identity/ILoginData';
 
 interface IProps {
     values: ILoginData;

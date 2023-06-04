@@ -1,16 +1,19 @@
 import { MouseEvent, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { DecodedJWT } from "../../dto/DecodedJWT";
-import { IJWTResponse, isIJwtResponse } from "../../dto/IJWTResponse";
-import { RefreshToken } from "../../dto/IRefreshToken";
-import { IRegisterData } from "../../dto/IRegisterData";
+import { useNavigate, useParams } from "react-router-dom";
 import { IRestApiErrorResponse, isIRestApiErrorResponse } from "../../dto/IRestApiErrorResponse";
-import { AuthContext, IdentityServiceContext } from "../Root";
 import RegisterFormView from "./RegisterFormView";
 import { isPendingApprovalError } from "../../dto/PendingApprovalError";
+import { DecodedJWT } from "../../dto/identity/DecodedJWT";
+import { IJWTResponse } from "../../dto/identity/IJWTResponse";
+import { RefreshToken } from "../../dto/identity/IRefreshToken";
+import { IRegisterData } from "../../dto/identity/IRegisterData";
+import { AuthContext } from "../Root";
+import { IdentityService } from "../../services/IdentityService";
+import { ERestApiErrorType } from "../../dto/enums/ERestApiErrorType";
 
 const Register = () => {
     const navigate = useNavigate();
+    let { returnUrl } = useParams();
 
     const [values, setInput] = useState({
         password: "",
@@ -19,59 +22,52 @@ const Register = () => {
     } as IRegisterData);
 
     const [validationErrors, setValidationErrors] = useState([] as string[]);
+    const addValidationErrors = (...errors: string[]) => {
+        setValidationErrors(previous => [...previous, ...errors])
+    }
 
     const handleChange = (target: EventTarget & HTMLInputElement) => {
         setInput({ ...values, [target.name]: target.value });
     }
 
-    const { updateAuthState } = useContext(AuthContext);
+    const { setJwt, setRefreshToken } = useContext(AuthContext);
 
-    const identityService = useContext(IdentityServiceContext);
+    const identityService = new IdentityService(navigate);
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
 
+        setValidationErrors([]);
+
         if (values.username.length === 0 || values.password.length === 0) {
-            setValidationErrors(["Bad input values!"])
-            return;
-        }
-    
-        if (values.password !== values.confirmPassword) {
-            setValidationErrors(["Passwords must match!"])
+            addValidationErrors("Bad input values!")
             return;
         }
 
-        setValidationErrors([]);
+        if (values.password !== values.confirmPassword) {
+            addValidationErrors("Passwords must match!")
+            return;
+        }
 
         let jwtResponse: IJWTResponse | IRestApiErrorResponse | undefined;
         try {
-            jwtResponse = await identityService.register(values);
+            jwtResponse = await identityService.register(values.username, values.password);
         } catch (e) {
             if (isPendingApprovalError(e)) {
                 navigate("/pendingApproval");
                 return;
             }
-            setValidationErrors(["Unknown error occurred"]);
+            if (isIRestApiErrorResponse(e) && [ERestApiErrorType.InvalidRegistrationData, ERestApiErrorType.UserAlreadyRegistered].includes(e.errorType)) {
+                addValidationErrors(e.error);
+                return;
+            }
+            addValidationErrors("Unknown error occurred");
             return;
         }
 
-        if (isIRestApiErrorResponse(jwtResponse)) {
-            setValidationErrors([jwtResponse.error]);
-            return;
-        }
-
-        if (!isIJwtResponse(jwtResponse)) {
-            setValidationErrors(["Unknown error occurred"]);
-            return;
-        }
-
-        if (updateAuthState) {
-            updateAuthState({
-                jwt: new DecodedJWT(jwtResponse.jwt),
-                refreshToken: new RefreshToken(jwtResponse),
-            });
-            navigate("/");
-        }
+        setJwt!(new DecodedJWT(jwtResponse.jwt));
+        setRefreshToken!(new RefreshToken(jwtResponse));
+        navigate(returnUrl ?? "/");
     }
 
     return (

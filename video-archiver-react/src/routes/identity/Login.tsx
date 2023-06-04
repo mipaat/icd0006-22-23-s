@@ -1,15 +1,18 @@
 import { MouseEvent, useContext, useState } from 'react';
-import { ILoginData } from '../../dto/ILoginData';
-import { AuthContext, IdentityServiceContext } from '../Root';
 import LoginFormView from './LoginFormView';
-import { useNavigate } from 'react-router-dom';
-import { isIJwtResponse } from '../../dto/IJWTResponse';
+import { useNavigate, useParams } from 'react-router-dom';
 import { isIRestApiErrorResponse } from '../../dto/IRestApiErrorResponse';
-import { DecodedJWT } from '../../dto/DecodedJWT';
-import { RefreshToken } from '../../dto/IRefreshToken';
+import { IdentityService } from '../../services/IdentityService';
+import { IJWTResponse } from '../../dto/identity/IJWTResponse';
+import { ERestApiErrorType } from '../../dto/enums/ERestApiErrorType';
+import { DecodedJWT } from '../../dto/identity/DecodedJWT';
+import { ILoginData } from '../../dto/identity/ILoginData';
+import { RefreshToken } from '../../dto/identity/IRefreshToken';
+import { AuthContext } from '../Root';
 
 const Login = () => {
     const navigate = useNavigate();
+    let { returnUrl } = useParams();
 
     const [values, setInput] = useState({
         username: '',
@@ -18,49 +21,48 @@ const Login = () => {
     const [pendingApproval, setPendingApproval] = useState(false);
 
     const [validationErrors, setValidationErrors] = useState([] as string[]);
+    const addValidationErrors = (...errors: string[]) => {
+        setValidationErrors(previousErrors => [...previousErrors, ...errors]);
+    }
 
     const handleChange = (target: EventTarget & HTMLInputElement) => {
         setInput({ ...values, [target.name]: target.value });
     };
 
-    const { updateAuthState } = useContext(AuthContext);
+    const { setJwt, setRefreshToken } = useContext(AuthContext);
 
-    const identityService = useContext(IdentityServiceContext);
+    const identityService = new IdentityService(navigate);
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
 
-        if (values.username.length === 0 || values.password.length === 0) {
-            setValidationErrors(['Bad input values!']);
-            return;
-        }
-        // remove errors
         setValidationErrors([]);
         setPendingApproval(false);
 
-        const jwtResponse = await identityService.login(values);
+        if (values.username.length === 0 || values.password.length === 0) {
+            addValidationErrors('Bad input values!');
+            return;
+        }
 
-        if (isIRestApiErrorResponse(jwtResponse)) {
-            if (jwtResponse.status === 401) {
-                setPendingApproval(true);
-            } else {
-                setValidationErrors([jwtResponse.error]);
+        let jwtResponse: IJWTResponse;
+        try {
+            jwtResponse = await identityService.login(values.username, values.password);
+        } catch (e) {
+            if (isIRestApiErrorResponse(e)) {
+                if (e.error === ERestApiErrorType.UserNotApproved) {
+                    setPendingApproval(true);
+                } else {
+                    setValidationErrors([e.error]);
+                }
+                return;
             }
+            addValidationErrors("Unknown error occurred");
             return;
         }
 
-        if (!isIJwtResponse(jwtResponse)) {
-            setValidationErrors(['Unknown error occurred']);
-            return;
-        }
-
-        if (updateAuthState) {
-            updateAuthState({
-                jwt: new DecodedJWT(jwtResponse.jwt),
-                refreshToken: new RefreshToken(jwtResponse)
-            });
-            navigate('/');
-        }
+        setJwt!(new DecodedJWT(jwtResponse.jwt));
+        setRefreshToken!(new RefreshToken(jwtResponse));
+        navigate(returnUrl ?? "/");
     };
 
     return (

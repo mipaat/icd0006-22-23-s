@@ -1,32 +1,31 @@
 import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ConfigContext, AuthContext, IdentityServiceContext } from "../routes/Root";
-import { LocalStorageService } from "../localStorage/LocalStorageService";
-import { REFRESH_TOKEN_KEY } from "../localStorage/LocalStorageKeys";
-import { IAuthenticationState } from "../dto/IAuthenticationState";
+import { AuthContext } from "../routes/Root";
+import { DecodedJWT } from "../dto/identity/DecodedJWT";
+import { IRefreshToken } from "../dto/identity/IRefreshToken";
+import { IdentityService } from "../services/IdentityService";
 
 const IdentityHeader = () => {
-    const { authState, updateAuthState } = useContext(AuthContext);
-    const config = useContext(ConfigContext);
+    const { jwt, setJwt, refreshToken, setRefreshToken, setSelectedAuthor } = useContext(AuthContext);
     const navigate = useNavigate();
-    const identityService = useContext(IdentityServiceContext);
-    const localStorageService = new LocalStorageService(config.localStorageKey);
+    
+    const identityService = new IdentityService(navigate);
 
-    const logout = () => {
-        localStorageService.removeItem(REFRESH_TOKEN_KEY);
-        if (authState)
-            identityService.logout(authState).then(response => {
-                if (updateAuthState)
-                    updateAuthState({jwt: null, refreshToken: null});
-                navigate("/");
-            });
+    const logout = async () => {
+        setJwt!(null);
+        setRefreshToken!(null);
+        setSelectedAuthor!(null);
+        if (jwt && refreshToken) {
+            await identityService.logout(jwt, refreshToken);
+        }
+        navigate("/");
     }
 
-    if (authState?.jwt && authState.refreshToken) {
+    if (jwt && refreshToken) {
         return (
             <>
                 <li className="nav-item">
-                    <UserInfo authState={authState} />
+                    <UserInfo jwt={jwt} refreshToken={refreshToken} />
                 </li>
                 <li className="nav-item">
                     <button onClick={(e) => {
@@ -50,17 +49,16 @@ const IdentityHeader = () => {
 }
 
 interface IUserInfoProps {
-    authState: IAuthenticationState
+    jwt: DecodedJWT,
+    refreshToken: IRefreshToken,
 }
 
 const UserInfo = (props: IUserInfoProps) => {
-    const refreshTokenExpiresAt = props.authState.refreshToken?.expiresAt instanceof Date ? props.authState.refreshToken?.expiresAt : null;
-
     return (
         <>
-            {props.authState.jwt?.name}<br />
-            JWT Expires: {props.authState.jwt?.expiresAt instanceof Date ? props.authState.jwt?.expiresAt.toLocaleString() : null}<br />
-            Refresh Token Expires: {refreshTokenExpiresAt?.toLocaleString()}<br />
+            {props.jwt.name}<br />
+            JWT Expires: {props.jwt.expiresAt.toLocaleString()}<br />
+            Refresh Token Expires: {props.refreshToken.expiresAt.toLocaleString()}<br />
         </>
     );
 }

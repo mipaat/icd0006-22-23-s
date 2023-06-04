@@ -1,6 +1,6 @@
 import { MouseEvent } from 'react';
-import { IRegisterData } from '../../dto/IRegisterData';
 import ValidationErrors from '../../components/ValidationErrors';
+import { IRegisterData } from '../../dto/identity/IRegisterData';
 
 interface IProps {
     values: IRegisterData;

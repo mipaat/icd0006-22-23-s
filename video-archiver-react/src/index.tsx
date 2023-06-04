@@ -9,11 +9,6 @@ import ErrorPage from './routes/ErrorPage';
 import Home from './routes/Home';
 import Login from './routes/identity/Login';
 import Register from './routes/identity/Register';
-import GameIndex from './routes/crud/game/Index';
-import GameCreate from './routes/crud/game/Create';
-import GameDetails from './routes/crud/game/Details';
-import GameEdit from './routes/crud/game/Edit';
-import GameDelete from './routes/crud/game/Delete';
 import PendingApproval from './components/PendingApproval';
 
 const router = createBrowserRouter([
@@ -27,40 +22,20 @@ const router = createBrowserRouter([
                 element: <Home />,
             },
             {
-                path: "login/",
+                path: "error/",
+                element: <ErrorPage />
+            },
+            {
+                path: "login/:returnUrl?",
                 element: <Login />,
             },
             {
-                path: "register/",
+                path: "register/:returnUrl?",
                 element: <Register />,
             },
             {
                 path: "pendingApproval/",
                 element: <PendingApproval />
-            },
-            {
-                path: "crud/game/",
-                element: <GameIndex />
-            },
-            {
-                path: "crud/game/index/",
-                element: <GameIndex />
-            },
-            {
-                path: "crud/game/create/",
-                element: <GameCreate />
-            },
-            {
-                path: "crud/game/details/:id",
-                element: <GameDetails />
-            },
-            {
-                path: "crud/game/edit/:id",
-                element: <GameEdit />
-            },
-            {
-                path: "crud/game/delete/:id",
-                element: <GameDelete />
             },
         ]
     },

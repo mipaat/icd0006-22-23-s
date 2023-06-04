@@ -21,7 +21,9 @@ export class BaseAuthenticatedService extends BaseService {
                 return await store.ongoingRefreshPromise;
             }
             store.ongoingRefreshPromise = _refreshToken();
-            return await store.ongoingRefreshPromise;
+            const completedRefreshPromise = await store.ongoingRefreshPromise;
+            store.ongoingRefreshPromise = null;
+            return completedRefreshPromise;
         }
 
         const _refreshToken = async (): Promise<string | null> => {

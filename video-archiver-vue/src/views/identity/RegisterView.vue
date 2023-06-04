@@ -50,16 +50,6 @@ const register = async (event: MouseEvent) => {
         return;
     }
 
-    if (isIRestApiErrorResponse(jwtResponse)) {
-        validationErrors.value.push(jwtResponse.error);
-        return;
-    }
-
-    if (!isIJwtResponse(jwtResponse)) {
-        validationErrors.value.push("Unknown error occurred");
-        return;
-    }
-
     const identityStore = useIdentityStore();
     identityStore.jwt = new DecodedJWT(jwtResponse.jwt);
     identityStore.refreshToken = new RefreshToken(jwtResponse);

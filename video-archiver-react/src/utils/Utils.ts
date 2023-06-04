@@ -1,5 +1,6 @@
-import { AxiosResponse } from "axios";
-import { DateTime } from "luxon";
+import type { AxiosResponse } from 'axios';
+import { DateTime } from 'luxon';
+import { IBaseArchiveEntity } from '../dto/IBaseArchiveEntity';
 
 export function isBoolean(value: any): value is boolean {
     return value === true || value === false;
@@ -23,4 +24,22 @@ export function getDateString(date: Date | null): string {
 
 export function getDateFromDateString(dateString: string): Date {
     return DateTime.fromISO(dateString).toJSDate();
+}
+
+export function handleBaseArchiveEntity(entity: IBaseArchiveEntity) {
+    if (entity.addedToArchiveAt) {
+        entity.addedToArchiveAt = new Date(entity.addedToArchiveAt);
+    }
+    if (entity.lastFetchOfficial) {
+        entity.lastFetchOfficial = new Date(entity.lastFetchOfficial);
+    }
+    if (entity.lastSuccessfulFetchOfficial) {
+        entity.lastSuccessfulFetchOfficial = new Date(entity.lastSuccessfulFetchOfficial);
+    }
+    if (entity.lastFetchUnofficial) {
+        entity.lastFetchUnofficial = new Date(entity.lastFetchUnofficial);
+    }
+    if (entity.lastSuccessfulFetchUnofficial) {
+        entity.lastSuccessfulFetchUnofficial = new Date(entity.lastSuccessfulFetchUnofficial);
+    }
 }

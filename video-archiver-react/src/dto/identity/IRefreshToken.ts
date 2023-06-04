@@ -1,4 +1,4 @@
-import { IJWTResponse } from "./IJWTResponse";
+import { type IJWTResponse } from "./IJWTResponse";
 
 export interface IRefreshToken {
     token: string,
