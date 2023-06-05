@@ -54,7 +54,7 @@ const VideoWatch = () => {
                 if (cancelled) return;
                 intervalId = setInterval(async () => {
                     await fileService.getVideoAccessToken();
-                }, 5000);
+                }, 55000);
             });
         } else {
             if (intervalId) {
