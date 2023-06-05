@@ -31,6 +31,7 @@ const fileService = new FileService();
 let intervalId = null as number | null;
 
 const internalPrivacyStatus = ref(null as ESimplePrivacyStatus | null);
+const waitForAccessToken = ref(true);
 
 const commentService = new CommentService();
 const comments = ref(null as IComment[] | null);
@@ -45,11 +46,11 @@ const updateComments = async (page: number) => {
 const onCommentsPageChange = async (page: number) => {
     await updateComments(page);
     commentsPage.value = page;
-}
+};
 
 onMounted(async () => {
     if (!id) {
-        return await redirectToError("Video ID not specified");
+        return await redirectToError('Video ID not specified');
     }
     const fetchedVideo = await videoService.getById(id);
     internalPrivacyStatus.value = fetchedVideo.internalPrivacyStatus;
@@ -57,6 +58,7 @@ onMounted(async () => {
         await fileService.getVideoAccessToken();
         intervalId = setInterval(() => fileService.getVideoAccessToken(), 55000);
     }
+    waitForAccessToken.value = false;
     video.value = fetchedVideo;
     if (fetchedVideo.lastCommentsFetch) {
         await updateComments(commentsPage.value);
@@ -71,39 +73,58 @@ onUnmounted(() => {
 
 const videoCanBeEmbedded = (video: IVideoWithAuthor) => {
     return video.embedUrl != null || video.url != null;
-}
+};
 
 const showEmbedView = (video: IVideoWithAuthor) => {
     return embedView.value && videoCanBeEmbedded(video);
-}
+};
 
 const submitPrivacyStatus = async (event: MouseEvent | Event) => {
     event.preventDefault();
     if (!video.value || !internalPrivacyStatus.value) return;
     await videoService.setPrivacyStatus(video.value.id, internalPrivacyStatus.value);
     video.value.internalPrivacyStatus = internalPrivacyStatus.value;
-}
-
+    if (internalPrivacyStatus.value === ESimplePrivacyStatus.Private) {
+        await fileService.getVideoAccessToken();
+        intervalId = setInterval(() => fileService.getVideoAccessToken(), 55000);
+    } else if (intervalId !== null) {
+        clearInterval(intervalId);
+    }
+};
 </script>
 
 <template>
     <div v-if="!video">LOADING...</div>
     <div v-else>
-        <RouterLink v-if="videoCanBeEmbedded(video)" :to="{
-            name: 'videoWatch', query: { id: video.id, embedView: (!embedView).toString(), }
-        }" @click="embedView = !embedView">
+        <RouterLink
+            v-if="videoCanBeEmbedded(video)"
+            :to="{
+                name: 'videoWatch',
+                query: { id: video.id, embedView: (!embedView).toString() }
+            }"
+            @click="embedView = !embedView"
+        >
             <div v-if="embedView">View archived version</div>
             <div v-else>View on platform</div>
         </RouterLink>
         <div>
-            <iframe v-if="showEmbedView(video)" width="560" height="315" :src="video.embedUrl ?? video.url ?? undefined"
+            <iframe
+                v-if="showEmbedView(video)"
+                width="560"
+                height="315"
+                :src="video.embedUrl ?? video.url ?? undefined"
                 :title="`${video.platform} video player`"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture;" allowfullscreen></iframe>
-            <video v-else controls width="560" height="315">
+                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture;"
+                allowfullscreen
+            ></iframe>
+            <video v-else-if="!waitForAccessToken" controls width="560" height="315">
                 <source :src="`${conformApiBaseUrl(config)}v1/File/VideoFileJwt/${video.id}`" />
             </video>
+            <div v-else class="text-center" :style="{ width: 560, height: 315 }">
+                Fetching video file
+            </div>
             <AuthorSummary :author="video.author" />
-            <br/>
+            <br />
             <h1>
                 <LangStringDisplay :lang-string="video.title" />
             </h1>
@@ -112,24 +133,42 @@ const submitPrivacyStatus = async (event: MouseEvent | Event) => {
             <form v-if="identityStore.jwt?.isAdmin">
                 <label for="status">Set privacy status (in archive)</label>
                 <select id="status" v-model="internalPrivacyStatus">
-                    <option :key="value" :selected="video.internalPrivacyStatus === value"
-                        v-for="value in Object.values(ESimplePrivacyStatus)">{{ value }}</option>
+                    <option
+                        :key="value"
+                        :selected="video.internalPrivacyStatus === value"
+                        v-for="value in Object.values(ESimplePrivacyStatus)"
+                    >
+                        {{ value }}
+                    </option>
                 </select>
-                <input type="submit" class="btn btn-primary" value="Submit" @click="event => submitPrivacyStatus(event)"/>
+                <input
+                    type="submit"
+                    class="btn btn-primary"
+                    value="Submit"
+                    @click="(event) => submitPrivacyStatus(event)"
+                />
             </form>
-            <span class="card card-body" style="white-space: pre-wrap;">
+            <span class="card card-body" style="white-space: pre-wrap">
                 <LangStringDisplay :lang-string="video.description"></LangStringDisplay>
             </span>
         </div>
         <div v-if="comments">
             <h4>Comments</h4>
-            <h6 v-if="video.lastCommentsFetch">Last fetched: {{ video.lastCommentsFetch.toLocaleString() }}</h6><br/>
-            Comments on platform: {{ video.commentCount }}
-            Archived root comments: {{ video.archivedRootCommentCount }}
-            Archived total comments: {{ video.archivedCommentCount }}
-            <PaginationComponent v-on:page-change="onCommentsPageChange" :page="commentsPage" :limit="commentsLimit"
-                :total="video.archivedRootCommentCount" :amount-on-page="comments.length"></PaginationComponent>
-            <br/>
+            <h6 v-if="video.lastCommentsFetch">
+                Last fetched: {{ video.lastCommentsFetch.toLocaleString() }}
+            </h6>
+            <br />
+            Comments on platform: {{ video.commentCount }} Archived root comments:
+            {{ video.archivedRootCommentCount }} Archived total comments:
+            {{ video.archivedCommentCount }}
+            <PaginationComponent
+                v-on:page-change="onCommentsPageChange"
+                :page="commentsPage"
+                :limit="commentsLimit"
+                :total="video.archivedRootCommentCount"
+                :amount-on-page="comments.length"
+            ></PaginationComponent>
+            <br />
             <CommentComponent :comment="comment" :key="comment.id" v-for="comment in comments" />
         </div>
         <div v-else-if="video.lastCommentsFetch">Loading comments...</div>

@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IVideoWithAuthor } from "../../dto/IVideoWithAuthor";
 import { VideoService } from "../../services/VideoService";
@@ -119,7 +119,6 @@ const VideoWatch = () => {
         event.preventDefault();
         if (!video || !internalPrivacyStatus) return;
         setShouldGetVideoAccessToken(internalPrivacyStatus === ESimplePrivacyStatus.Private);
-        // setWaitForFirstAccessTokenFetch(true);
         setAccessTokenFetched(false);
         const videoService = new VideoService(authContext);
         await videoService.setPrivacyStatus(video.id, internalPrivacyStatus);
