@@ -2,6 +2,7 @@
 import { useIdentityStore } from '@/stores/identityStore';
 import UserInfo from './UserInfo.vue';
 import LogOut from './LogOut.vue';
+import { validateRedirectRoute, encodeURIComponentNullable } from '@/utils/Utils';
 const store = useIdentityStore();
 </script>
 
@@ -19,13 +20,18 @@ const store = useIdentityStore();
             <RouterLink :to="{ name: 'register' }" class="nav-link text-dark">Register</RouterLink>
         </li>
         <li class="nav-item">
-            <RouterLink :to="{
-                name: 'login', query: {
-                    returnUrl: !['login', 'register', 'pendingApproval'].includes($router.currentRoute.value.name?.toString() ?? '')
-                        ? $router.currentRoute.value.fullPath
-                        : $router.currentRoute.value.query.returnUrl?.toString()
-                }
-            }" class="nav-link text-dark">Login</RouterLink>
+            <RouterLink
+                :to="{
+                    name: 'login',
+                    query: {
+                        returnUrl:
+                            encodeURIComponentNullable(validateRedirectRoute($router.currentRoute.value)?.fullPath) ??
+                            $router.currentRoute.value.query.returnUrl?.toString()
+                    }
+                }"
+                class="nav-link text-dark"
+                >Login</RouterLink
+            >
         </li>
     </template>
 </template>

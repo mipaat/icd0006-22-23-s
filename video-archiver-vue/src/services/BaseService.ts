@@ -3,7 +3,6 @@ import Axios, { isAxiosError, type AxiosInstance, type AxiosRequestConfig, type 
 import * as configJson from '../config.json';
 import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '../dto/IRestApiErrorResponse';
 import { conformApiBaseUrl, type IConfig } from '@/config';
-import { redirectToError, redirectToForbid, redirectToNotFound } from '@/router/redirects';
 const config = configJson as IConfig;
 
 export abstract class BaseService {
@@ -29,16 +28,6 @@ export abstract class BaseService {
         })
 
         this.axios.interceptors.response.use(response => response, async error => {
-            if (isAxiosError(error)) {
-                if (error.response?.status === 403) {
-                    await redirectToForbid();
-                } else if (error.response?.status === 404) {
-                    await redirectToNotFound();
-                } else if (error.response?.status !== 401) {
-                    await redirectToError(error.message);
-                }
-            }
-
             throw error;
         });
     }

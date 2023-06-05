@@ -2,7 +2,7 @@
 import ValidationErrors from '@/components/ValidationErrors.vue';
 import { ERestApiErrorType } from '@/dto/enums/ERestApiErrorType';
 import { DecodedJWT } from '@/dto/identity/DecodedJWT';
-import { isIJwtResponse, type IJWTResponse } from '@/dto/identity/IJWTResponse';
+import { type IJWTResponse } from '@/dto/identity/IJWTResponse';
 import { RefreshToken } from '@/dto/identity/IRefreshToken';
 import { isIRestApiErrorResponse, type IRestApiErrorResponse } from '@/dto/IRestApiErrorResponse';
 import { isPendingApprovalError } from '@/dto/PendingApprovalError';

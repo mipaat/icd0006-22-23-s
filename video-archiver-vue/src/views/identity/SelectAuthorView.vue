@@ -4,11 +4,12 @@ import router from '@/router';
 import { redirectToLogin } from '@/router/identityRedirects';
 import { UserService } from '@/services/UserService';
 import { useIdentityStore } from '@/stores/identityStore';
+import { decodeURIComponentNullable } from '@/utils/Utils';
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
-const returnUrl = route.query.returnUrl?.toString() ?? "/";
+const returnUrl = decodeURIComponentNullable(route.query.returnUrl?.toString()) ?? "/";
 
 const identityStore = useIdentityStore();
 identityStore.selectedAuthor = null;

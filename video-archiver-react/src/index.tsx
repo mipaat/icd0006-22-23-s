@@ -65,7 +65,6 @@ const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 
-// TODO: Figure out how to stop StrictMode from calling everything (including API) twice
 root.render(
     <React.StrictMode>
         <RouterProvider router={router} />

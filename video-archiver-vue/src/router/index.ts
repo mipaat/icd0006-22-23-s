@@ -89,6 +89,11 @@ const router = createRouter({
             path: '/video/watch',
             name: 'videoWatch',
             component: VideoWatchView,
+        },
+        {
+            path: '/:catchAll(.*)*',
+            name: 'defaultNotFound',
+            component: NotFoundView,
         }
     ]
 });

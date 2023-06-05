@@ -11,9 +11,10 @@ import ValidationErrors from '@/components/ValidationErrors.vue';
 import { redirectToSelectAuthor } from '@/router/identityRedirects';
 import { ERestApiErrorType } from '@/dto/enums/ERestApiErrorType.js';
 import { useRoute } from 'vue-router';
+import { decodeURIComponentNullable } from '@/utils/Utils';
 
 const route = useRoute();
-const returnUrl = route.query.returnUrl?.toString() ?? "/";
+const returnUrl = decodeURIComponentNullable(route.query.returnUrl?.toString()) ?? "/";
 
 const identityStore = useIdentityStore();
 identityStore.clearAll();
