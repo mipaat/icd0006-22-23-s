@@ -61,9 +61,6 @@ export class BaseAuthenticatedService extends BaseService {
         });
 
         this.axios.interceptors.request.use(async (request) => {
-            const currentTime = new Date();
-            currentTime.setSeconds(currentTime.getSeconds() + 5);
-
             let allowUnauthenticated = false;
             if (isAxiosRetryConfig(request)) {
                 allowUnauthenticated = request.allowUnauthenticated;

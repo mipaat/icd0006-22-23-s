@@ -28,8 +28,6 @@ const VideoWatch = () => {
 
     const videoService = useMemo(() => new VideoService(authContext), [authContext]);
 
-    const fileService = useMemo(() => new FileService(authContext), [authContext]);
-
     const [comments, setComments] = useState(null as IComment[] | null);
     const commentsLimit = 50;
     const [commentsPage, setCommentsPage] = useState(0);
@@ -38,7 +36,6 @@ const VideoWatch = () => {
         if (!id) return;
         const commentService = new CommentService(authContext);
         setComments(await commentService.getVideoComments(id, commentsLimit, page));
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [authContext, id]);
 
     const onCommentsPageChange = async (page: number) => {
@@ -46,18 +43,45 @@ const VideoWatch = () => {
         setCommentsPage(page);
     };
 
+    const [shouldGetVideoAccessToken, setShouldGetVideoAccessToken] = useState(false);
+
     useEffect(() => {
-        let videoAccessTokenTimer = null as NodeJS.Timer | null;
+        let intervalId = null as NodeJS.Timer | null;
+        let cancelled = false;
+        if (shouldGetVideoAccessToken) {
+            const fileService = new FileService(authContext);
+            fileService.getVideoAccessToken().then(_ => {
+                if (cancelled) return;
+                intervalId = setInterval(async () => {
+                    await fileService.getVideoAccessToken();
+                }, 5000);
+            });
+        } else {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        }
+        
+        return () => {
+            cancelled = true;
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        }
+    }, [authContext, shouldGetVideoAccessToken]);
+
+    useEffect(() => {
+        let cancelled = false;
         async function fetchVideo() {
             if (id === undefined) {
                 navigate('/notFound');
                 return;
             }
             const fetchedVideo = await videoService.getById(id);
+            if (cancelled) return;
             setInternalPrivacyStatus(fetchedVideo.internalPrivacyStatus);
             if (fetchedVideo.internalPrivacyStatus === ESimplePrivacyStatus.Private) {
-                await fileService.getVideoAccessToken();
-                videoAccessTokenTimer = setInterval(() => fileService.getVideoAccessToken(), 55000);
+                setShouldGetVideoAccessToken(true);
             }
             setVideo(fetchedVideo);
             if (fetchedVideo.lastCommentsFetch) {
@@ -65,11 +89,8 @@ const VideoWatch = () => {
             }
         }
         fetchVideo();
-
         return () => {
-            if (videoAccessTokenTimer) {
-                clearInterval(videoAccessTokenTimer);
-            }
+            cancelled = true;
         }
         // We don't want to re-fetch video in most cases
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,6 +107,7 @@ const VideoWatch = () => {
     const submitPrivacyStatus = async (event: MouseEvent | FormEvent | Event) => {
         event.preventDefault();
         if (!video || !internalPrivacyStatus) return;
+        setShouldGetVideoAccessToken(internalPrivacyStatus === ESimplePrivacyStatus.Private);
         await videoService.setPrivacyStatus(video.id, internalPrivacyStatus);
         setVideo(previous => {
             return { ...previous, internalPrivacyStatus } as IVideoWithAuthor;

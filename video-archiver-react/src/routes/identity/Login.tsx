@@ -1,6 +1,6 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react';
+import { MouseEvent, useContext, useEffect, useMemo, useState } from 'react';
 import LoginFormView from './LoginFormView';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { isIRestApiErrorResponse } from '../../dto/IRestApiErrorResponse';
 import { IdentityService } from '../../services/IdentityService';
 import { IJWTResponse } from '../../dto/identity/IJWTResponse';
@@ -13,7 +13,8 @@ import { handleChangeEvent } from '../../utils/Utils';
 
 const Login = () => {
     const navigate = useNavigate();
-    let { returnUrl } = useParams();
+    const [searchParams] = useSearchParams();
+    const returnUrl = searchParams.get("returnUrl");
 
     const [values, setInput] = useState({
         username: '',
@@ -26,13 +27,23 @@ const Login = () => {
         setValidationErrors(previousErrors => [...previousErrors, ...errors]);
     }
 
-    const { setJwt, setRefreshToken } = useContext(AuthContext);
+    const identityService = useMemo(() => new IdentityService(), []);
+
+    const { jwt, setJwt, refreshToken, setRefreshToken } = useContext(AuthContext);
     useEffect(() => {
+        async function logOut() {
+            if (jwt && refreshToken) {
+                try {
+                    await identityService.logout(jwt, refreshToken);
+                } catch (e) {
+                    console.error("Failed to log out. Error: ", e);
+                }
+            }
+        }
+        logOut();
         setJwt!(null);
         setRefreshToken!(null);
-    })
-
-    const identityService = new IdentityService();
+    }, [identityService, jwt, refreshToken, setJwt, setRefreshToken])
 
     const onSubmit = async (event: MouseEvent) => {
         event.preventDefault();
