@@ -26,8 +26,6 @@ const VideoWatch = () => {
     const [embedView, setEmbedView] = useState(false);
     const [internalPrivacyStatus, setInternalPrivacyStatus] = useState(null as ESimplePrivacyStatus | null);
 
-    const videoService = useMemo(() => new VideoService(authContext), [authContext]);
-
     const [comments, setComments] = useState(null as IComment[] | null);
     const commentsLimit = 50;
     const [commentsPage, setCommentsPage] = useState(0);
@@ -44,14 +42,21 @@ const VideoWatch = () => {
     };
 
     const [shouldGetVideoAccessToken, setShouldGetVideoAccessToken] = useState(false);
+    const [accessTokenFetched, setAccessTokenFetched] = useState(false);
+    const [waitForFirstAccessTokenFetch, setWaitForFirstAccessTokenFetch] = useState(true);
 
     useEffect(() => {
         let intervalId = null as NodeJS.Timer | null;
         let cancelled = false;
         if (shouldGetVideoAccessToken) {
+            if (!authContext.jwt && !authContext.refreshToken) return;
             const fileService = new FileService(authContext);
             fileService.getVideoAccessToken().then(_ => {
                 if (cancelled) return;
+                if (waitForFirstAccessTokenFetch) {
+                    setWaitForFirstAccessTokenFetch(false);
+                }
+                setAccessTokenFetched(true);
                 intervalId = setInterval(async () => {
                     await fileService.getVideoAccessToken();
                 }, 55000);
@@ -61,14 +66,14 @@ const VideoWatch = () => {
                 clearInterval(intervalId);
             }
         }
-        
+
         return () => {
             cancelled = true;
             if (intervalId) {
                 clearInterval(intervalId);
             }
         }
-    }, [authContext, shouldGetVideoAccessToken]);
+    }, [accessTokenFetched, authContext, shouldGetVideoAccessToken, waitForFirstAccessTokenFetch]);
 
     useEffect(() => {
         let cancelled = false;
@@ -77,11 +82,15 @@ const VideoWatch = () => {
                 navigate('/notFound');
                 return;
             }
+            const videoService = new VideoService(authContext);
             const fetchedVideo = await videoService.getById(id);
             if (cancelled) return;
             setInternalPrivacyStatus(fetchedVideo.internalPrivacyStatus);
             if (fetchedVideo.internalPrivacyStatus === ESimplePrivacyStatus.Private) {
+                setWaitForFirstAccessTokenFetch(true);
                 setShouldGetVideoAccessToken(true);
+            } else {
+                setWaitForFirstAccessTokenFetch(false);
             }
             setVideo(fetchedVideo);
             if (fetchedVideo.lastCommentsFetch) {
@@ -93,6 +102,8 @@ const VideoWatch = () => {
             cancelled = true;
         }
         // We don't want to re-fetch video in most cases
+        // Like when updating comments page
+        // Or even when authState changes? Hopefully fine to ignore?
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, navigate]);
 
@@ -108,6 +119,9 @@ const VideoWatch = () => {
         event.preventDefault();
         if (!video || !internalPrivacyStatus) return;
         setShouldGetVideoAccessToken(internalPrivacyStatus === ESimplePrivacyStatus.Private);
+        // setWaitForFirstAccessTokenFetch(true);
+        setAccessTokenFetched(false);
+        const videoService = new VideoService(authContext);
         await videoService.setPrivacyStatus(video.id, internalPrivacyStatus);
         setVideo(previous => {
             return { ...previous, internalPrivacyStatus } as IVideoWithAuthor;
@@ -127,9 +141,9 @@ const VideoWatch = () => {
                     title={`${video.platform} video player`}
                     allowFullScreen
                     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture;" /> :
-                <video controls width={560} height={315}>
+                (!waitForFirstAccessTokenFetch || video.internalPrivacyStatus !== ESimplePrivacyStatus.Private ? <video controls width={560} height={315}>
                     <source src={`${conformApiBaseUrl(config)}v1/File/VideoFileJwt/${video.id}`} />
-                </video>}
+                </video> : <div style={{ width: 560, height: 315 }} className="text-center">Performing video file fetch</div>)}
             <AuthorSummary author={video.author} />
             <br />
             <h1><LangStringDisplay langString={video.title} /></h1>

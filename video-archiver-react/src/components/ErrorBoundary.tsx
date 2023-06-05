@@ -46,7 +46,7 @@ const ErrorBoundary = (props: IProps) => {
             window.removeEventListener("unhandledrejection", promiseRejectionHandler);
         };
         /* eslint-disable react-hooks/exhaustive-deps */
-    }, []);
+    }, [location]);
 
     const ErrorPopup = () => {
         return error ? (<>

@@ -1,4 +1,4 @@
-import { MouseEvent } from 'react';
+import { FormEvent, MouseEvent } from 'react';
 import './login.css';
 import PendingApproval from '../../components/PendingApproval';
 import ValidationErrors from '../../components/ValidationErrors';
@@ -14,12 +14,12 @@ interface IProps {
 
     handleChange: HandleChangeEventAction;
 
-    onSubmit: (event: MouseEvent) => void;
+    onSubmit: (event: MouseEvent | FormEvent) => void;
 }
 
 const LoginFormView = (props: IProps) => {
     return (
-        <form className="form-signin w-100 m-auto">
+        <form className="form-signin w-100 m-auto" onSubmit={props.onSubmit}>
             <h2>Login</h2>
             <hr />
 

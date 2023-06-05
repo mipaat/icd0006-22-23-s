@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useEffect, useMemo, useState } from 'react';
+import { FormEvent, MouseEvent, useContext, useEffect, useMemo, useState } from 'react';
 import LoginFormView from './LoginFormView';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { isIRestApiErrorResponse } from '../../dto/IRestApiErrorResponse';
@@ -30,24 +30,27 @@ const Login = () => {
     const identityService = useMemo(() => new IdentityService(), []);
 
     const { jwt, setJwt, refreshToken, setRefreshToken } = useContext(AuthContext);
+
+    const [shouldLogOut, setShouldLogOut] = useState(true);
+
     useEffect(() => {
-        async function logOut() {
-            if (jwt && refreshToken) {
-                try {
-                    await identityService.logout(jwt, refreshToken);
-                } catch (e) {
-                    console.error("Failed to log out. Error: ", e);
-                }
-            }
-        }
-        logOut();
+        if (!shouldLogOut) return;
+        setShouldLogOut(false);
         setJwt!(null);
         setRefreshToken!(null);
-    }, [identityService, jwt, refreshToken, setJwt, setRefreshToken])
+    }, [identityService, jwt, refreshToken, setJwt, setRefreshToken, shouldLogOut])
 
-    const onSubmit = async (event: MouseEvent) => {
+    const [loginComplete, setLoginComplete] = useState(false);
+
+    useEffect(() => {
+        if (!loginComplete || !jwt || !refreshToken) return;
+        navigate(returnUrl ?? "/");
+    }, [jwt, loginComplete, navigate, refreshToken, returnUrl]);
+
+    const onSubmit = async (event: MouseEvent | FormEvent) => {
         event.preventDefault();
 
+        setShouldLogOut(false);
         setValidationErrors([]);
         setPendingApproval(false);
 
@@ -74,7 +77,7 @@ const Login = () => {
 
         setJwt!(new DecodedJWT(jwtResponse.jwt));
         setRefreshToken!(new RefreshToken(jwtResponse));
-        navigate(returnUrl ?? "/");
+        setLoginComplete(true); // This should trigger a navigate through another useEffect once the AuthContext updates have processed
     };
 
     return (
