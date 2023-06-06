@@ -1,8 +1,7 @@
-import { createContext, useEffect, useMemo, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../components/Header";
 
-import { LocalStorageService } from "../localStorage/LocalStorageService";
 import { JWT_KEY, REFRESH_TOKEN_KEY, SELECTED_AUTHOR_KEY } from "../localStorage/LocalStorageKeys";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -21,10 +20,9 @@ export const AuthContext = createContext<IAuthenticationContext>({
 });
 
 const Root = () => {
-    const localStorageService = useMemo(() => new LocalStorageService(), []);
-    const storedJwt = localStorageService.getItem(JWT_KEY);
-    const storedRefreshToken = localStorageService.getItem(REFRESH_TOKEN_KEY);
-    const storedSelectedAuthor = localStorageService.getItem(SELECTED_AUTHOR_KEY);
+    const storedJwt = localStorage.getItem(JWT_KEY);
+    const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    const storedSelectedAuthor = localStorage.getItem(SELECTED_AUTHOR_KEY);
 
     let readRefreshToken: IRefreshToken | null = null;
     if (storedRefreshToken) {
@@ -52,21 +50,21 @@ const Root = () => {
 
     useEffect(() => {
         if (jwt) {
-            localStorageService.setItem(JWT_KEY, jwt.token);
+            localStorage.setItem(JWT_KEY, jwt.token);
         } else {
-            localStorageService.removeItem(JWT_KEY);
+            localStorage.removeItem(JWT_KEY);
         }
         if (refreshToken) {
-            localStorageService.setItem(REFRESH_TOKEN_KEY, JSON.stringify(refreshToken));
+            localStorage.setItem(REFRESH_TOKEN_KEY, JSON.stringify(refreshToken));
         } else {
-            localStorageService.removeItem(REFRESH_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
         }
         if (selectedAuthor) {
-            localStorageService.setItem(SELECTED_AUTHOR_KEY, JSON.stringify(selectedAuthor))
+            localStorage.setItem(SELECTED_AUTHOR_KEY, JSON.stringify(selectedAuthor))
         } else {
-            localStorageService.removeItem(SELECTED_AUTHOR_KEY);
+            localStorage.removeItem(SELECTED_AUTHOR_KEY);
         }
-    }, [jwt, refreshToken, selectedAuthor, localStorageService]);
+    }, [jwt, refreshToken, selectedAuthor]);
 
     return (
         <AuthContext.Provider value={{

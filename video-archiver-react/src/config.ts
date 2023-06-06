@@ -1,14 +1,9 @@
-export interface IApiConfig {
-    baseUrl: string
-}
-
 export interface IConfig {
-    api: IApiConfig,
-    localStorageKey: string
+    apiBaseUrl: string,
 }
 
 export function conformApiBaseUrl(config: IConfig) {
-    const result = config.api.baseUrl;
+    const result = config.apiBaseUrl;
     if (result.endsWith("api/")) {
         return result;
     }

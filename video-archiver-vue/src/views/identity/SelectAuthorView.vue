@@ -44,9 +44,9 @@ const onSelectAuthor = async (event: MouseEvent, author: IUserSubAuthor) => {
 <template>
     <div v-if="authors">
         <h2>Choose an author to act as</h2>
-        <div v-for="author in authors" :key="author.id" @click="event => onSelectAuthor(event, author)">
+        <button v-for="author in authors" :key="author.id" @click="event => onSelectAuthor(event, author)">
             {{ author.displayName ?? author.userName }}
-        </div>
+        </button>
     </div>
     <div v-else>LOADING AUTHORS</div>
 </template>

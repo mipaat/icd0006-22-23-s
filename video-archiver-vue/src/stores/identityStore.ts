@@ -1,16 +1,14 @@
 import { defineStore } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
-import { LocalStorageService } from '@/localStorage/LocalStorageService';
 import { JWT_KEY, REFRESH_TOKEN_KEY, SELECTED_AUTHOR_KEY } from '@/localStorage/LocalStorageKeys';
 import type { IRefreshToken } from '@/dto/identity/IRefreshToken';
 import { DecodedJWT } from '@/dto/identity/DecodedJWT';
 import type { IUserSubAuthor } from '@/dto/identity/IUserSubAuthor';
 
-const localStorageService = new LocalStorageService();
-const storedJwt = localStorageService.getItem(JWT_KEY);
-const storedRefreshToken = localStorageService.getItem(REFRESH_TOKEN_KEY);
-const storedSelectedAuthor = localStorageService.getItem(SELECTED_AUTHOR_KEY);
+const storedJwt = localStorage.getItem(JWT_KEY);
+const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+const storedSelectedAuthor = localStorage.getItem(SELECTED_AUTHOR_KEY);
 
 let readRefreshToken: IRefreshToken | null = null;
 if (storedRefreshToken) {
@@ -69,25 +67,25 @@ export const useIdentityStore = defineStore('identityStore', () => {
 
     watch(jwt, (newJwt) => {
         if (newJwt) {
-            localStorageService.setItem(JWT_KEY, newJwt.token);
+            localStorage.setItem(JWT_KEY, newJwt.token);
         } else {
-            localStorageService.removeItem(JWT_KEY);
+            localStorage.removeItem(JWT_KEY);
         }
     });
 
     watch(refreshToken, (newRefreshToken) => {
         if (newRefreshToken) {
-            localStorageService.setItem(REFRESH_TOKEN_KEY, JSON.stringify(newRefreshToken));
+            localStorage.setItem(REFRESH_TOKEN_KEY, JSON.stringify(newRefreshToken));
         } else {
-            localStorageService.removeItem(REFRESH_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
         }
     });
 
     watch(selectedAuthor, (newSelectedAuthor) => {
         if (newSelectedAuthor) {
-            localStorageService.setItem(SELECTED_AUTHOR_KEY, JSON.stringify(newSelectedAuthor));
+            localStorage.setItem(SELECTED_AUTHOR_KEY, JSON.stringify(newSelectedAuthor));
         } else {
-            localStorageService.removeItem(REFRESH_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
         }
     });
 
