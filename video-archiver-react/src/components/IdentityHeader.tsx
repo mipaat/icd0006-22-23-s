@@ -56,9 +56,7 @@ interface IUserInfoProps {
 const UserInfo = (props: IUserInfoProps) => {
     return (
         <>
-            {props.jwt.name}<br />
-            JWT Expires: {props.jwt.expiresAt.toLocaleString()}<br />
-            Refresh Token Expires: {props.refreshToken.expiresAt.toLocaleString()}<br />
+            {props.jwt.name}
         </>
     );
 }
